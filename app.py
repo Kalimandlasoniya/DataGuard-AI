@@ -1034,12 +1034,9 @@ def clean_dataset(df):
 # GEMINI AI
 # ============================================================
 
-def get_gemini_analysis(
-    summary_text,
-):
+def get_gemini_analysis(summary_text):
 
     if not GEMINI_API_KEY:
-
         return (
             "Gemini AI is not configured. "
             "Add GEMINI_API_KEY to Streamlit Secrets "
@@ -1068,19 +1065,23 @@ Provide:
 5. Business impact
 6. Recommendations for Power BI reporting
 
-Keep the explanation practical and concise.
+Keep the explanation practical, concise, and easy
+for a data analyst to understand.
 
 Dataset report:
 
 {summary_text}
 """
 
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=prompt,
+        response = client.interactions.create(
+            model="gemini-3.6-flash",
+            input=prompt,
+            generation_config={
+                "temperature": 0.2
+            },
         )
 
-        return response.text
+        return response.output_text
 
     except Exception as e:
 
