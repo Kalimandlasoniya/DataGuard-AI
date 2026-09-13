@@ -1,5 +1,3 @@
-%%writefile /content/app.py
-
 import io
 import os
 import zipfile
