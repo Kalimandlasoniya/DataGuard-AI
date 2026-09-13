@@ -49,46 +49,6 @@ POWERBI_BLOB_FILES = [
 
 
 # ============================================================
-# SECRETS / ENVIRONMENT
-# ============================================================
-
-def get_setting(name: str, default: str = "") -> str:
-    value = os.environ.get(name)
-
-    if value:
-        return value
-
-    try:
-        value = st.secrets.get(name)
-
-        if value is not None:
-            return str(value)
-
-    except Exception:
-        pass
-
-    return default
-
-
-GEMINI_API_KEY = get_setting("GEMINI_API_KEY")
-
-POWERBI_TENANT_ID = get_setting("POWERBI_TENANT_ID")
-POWERBI_CLIENT_ID = get_setting("POWERBI_CLIENT_ID")
-POWERBI_CLIENT_SECRET = get_setting("POWERBI_CLIENT_SECRET")
-POWERBI_WORKSPACE_ID = get_setting("POWERBI_WORKSPACE_ID")
-POWERBI_DATASET_ID = get_setting("POWERBI_DATASET_ID")
-
-AZURE_BLOB_CONTAINER_SAS_URL = get_setting(
-    "AZURE_BLOB_CONTAINER_SAS_URL"
-)
-
-AZURE_BLOB_PREFIX = get_setting(
-    "AZURE_BLOB_PREFIX",
-    ""
-).strip("/")
-
-
-# ============================================================
 # GEMINI
 # ============================================================
 
