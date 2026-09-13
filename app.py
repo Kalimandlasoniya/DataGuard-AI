@@ -46,29 +46,7 @@ POWERBI_BLOB_FILES = [
     "cleaning_log.csv",
     "cleaned_data.csv",
 ]
-# ============================================================
-# SECRETS / ENVIRONMENT
-# ============================================================
 
-def get_setting(name: str, default: str = "") -> str:
-    value = os.environ.get(name)
-
-    if value:
-        return value
-
-    try:
-        value = st.secrets.get(name)
-
-        if value is not None:
-            return str(value)
-
-    except Exception:
-        pass
-
-    return default
-
-
-GEMINI_API_KEY = get_setting("GEMINI_API_KEY")
 
 # ============================================================
 # SECRETS / ENVIRONMENT
