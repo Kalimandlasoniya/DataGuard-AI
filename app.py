@@ -1217,57 +1217,6 @@ else:
     )
 
 
-# ============================================================
-# SIDEBAR
-# ============================================================
-
-with st.sidebar:
-
-    st.header(
-        "⚙️ Configuration"
-    )
-
-    st.write(
-        "Upload a CSV or Excel dataset "
-        "to run the complete DataGuard AI pipeline."
-    )
-
-    st.divider()
-
-    st.subheader(
-        "Automation Status"
-    )
-
-    blob_missing = (
-        blob_config_status()
-    )
-
-    powerbi_missing = (
-        powerbi_config_status()
-    )
-
-    if (
-        not blob_missing
-        and not powerbi_missing
-    ):
-
-        st.success(
-            "Azure Blob + Power BI "
-            "automation configured"
-        )
-
-    else:
-
-        st.warning(
-            "Power BI automation "
-            "not fully configured"
-        )
-
-    st.caption(
-        "Secrets are read from environment "
-        "variables or Streamlit Secrets "
-        "and are never displayed."
-    )
 
 
 # ============================================================
