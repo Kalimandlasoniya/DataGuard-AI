@@ -1,5 +1,4 @@
 import io
-import os
 import zipfile
 from datetime import datetime
 
@@ -17,147 +16,302 @@ st.set_page_config(
     page_title="DataGuard AI",
     page_icon="🛡️",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded",
 )
 
 
 # ============================================================
-# CUSTOM UI
+# PROFESSIONAL UI
 # ============================================================
 
 st.markdown("""
 <style>
 
-    /* Main background */
+    /* =========================
+       GLOBAL
+       ========================= */
+
     .stApp {
-        background-color: #f7f9fc;
+        background: #f4f7fb;
     }
 
-    /* Header */
-    .main-header {
-        padding: 10px 0 5px 0;
+    .main .block-container {
+        max-width: 1450px;
+        padding-top: 2rem;
+        padding-bottom: 3rem;
     }
 
-    .main-title {
-        font-size: 42px;
+    /* =========================
+       SIDEBAR
+       ========================= */
+
+    section[data-testid="stSidebar"] {
+        background: #0b1220;
+        border-right: 1px solid #1e293b;
+    }
+
+    section[data-testid="stSidebar"] * {
+        color: #e5e7eb !important;
+    }
+
+    section[data-testid="stSidebar"] .stCaption {
+        color: #94a3b8 !important;
+    }
+
+    .sidebar-brand {
+        padding: 8px 4px 20px 4px;
+    }
+
+    .sidebar-logo {
+        font-size: 30px;
         font-weight: 800;
-        margin-bottom: 0;
+        color: #ffffff;
     }
 
-    .subtitle {
+    .sidebar-subtitle {
+        color: #94a3b8;
+        font-size: 13px;
+        margin-top: 5px;
+        line-height: 1.5;
+    }
+
+    .sidebar-section {
+        color: #60a5fa;
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-top: 18px;
+        margin-bottom: 8px;
+    }
+
+    .pipeline-item {
+        padding: 8px 10px;
+        margin: 4px 0;
+        border-radius: 8px;
+        background: #111c2f;
+        color: #cbd5e1;
+        font-size: 13px;
+    }
+
+    /* =========================
+       HERO
+       ========================= */
+
+    .hero {
+        background: linear-gradient(
+            135deg,
+            #0b1220 0%,
+            #172554 55%,
+            #1d4ed8 100%
+        );
+        border-radius: 20px;
+        padding: 34px 38px;
+        color: white;
+        margin-bottom: 24px;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+    }
+
+    .hero-title {
+        font-size: 42px;
+        font-weight: 850;
+        margin: 0;
+        letter-spacing: -1px;
+    }
+
+    .hero-subtitle {
         font-size: 17px;
-        color: #667085;
-        margin-top: 4px;
-        margin-bottom: 20px;
+        color: #dbeafe;
+        margin-top: 10px;
+        max-width: 800px;
+        line-height: 1.6;
     }
 
-    /* KPI cards */
-    .metric-card {
-        background: white;
-        padding: 18px;
-        border-radius: 14px;
-        border: 1px solid #e4e7ec;
-        min-height: 125px;
-        box-shadow: 0 2px 8px rgba(16, 24, 40, 0.04);
+    .hero-badge {
+        display: inline-block;
+        margin-top: 18px;
+        padding: 7px 12px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.12);
+        border: 1px solid rgba(255,255,255,0.18);
+        color: #dbeafe;
+        font-size: 12px;
+        font-weight: 700;
     }
 
-    .metric-label {
+    /* =========================
+       SECTION TITLES
+       ========================= */
+
+    .section-title {
+        font-size: 23px;
+        font-weight: 800;
+        color: #111827;
+        margin: 12px 0 14px 0;
+    }
+
+    .section-subtitle {
         color: #667085;
         font-size: 14px;
-        font-weight: 600;
+        margin-top: -7px;
+        margin-bottom: 18px;
     }
 
-    .metric-value {
+    /* =========================
+       KPI CARDS
+       ========================= */
+
+    .kpi {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 15px;
+        padding: 18px 19px;
+        min-height: 125px;
+        box-shadow: 0 3px 12px rgba(15, 23, 42, 0.05);
+    }
+
+    .kpi-label {
+        color: #64748b;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .kpi-value {
+        color: #0f172a;
         font-size: 29px;
-        font-weight: 800;
-        margin-top: 8px;
+        font-weight: 850;
+        margin-top: 9px;
     }
 
-    .metric-description {
-        color: #98a2b3;
-        font-size: 12px;
-        margin-top: 4px;
+    .kpi-help {
+        color: #94a3b8;
+        font-size: 11px;
+        margin-top: 5px;
     }
 
-    /* Section cards */
-    .section-card {
-        background: white;
-        padding: 20px;
-        border-radius: 14px;
-        border: 1px solid #e4e7ec;
-        margin-bottom: 15px;
-    }
+    /* =========================
+       FEATURE CARDS
+       ========================= */
 
-    /* Quality score */
-    .quality-box {
-        background: white;
-        padding: 25px;
+    .feature {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
         border-radius: 16px;
-        border: 1px solid #e4e7ec;
-        text-align: center;
+        padding: 24px;
+        min-height: 185px;
+        box-shadow: 0 3px 12px rgba(15, 23, 42, 0.04);
     }
 
-    .quality-score {
-        font-size: 55px;
+    .feature-icon {
+        font-size: 28px;
+    }
+
+    .feature-title {
+        font-size: 18px;
         font-weight: 800;
+        color: #111827;
+        margin-top: 10px;
     }
 
-    .quality-label {
+    .feature-text {
         color: #667085;
+        font-size: 13px;
+        line-height: 1.6;
+        margin-top: 7px;
+    }
+
+    /* =========================
+       STATUS CARDS
+       ========================= */
+
+    .status-good {
+        background: #ecfdf3;
+        border: 1px solid #abefc6;
+        color: #05603a;
+        padding: 15px 18px;
+        border-radius: 12px;
+    }
+
+    .status-warning {
+        background: #fffaeb;
+        border: 1px solid #fedf89;
+        color: #854d0e;
+        padding: 15px 18px;
+        border-radius: 12px;
+    }
+
+    .status-danger {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: #991b1b;
+        padding: 15px 18px;
+        border-radius: 12px;
+    }
+
+    .status-title {
+        font-weight: 800;
         font-size: 15px;
     }
 
-    /* Info banner */
-    .info-box {
-        background: #eef4ff;
-        border: 1px solid #c7d7fe;
-        padding: 14px 18px;
-        border-radius: 10px;
-        color: #344054;
-        margin-bottom: 15px;
+    .status-text {
+        font-size: 13px;
+        margin-top: 4px;
     }
 
-    /* Warning */
-    .warning-box {
-        background: #fffaeb;
-        border: 1px solid #fedf89;
-        padding: 14px 18px;
-        border-radius: 10px;
-        color: #7a2e0b;
-        margin-bottom: 15px;
+    /* =========================
+       CONTENT CARDS
+       ========================= */
+
+    .content-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 22px;
+        margin-bottom: 18px;
+        box-shadow: 0 3px 12px rgba(15, 23, 42, 0.04);
     }
 
-    /* Success */
-    .success-box {
-        background: #ecfdf3;
-        border: 1px solid #abefc6;
-        padding: 14px 18px;
-        border-radius: 10px;
-        color: #05603a;
-        margin-bottom: 15px;
+    /* =========================
+       UPLOAD AREA
+       ========================= */
+
+    [data-testid="stFileUploader"] {
+        background: #ffffff;
+        border-radius: 14px;
+        border: 1px solid #dbe3ef;
+        padding: 8px;
     }
 
-    /* Sidebar */
-    section[data-testid="stSidebar"] {
-        background-color: #ffffff;
-        border-right: 1px solid #e4e7ec;
+    /* =========================
+       BUTTONS
+       ========================= */
+
+    .stButton > button,
+    .stDownloadButton > button {
+        border-radius: 9px;
+        font-weight: 700;
+    }
+
+    /* =========================
+       TABS
+       ========================= */
+
+    button[data-baseweb="tab"] {
+        font-weight: 700;
+    }
+
+    /* =========================
+       FOOTER
+       ========================= */
+
+    .footer {
+        text-align: center;
+        color: #94a3b8;
+        font-size: 12px;
+        padding: 30px 0 5px 0;
     }
 
 </style>
-""", unsafe_allow_html=True)
-
-
-# ============================================================
-# HEADER
-# ============================================================
-
-st.markdown("""
-<div class="main-header">
-    <div class="main-title">🛡️ DataGuard AI</div>
-    <div class="subtitle">
-        AI-Powered Data Quality, Anomaly Detection & Business Intelligence
-    </div>
-</div>
 """, unsafe_allow_html=True)
 
 
@@ -169,7 +323,7 @@ CITY_MAPPING = {
     "Bangalore": "Bengaluru",
     "bangalore": "Bengaluru",
     "BLR": "Bengaluru",
-    "BENGALURU": "Bengaluru"
+    "BENGALURU": "Bengaluru",
 }
 
 
@@ -178,39 +332,29 @@ CITY_MAPPING = {
 # ============================================================
 
 def safe_to_datetime(series):
-    """
-    Safely convert a pandas Series to datetime.
-    Prevents deployment failures caused by mixed date formats.
-    """
 
     try:
         return pd.to_datetime(
             series,
             errors="coerce",
-            format="mixed"
+            format="mixed",
         )
     except Exception:
 
         try:
             return pd.to_datetime(
                 series,
-                errors="coerce"
+                errors="coerce",
             )
         except Exception:
+
             return pd.Series(
                 pd.NaT,
-                index=series.index
+                index=series.index,
             )
 
 
 def detect_datetime_columns(df):
-    """
-    Detect genuine datetime columns.
-
-    Important:
-    Numeric columns such as Customer_ID must NOT
-    automatically become datetime columns.
-    """
 
     datetime_columns = []
 
@@ -223,23 +367,22 @@ def detect_datetime_columns(df):
         "modified",
         "dob",
         "birth",
-        "day"
+        "day",
     )
 
     for column in df.columns:
 
         series = df[column]
 
-        # Already datetime
         if pd.api.types.is_datetime64_any_dtype(series):
             datetime_columns.append(column)
             continue
 
-        # Never automatically treat numeric IDs as dates
+        # Important:
+        # Numeric IDs should never automatically become dates.
         if pd.api.types.is_numeric_dtype(series):
             continue
 
-        # Only inspect text/object columns
         if not (
             pd.api.types.is_object_dtype(series)
             or pd.api.types.is_string_dtype(series)
@@ -256,7 +399,7 @@ def detect_datetime_columns(df):
         if valid_ratio < 0.85:
             continue
 
-        column_name = str(column).lower()
+        name = str(column).lower()
 
         sample = (
             series
@@ -270,13 +413,19 @@ def detect_datetime_columns(df):
 
         looks_date_like = (
             sample
-            .str.contains(r"[-/:]", regex=True)
+            .str.contains(
+                r"[-/:]",
+                regex=True
+            )
             .mean()
             >= 0.50
         )
 
         if (
-            any(keyword in column_name for keyword in date_keywords)
+            any(
+                keyword in name
+                for keyword in date_keywords
+            )
             or looks_date_like
         ):
             datetime_columns.append(column)
@@ -284,213 +433,206 @@ def detect_datetime_columns(df):
     return datetime_columns
 
 
-def load_uploaded_file(uploaded_file):
+def load_file(uploaded_file):
 
     if uploaded_file is None:
         return None
 
-    file_name = uploaded_file.name.lower()
+    filename = uploaded_file.name.lower()
 
     try:
 
-        if file_name.endswith(".csv"):
+        if filename.endswith(".csv"):
             return pd.read_csv(uploaded_file)
 
-        elif file_name.endswith(".xlsx"):
+        if filename.endswith(".xlsx"):
             return pd.read_excel(uploaded_file)
 
-        elif file_name.endswith(".xls"):
+        if filename.endswith(".xls"):
             return pd.read_excel(uploaded_file)
 
-        else:
-            st.error(
-                "Unsupported file format. Please upload CSV or Excel."
-            )
-            return None
+        st.error(
+            "Please upload a CSV or Excel file."
+        )
+
+        return None
 
     except Exception as e:
 
         st.error(
-            f"Unable to read the file: {e}"
+            f"Could not read the file: {e}"
         )
 
         return None
 
 
-def calculate_missing_summary(df):
+def missing_summary(df):
 
-    result = pd.DataFrame({
-        "Column": df.columns,
-        "Missing Count": df.isna().sum().values,
-        "Missing %": (
-            df.isna().mean().values * 100
-        ).round(2)
-    })
-
-    return result.sort_values(
-        "Missing Count",
-        ascending=False
+    return (
+        pd.DataFrame({
+            "Column": df.columns,
+            "Missing Count": df.isna().sum().values,
+            "Missing %": (
+                df.isna().mean().values * 100
+            ).round(2),
+        })
+        .sort_values(
+            "Missing Count",
+            ascending=False,
+        )
     )
 
 
-def calculate_numeric_summary(df):
+def numeric_summary(df):
 
-    numeric_df = df.select_dtypes(
+    numeric = df.select_dtypes(
         include=np.number
     )
 
-    if numeric_df.empty:
+    if numeric.empty:
         return pd.DataFrame()
 
     return (
-        numeric_df
+        numeric
         .describe()
         .T
         .reset_index()
-        .rename(columns={"index": "Column"})
+        .rename(
+            columns={"index": "Column"}
+        )
     )
 
 
-def detect_invalid_values(df):
+def invalid_values(df):
 
     results = []
-
-    invalid_masks = []
+    masks = []
 
     for column in df.columns:
 
-        column_name = str(column).lower()
+        name = str(column).lower()
 
-        # Age validation
-        if column_name == "age" or column_name.endswith("_age"):
+        if (
+            name == "age"
+            or name.endswith("_age")
+        ):
 
-            numeric = pd.to_numeric(
+            values = pd.to_numeric(
                 df[column],
-                errors="coerce"
+                errors="coerce",
             )
 
             mask = (
-                numeric.notna()
-                & (
-                    (numeric < 0)
-                    | (numeric > 100)
+                values.notna()
+                &
+                (
+                    (values < 0)
+                    |
+                    (values > 100)
                 )
             )
 
             count = int(mask.sum())
 
-            if count > 0:
+            if count:
 
                 results.append({
                     "Column": column,
                     "Issue": "Invalid Age",
-                    "Count": count
+                    "Count": count,
                 })
 
-                invalid_masks.append(mask)
+                masks.append(mask)
 
-        # Quantity validation
         if (
-            column_name == "quantity"
-            or column_name.endswith("_quantity")
+            name == "quantity"
+            or name.endswith("_quantity")
         ):
 
-            numeric = pd.to_numeric(
+            values = pd.to_numeric(
                 df[column],
-                errors="coerce"
+                errors="coerce",
             )
 
             mask = (
-                numeric.notna()
-                & (numeric <= 0)
+                values.notna()
+                &
+                (values <= 0)
             )
 
             count = int(mask.sum())
 
-            if count > 0:
+            if count:
 
                 results.append({
                     "Column": column,
                     "Issue": "Invalid Quantity",
-                    "Count": count
+                    "Count": count,
                 })
 
-                invalid_masks.append(mask)
+                masks.append(mask)
 
-    if results:
+    result_df = pd.DataFrame(
+        results,
+        columns=[
+            "Column",
+            "Issue",
+            "Count",
+        ],
+    )
 
-        result_df = pd.DataFrame(results)
+    if masks:
 
-    else:
-
-        result_df = pd.DataFrame(
-            columns=[
-                "Column",
-                "Issue",
-                "Count"
-            ]
-        )
-
-    if invalid_masks:
-
-        combined_mask = pd.concat(
-            invalid_masks,
-            axis=1
+        combined = pd.concat(
+            masks,
+            axis=1,
         ).any(axis=1)
 
-        invalid_row_count = int(
-            combined_mask.sum()
+        invalid_rows = int(
+            combined.sum()
         )
 
     else:
 
-        invalid_row_count = 0
+        invalid_rows = 0
 
-    return result_df, invalid_row_count
+    return result_df, invalid_rows
 
 
-def check_city_inconsistencies(df):
+def city_issues(df):
 
     if "City" not in df.columns:
 
         return {
-            "exists": False,
-            "count": 0,
+            "labels": [],
             "rows": 0,
-            "values": []
         }
 
-    city_series = (
+    city = (
         df["City"]
         .astype("string")
         .str.strip()
     )
 
-    problematic_mask = city_series.isin(
+    mask = city.isin(
         CITY_MAPPING.keys()
     )
 
-    values = sorted(
-        city_series[
-            problematic_mask
-        ]
-        .dropna()
-        .unique()
-        .tolist()
-    )
-
     return {
-        "exists": True,
-        "count": len(values),
-        "rows": int(problematic_mask.sum()),
-        "values": values
+        "labels": sorted(
+            city[mask]
+            .dropna()
+            .unique()
+            .tolist()
+        ),
+        "rows": int(mask.sum()),
     }
 
 
-def detect_iqr_outliers(df):
+def iqr_outliers(df):
 
-    outlier_masks = {}
     summary = []
+    masks = {}
 
     numeric_columns = df.select_dtypes(
         include=np.number
@@ -498,16 +640,18 @@ def detect_iqr_outliers(df):
 
     for column in numeric_columns:
 
-        series = pd.to_numeric(
+        values = pd.to_numeric(
             df[column],
-            errors="coerce"
-        ).dropna()
+            errors="coerce",
+        )
 
-        if len(series) < 5:
+        clean = values.dropna()
+
+        if len(clean) < 5:
             continue
 
-        q1 = series.quantile(0.25)
-        q3 = series.quantile(0.75)
+        q1 = clean.quantile(0.25)
+        q3 = clean.quantile(0.75)
 
         iqr = q3 - q1
 
@@ -518,70 +662,65 @@ def detect_iqr_outliers(df):
         upper = q3 + 1.5 * iqr
 
         mask = (
-            pd.to_numeric(
-                df[column],
-                errors="coerce"
-            ).lt(lower)
-            |
-            pd.to_numeric(
-                df[column],
-                errors="coerce"
-            ).gt(upper)
+            values < lower
+        ) | (
+            values > upper
         )
 
-        count = int(mask.sum())
-
-        outlier_masks[column] = mask
+        masks[column] = mask
 
         summary.append({
             "Column": column,
-            "Lower Bound": round(lower, 2),
-            "Upper Bound": round(upper, 2),
-            "Outlier Count": count
+            "Lower Bound": round(
+                lower, 2
+            ),
+            "Upper Bound": round(
+                upper, 2
+            ),
+            "Outlier Count": int(
+                mask.sum()
+            ),
         })
 
-    summary_df = pd.DataFrame(summary)
+    summary_df = pd.DataFrame(
+        summary
+    )
 
-    if outlier_masks:
+    if masks:
 
         combined = pd.concat(
             [
                 mask.rename(column)
-                for column, mask in outlier_masks.items()
+                for column, mask
+                in masks.items()
             ],
-            axis=1
-        )
+            axis=1,
+        ).any(axis=1)
 
-        combined_outlier_mask = combined.any(axis=1)
-
-        outlier_row_count = int(
-            combined_outlier_mask.sum()
+        count = int(
+            combined.sum()
         )
 
     else:
 
-        outlier_row_count = 0
+        count = 0
 
-    return summary_df, outlier_row_count
+    return summary_df, count
 
 
-def run_ml_anomaly_detection(
+def ml_anomalies(
     df,
-    contamination=0.05
+    contamination=0.05,
 ):
 
-    numeric_df = df.select_dtypes(
+    numeric = df.select_dtypes(
         include=np.number
     ).copy()
 
-    if numeric_df.shape[1] == 0:
+    # Do not use IDs as ML features.
+    remove = []
 
-        return None, 0
-
-    # Remove columns that look like IDs
-    id_columns = []
-
-    for column in numeric_df.columns:
+    for column in numeric.columns:
 
         name = str(column).lower()
 
@@ -592,85 +731,85 @@ def run_ml_anomaly_detection(
             or "customer_id" in name
             or "order_id" in name
         ):
-            id_columns.append(column)
+            remove.append(column)
 
-    numeric_df = numeric_df.drop(
-        columns=id_columns,
-        errors="ignore"
+    numeric = numeric.drop(
+        columns=remove,
+        errors="ignore",
     )
 
-    if numeric_df.shape[1] == 0:
-
+    if numeric.empty:
         return None, 0
 
-    # Convert values
-    numeric_df = numeric_df.apply(
+    numeric = numeric.apply(
         pd.to_numeric,
-        errors="coerce"
+        errors="coerce",
     )
 
-    # Fill missing values using median
-    numeric_df = numeric_df.fillna(
-        numeric_df.median()
+    numeric = numeric.fillna(
+        numeric.median()
     )
 
-    # Remove completely empty columns
-    numeric_df = numeric_df.dropna(
+    numeric = numeric.dropna(
         axis=1,
-        how="all"
+        how="all",
     )
 
-    if numeric_df.shape[1] == 0:
+    if numeric.empty:
         return None, 0
-
-    model = IsolationForest(
-        contamination=contamination,
-        random_state=42,
-        n_estimators=200
-    )
 
     try:
 
-        predictions = model.fit_predict(
-            numeric_df
+        model = IsolationForest(
+            contamination=contamination,
+            random_state=42,
+            n_estimators=200,
+        )
+
+        prediction = model.fit_predict(
+            numeric
         )
 
     except Exception:
+
         return None, 0
 
     result = df.copy()
 
     result["ML_Anomaly"] = (
-        predictions == -1
+        prediction == -1
     )
 
-    anomaly_count = int(
+    count = int(
         result["ML_Anomaly"].sum()
     )
 
-    return result, anomaly_count
+    return result, count
 
 
-def calculate_quality_score(
+def quality_score(
     df,
-    invalid_count=0,
-    city_issue_rows=0,
-    outlier_count=0
+    invalid_count,
+    city_rows,
+    outlier_rows,
 ):
 
     if df.empty:
         return 0
 
-    rows = max(len(df), 1)
+    rows = max(
+        len(df),
+        1,
+    )
 
-    total_cells = max(
-        df.shape[0] * df.shape[1],
-        1
+    cells = max(
+        len(df) * df.shape[1],
+        1,
     )
 
     missing_rate = (
         df.isna().sum().sum()
-        / total_cells
+        / cells
     )
 
     duplicate_rate = (
@@ -680,60 +819,70 @@ def calculate_quality_score(
 
     invalid_rate = min(
         invalid_count / rows,
-        1
+        1,
     )
 
     city_rate = min(
-        city_issue_rows / rows,
-        1
+        city_rows / rows,
+        1,
     )
 
     outlier_rate = min(
-        outlier_count / rows,
-        1
+        outlier_rows / rows,
+        1,
     )
 
     score = (
         25 * (1 - missing_rate)
-        +
-        20 * (1 - duplicate_rate)
-        +
-        25 * (1 - invalid_rate)
-        +
-        15 * (1 - city_rate)
-        +
-        15 * (1 - outlier_rate)
+        + 20 * (1 - duplicate_rate)
+        + 25 * (1 - invalid_rate)
+        + 15 * (1 - city_rate)
+        + 15 * (1 - outlier_rate)
     )
 
     return round(
-        max(0, min(100, score)),
-        1
+        max(
+            0,
+            min(
+                100,
+                score,
+            ),
+        ),
+        1,
     )
 
 
-def quality_label(score):
+def score_status(score):
 
     if score >= 90:
-        return "Excellent"
+        return (
+            "Excellent",
+            "good",
+        )
 
-    elif score >= 75:
-        return "Good"
+    if score >= 75:
+        return (
+            "Good",
+            "good",
+        )
 
-    elif score >= 60:
-        return "Needs Improvement"
+    if score >= 60:
+        return (
+            "Needs Review",
+            "warning",
+        )
 
-    else:
-        return "Poor"
+    return (
+        "Critical",
+        "danger",
+    )
 
 
-def clean_data(df):
+def clean_dataset(df):
 
     cleaned = df.copy()
 
-    # --------------------------------------------------------
-    # Standardize city
-    # --------------------------------------------------------
-
+    # City standardization
     if "City" in cleaned.columns:
 
         cleaned["City"] = (
@@ -743,101 +892,108 @@ def clean_data(df):
             .replace(CITY_MAPPING)
         )
 
-    # --------------------------------------------------------
-    # Numeric cleaning
-    # --------------------------------------------------------
-
+    # Age / Quantity
     for column in cleaned.columns:
 
-        column_name = str(column).lower()
+        name = str(column).lower()
 
         if (
-            column_name == "age"
-            or column_name.endswith("_age")
+            name == "age"
+            or name.endswith("_age")
         ):
 
-            numeric = pd.to_numeric(
+            values = pd.to_numeric(
                 cleaned[column],
-                errors="coerce"
+                errors="coerce",
             ).astype("float64")
 
-            numeric.loc[
-                (numeric < 0)
+            values.loc[
+                (values < 0)
                 |
-                (numeric > 100)
+                (values > 100)
             ] = np.nan
 
-            cleaned[column] = numeric
+            cleaned[column] = values
 
-            cleaned[column] = cleaned[column].fillna(
-                cleaned[column].median()
+            cleaned[column] = (
+                cleaned[column]
+                .fillna(
+                    cleaned[column].median()
+                )
             )
 
         elif (
-            column_name == "quantity"
-            or column_name.endswith("_quantity")
+            name == "quantity"
+            or name.endswith("_quantity")
         ):
 
-            numeric = pd.to_numeric(
+            values = pd.to_numeric(
                 cleaned[column],
-                errors="coerce"
+                errors="coerce",
             ).astype("float64")
 
-            numeric.loc[
-                numeric <= 0
+            values.loc[
+                values <= 0
             ] = np.nan
 
-            cleaned[column] = numeric
+            cleaned[column] = values
 
-            cleaned[column] = cleaned[column].fillna(
-                cleaned[column].median()
+            cleaned[column] = (
+                cleaned[column]
+                .fillna(
+                    cleaned[column].median()
+                )
             )
 
-    # --------------------------------------------------------
-    # General missing value handling
-    # --------------------------------------------------------
-
+    # General missing values
     for column in cleaned.columns:
 
-        if cleaned[column].isna().sum() == 0:
+        if not cleaned[column].isna().any():
             continue
 
         if pd.api.types.is_numeric_dtype(
             cleaned[column]
         ):
 
-            cleaned[column] = cleaned[column].fillna(
-                cleaned[column].median()
+            cleaned[column] = (
+                cleaned[column]
+                .fillna(
+                    cleaned[column].median()
+                )
             )
 
         else:
 
-            mode = cleaned[column].mode(
-                dropna=True
+            mode = (
+                cleaned[column]
+                .mode(
+                    dropna=True
+                )
             )
 
             if not mode.empty:
 
-                cleaned[column] = cleaned[column].fillna(
-                    mode.iloc[0]
+                cleaned[column] = (
+                    cleaned[column]
+                    .fillna(
+                        mode.iloc[0]
+                    )
                 )
 
             else:
 
-                cleaned[column] = cleaned[column].fillna(
-                    "Unknown"
+                cleaned[column] = (
+                    cleaned[column]
+                    .fillna("Unknown")
                 )
 
-    # --------------------------------------------------------
     # Remove exact duplicates
-    # --------------------------------------------------------
-
     cleaned = cleaned.drop_duplicates()
 
     return cleaned
 
 
-def create_data_dictionary(df):
+def data_dictionary(df):
 
     rows = []
 
@@ -845,7 +1001,9 @@ def create_data_dictionary(df):
 
         rows.append({
             "Column": column,
-            "Data Type": str(df[column].dtype),
+            "Data Type": str(
+                df[column].dtype
+            ),
             "Non-Null Count": int(
                 df[column].notna().sum()
             ),
@@ -856,75 +1014,32 @@ def create_data_dictionary(df):
                 df[column].nunique(
                     dropna=True
                 )
-            )
+            ),
         })
 
     return pd.DataFrame(rows)
 
 
-def create_quality_summary(
-    df,
-    quality_score,
-    invalid_count,
-    duplicate_count,
-    city_issue_rows,
-    outlier_count,
-    anomaly_count
-):
+def zip_package(files):
 
-    rows = len(df)
-
-    return pd.DataFrame({
-        "Metric": [
-            "Rows",
-            "Columns",
-            "Missing Cells",
-            "Duplicate Rows",
-            "Invalid Values",
-            "City Issue Rows",
-            "IQR Outlier Rows",
-            "ML Anomaly Rows",
-            "ML Anomaly Rate %",
-            "Quality Score"
-        ],
-        "Value": [
-            rows,
-            df.shape[1],
-            int(df.isna().sum().sum()),
-            duplicate_count,
-            invalid_count,
-            city_issue_rows,
-            outlier_count,
-            anomaly_count,
-            round(
-                anomaly_count / max(rows, 1) * 100,
-                2
-            ),
-            quality_score
-        ]
-    })
-
-
-def generate_zip(files):
-
-    zip_buffer = io.BytesIO()
+    buffer = io.BytesIO()
 
     with zipfile.ZipFile(
-        zip_buffer,
+        buffer,
         "w",
-        zipfile.ZIP_DEFLATED
+        zipfile.ZIP_DEFLATED,
     ) as z:
 
-        for filename, data in files.items():
+        for name, content in files.items():
 
             z.writestr(
-                filename,
-                data
+                name,
+                content,
             )
 
-    zip_buffer.seek(0)
+    buffer.seek(0)
 
-    return zip_buffer.getvalue()
+    return buffer.getvalue()
 
 
 # ============================================================
@@ -933,57 +1048,81 @@ def generate_zip(files):
 
 with st.sidebar:
 
-    st.markdown("## 🛡️ DataGuard AI")
+    st.markdown("""
+    <div class="sidebar-brand">
+        <div class="sidebar-logo">🛡️ DataGuard AI</div>
+        <div class="sidebar-subtitle">
+            Data quality monitoring<br>
+            & anomaly detection
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
-    st.caption(
-        "Data quality monitoring and anomaly detection"
+    st.markdown(
+        '<div class="sidebar-section">Upload</div>',
+        unsafe_allow_html=True,
     )
-
-    st.divider()
 
     uploaded_file = st.file_uploader(
         "Upload your dataset",
         type=[
             "csv",
             "xlsx",
-            "xls"
-        ]
+            "xls",
+        ],
+        label_visibility="collapsed",
     )
 
-    st.divider()
+    st.markdown(
+        '<div class="sidebar-section">ML Settings</div>',
+        unsafe_allow_html=True,
+    )
 
-    st.markdown("### 🚨 ML Settings")
-
-    anomaly_contamination = st.slider(
+    anomaly_sensitivity = st.slider(
         "Anomaly sensitivity",
-        min_value=0.01,
-        max_value=0.20,
-        value=0.05,
-        step=0.01,
-        format="%.0f%%",
-        help=(
-            "Expected fraction of records to flag for review. "
-            "This is a screening setting, not proof that records are erroneous."
+        min_value=1,
+        max_value=20,
+        value=5,
+        step=1,
+    )
+
+    st.caption(
+        f"Current setting: **{anomaly_sensitivity}%**"
+    )
+
+    st.caption(
+        "Controls the expected fraction of records "
+        "flagged for ML review."
+    )
+
+    st.markdown(
+        '<div class="sidebar-section">Pipeline</div>',
+        unsafe_allow_html=True,
+    )
+
+    steps = [
+        "1  Upload",
+        "2  Profile",
+        "3  Detect issues",
+        "4  Analyze anomalies",
+        "5  Clean data",
+        "6  Export for Power BI",
+    ]
+
+    for step in steps:
+
+        st.markdown(
+            f'<div class="pipeline-item">{step}</div>',
+            unsafe_allow_html=True,
         )
+
+    st.markdown(
+        '<div class="sidebar-section">Technology</div>',
+        unsafe_allow_html=True,
     )
 
-    st.divider()
-
-    st.markdown("### 📌 Pipeline")
-
     st.caption(
-        "1. Upload\n"
-        "2. Profile\n"
-        "3. Detect issues\n"
-        "4. Analyze anomalies\n"
-        "5. Clean data\n"
-        "6. Export for Power BI"
-    )
-
-    st.divider()
-
-    st.caption(
-        "Built with Python • Pandas • Scikit-learn • Streamlit"
+        "Python • Pandas • Scikit-learn • Streamlit"
     )
 
 
@@ -994,51 +1133,106 @@ with st.sidebar:
 if uploaded_file is None:
 
     st.markdown("""
-    <div class="info-box">
-        <b>Welcome to DataGuard AI</b><br>
-        Upload a CSV or Excel dataset from the sidebar to automatically
-        profile data quality, detect anomalies, identify inconsistencies,
-        clean the dataset and prepare Power BI-ready exports.
+    <div class="hero">
+
+        <div class="hero-title">
+            🛡️ DataGuard AI
+        </div>
+
+        <div class="hero-subtitle">
+            AI-powered data quality monitoring,
+            anomaly detection and intelligent data cleaning.
+            Turn raw datasets into reliable, analysis-ready data.
+        </div>
+
+        <div class="hero-badge">
+            DATA QUALITY • ANOMALY DETECTION • POWER BI READY
+        </div>
+
     </div>
     """, unsafe_allow_html=True)
 
-    col1, col2, col3 = st.columns(3)
+    st.markdown(
+        '<div class="section-title">Start with your dataset</div>',
+        unsafe_allow_html=True,
+    )
 
-    with col1:
+    st.markdown(
+        '<div class="section-subtitle">'
+        'Upload a CSV or Excel file using the sidebar to begin the automated pipeline.'
+        '</div>',
+        unsafe_allow_html=True,
+    )
+
+    c1, c2, c3 = st.columns(3)
+
+    with c1:
 
         st.markdown("""
-        <div class="section-card">
-        <h3>🔍 Detect</h3>
-        <p>
-        Identify missing values, duplicates, invalid values,
-        inconsistencies and statistical outliers.
-        </p>
+        <div class="feature">
+            <div class="feature-icon">🔍</div>
+            <div class="feature-title">
+                Detect Data Issues
+            </div>
+            <div class="feature-text">
+                Find missing values, duplicates, invalid values,
+                inconsistent categories and statistical outliers.
+            </div>
         </div>
         """, unsafe_allow_html=True)
 
-    with col2:
+    with c2:
 
         st.markdown("""
-        <div class="section-card">
-        <h3>🚨 Analyze</h3>
-        <p>
-        Use Isolation Forest to flag unusual records
-        for further investigation.
-        </p>
+        <div class="feature">
+            <div class="feature-icon">🚨</div>
+            <div class="feature-title">
+                Detect Anomalies
+            </div>
+            <div class="feature-text">
+                Use Isolation Forest to identify unusual records
+                that deserve further investigation.
+            </div>
         </div>
         """, unsafe_allow_html=True)
 
-    with col3:
+    with c3:
 
         st.markdown("""
-        <div class="section-card">
-        <h3>📦 Export</h3>
-        <p>
-        Clean your data and download Power BI-ready
-        CSV reports and a ZIP package.
-        </p>
+        <div class="feature">
+            <div class="feature-icon">📦</div>
+            <div class="feature-title">
+                Clean & Export
+            </div>
+            <div class="feature-text">
+                Automatically clean the dataset and create
+                Power BI-ready CSV reports.
+            </div>
         </div>
         """, unsafe_allow_html=True)
+
+    st.write("")
+
+    st.markdown("""
+    <div class="content-card">
+
+    <h3>🚀 What DataGuard AI does</h3>
+
+    <p style="color:#667085; line-height:1.7;">
+    DataGuard AI provides an end-to-end data quality workflow:
+    profiling → validation → anomaly detection → cleaning →
+    business analysis → Power BI export.
+    </p>
+
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown(
+        '<div class="footer">'
+        'DataGuard AI • Built with Python, Pandas, Scikit-learn & Streamlit'
+        '</div>',
+        unsafe_allow_html=True,
+    )
 
     st.stop()
 
@@ -1047,7 +1241,7 @@ if uploaded_file is None:
 # LOAD DATA
 # ============================================================
 
-df = load_uploaded_file(
+df = load_file(
     uploaded_file
 )
 
@@ -1056,130 +1250,157 @@ if df is None:
 
 
 # ============================================================
-# BASIC METRICS
+# CALCULATIONS
 # ============================================================
 
 rows = len(df)
 columns = df.shape[1]
 
-missing_cells = int(
+missing = int(
     df.isna().sum().sum()
 )
 
-duplicate_count = int(
+duplicates = int(
     df.duplicated().sum()
 )
 
-numeric_columns = len(
+numeric_count = len(
     df.select_dtypes(
         include=np.number
     ).columns
 )
 
-categorical_columns = (
-    columns
-    -
-    numeric_columns
+categorical_count = (
+    columns - numeric_count
 )
 
-datetime_columns = detect_datetime_columns(
+dates = detect_datetime_columns(
     df
 )
 
-invalid_df, invalid_count = detect_invalid_values(
+invalid_df, invalid_count = invalid_values(
     df
 )
 
-city_info = check_city_inconsistencies(
+cities = city_issues(
     df
 )
 
-outlier_summary, outlier_count = detect_iqr_outliers(
+outlier_df, outlier_count = iqr_outliers(
     df
 )
 
-ml_df, anomaly_count = run_ml_anomaly_detection(
+ml_df, anomaly_count = ml_anomalies(
     df,
-    contamination=anomaly_contamination
-)
-
-quality_score = calculate_quality_score(
-    df,
-    invalid_count=invalid_count,
-    city_issue_rows=city_info["rows"],
-    outlier_count=outlier_count
-)
-
-quality_status = quality_label(
-    quality_score
+    contamination=anomaly_sensitivity / 100,
 )
 
 anomaly_rate = (
-    anomaly_count / max(rows, 1) * 100
+    anomaly_count
+    / max(rows, 1)
+    * 100
+)
+
+score = quality_score(
+    df,
+    invalid_count,
+    cities["rows"],
+    outlier_count,
+)
+
+score_text, score_type = score_status(
+    score
 )
 
 
 # ============================================================
-# KPI HEADER
+# MAIN HEADER AFTER UPLOAD
 # ============================================================
 
-st.markdown("### 📊 Dataset Overview")
+st.markdown("""
+<div class="hero">
+
+    <div class="hero-title">
+        🛡️ DataGuard AI
+    </div>
+
+    <div class="hero-subtitle">
+        Data quality dashboard for
+        <b>""" + str(uploaded_file.name) + """</b>
+    </div>
+
+    <div class="hero-badge">
+        ANALYSIS READY
+    </div>
+
+</div>
+""", unsafe_allow_html=True)
+
+
+# ============================================================
+# KPI CARDS
+# ============================================================
+
+st.markdown(
+    '<div class="section-title">Dataset Overview</div>',
+    unsafe_allow_html=True,
+)
 
 k1, k2, k3, k4, k5, k6 = st.columns(6)
 
-with k1:
-    st.markdown(f"""
-    <div class="metric-card">
-        <div class="metric-label">Rows</div>
-        <div class="metric-value">{rows:,}</div>
-        <div class="metric-description">Records</div>
-    </div>
-    """, unsafe_allow_html=True)
+metrics = [
+    (
+        k1,
+        "ROWS",
+        f"{rows:,}",
+        "Records",
+    ),
+    (
+        k2,
+        "COLUMNS",
+        f"{columns}",
+        "Features",
+    ),
+    (
+        k3,
+        "MISSING",
+        f"{missing:,}",
+        "Missing cells",
+    ),
+    (
+        k4,
+        "DUPLICATES",
+        f"{duplicates:,}",
+        "Duplicate rows",
+    ),
+    (
+        k5,
+        "QUALITY",
+        f"{score}/100",
+        score_text,
+    ),
+    (
+        k6,
+        "ML FLAGS",
+        f"{anomaly_rate:.1f}%",
+        "Screening rate",
+    ),
+]
 
-with k2:
-    st.markdown(f"""
-    <div class="metric-card">
-        <div class="metric-label">Columns</div>
-        <div class="metric-value">{columns}</div>
-        <div class="metric-description">Features</div>
-    </div>
-    """, unsafe_allow_html=True)
+for col, label, value, help_text in metrics:
 
-with k3:
-    st.markdown(f"""
-    <div class="metric-card">
-        <div class="metric-label">Missing</div>
-        <div class="metric-value">{missing_cells:,}</div>
-        <div class="metric-description">Missing cells</div>
-    </div>
-    """, unsafe_allow_html=True)
+    with col:
 
-with k4:
-    st.markdown(f"""
-    <div class="metric-card">
-        <div class="metric-label">Duplicates</div>
-        <div class="metric-value">{duplicate_count:,}</div>
-        <div class="metric-description">Duplicate rows</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-with k5:
-    st.markdown(f"""
-    <div class="metric-card">
-        <div class="metric-label">Quality</div>
-        <div class="metric-value">{quality_score}</div>
-        <div class="metric-description">{quality_status}</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-with k6:
-    st.markdown(f"""
-    <div class="metric-card">
-        <div class="metric-label">ML Flags</div>
-        <div class="metric-value">{anomaly_rate:.1f}%</div>
-        <div class="metric-description">Screening rate</div>
-    </div>
-    """, unsafe_allow_html=True)
+        st.markdown(
+            f"""
+            <div class="kpi">
+                <div class="kpi-label">{label}</div>
+                <div class="kpi-value">{value}</div>
+                <div class="kpi-help">{help_text}</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
 
 st.write("")
@@ -1193,11 +1414,11 @@ tabs = st.tabs([
     "📊 Overview",
     "🔍 Data Quality",
     "🚨 Anomalies",
-    "📈 Business Insights",
-    "🧹 Data Cleaning",
+    "📈 Insights",
+    "🧹 Cleaning",
     "🤖 AI Analysis",
-    "📦 Power BI Export",
-    "📄 Final Report"
+    "📦 Power BI",
+    "📄 Report",
 ])
 
 
@@ -1207,52 +1428,64 @@ tabs = st.tabs([
 
 with tabs[0]:
 
-    st.markdown("### Dataset Preview")
+    st.markdown(
+        '<div class="section-title">Dataset Preview</div>',
+        unsafe_allow_html=True,
+    )
 
     st.dataframe(
         df.head(20),
         use_container_width=True,
-        height=420
+        height=430,
     )
 
-    st.markdown("### Dataset Structure")
+    st.markdown(
+        '<div class="section-title">Detected Structure</div>',
+        unsafe_allow_html=True,
+    )
 
-    c1, c2, c3, c4 = st.columns(4)
+    a, b, c, d = st.columns(4)
 
-    c1.metric(
+    a.metric(
         "Numeric Columns",
-        numeric_columns
+        numeric_count,
     )
 
-    c2.metric(
+    b.metric(
         "Categorical Columns",
-        categorical_columns
+        categorical_count,
     )
 
-    c3.metric(
+    c.metric(
         "Datetime Columns",
-        len(datetime_columns)
+        len(dates),
     )
 
-    c4.metric(
+    d.metric(
         "Invalid Values",
-        invalid_count
+        invalid_count,
     )
 
-    st.markdown("### Detected Datetime Columns")
+    if dates:
 
-    if datetime_columns:
-
-        st.success(
-            ", ".join(
-                datetime_columns
-            )
+        st.markdown(
+            f"""
+            <div class="status-good">
+                <div class="status-title">
+                    ✓ Date columns detected
+                </div>
+                <div class="status-text">
+                    {", ".join(dates)}
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
         )
 
     else:
 
         st.info(
-            "No reliable datetime columns detected."
+            "No reliable datetime column was detected."
         )
 
 
@@ -1262,172 +1495,191 @@ with tabs[0]:
 
 with tabs[1]:
 
-    st.markdown("### 🔍 Data Quality Assessment")
+    st.markdown(
+        '<div class="section-title">Data Quality Assessment</div>',
+        unsafe_allow_html=True,
+    )
 
-    q1, q2 = st.columns([1, 2])
-
-    with q1:
+    if score_type == "good":
 
         st.markdown(
             f"""
-            <div class="quality-box">
-                <div class="quality-label">
-                    Rule-Based Data Quality Score
+            <div class="status-good">
+                <div class="status-title">
+                    🟢 {score_text} — {score}/100
                 </div>
-                <div class="quality-score">
-                    {quality_score}/100
-                </div>
-                <div class="quality-label">
-                    {quality_status}
+                <div class="status-text">
+                    The dataset has relatively strong rule-based data quality.
                 </div>
             </div>
             """,
-            unsafe_allow_html=True
+            unsafe_allow_html=True,
         )
 
-    with q2:
+    elif score_type == "warning":
 
-        missing_rate = (
-            missing_cells
-            /
-            max(rows * columns, 1)
-            * 100
+        st.markdown(
+            f"""
+            <div class="status-warning">
+                <div class="status-title">
+                    🟡 {score_text} — {score}/100
+                </div>
+                <div class="status-text">
+                    Some data-quality issues should be reviewed before analysis.
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
         )
 
-        duplicate_rate = (
-            duplicate_count
-            /
-            max(rows, 1)
-            * 100
+    else:
+
+        st.markdown(
+            f"""
+            <div class="status-danger">
+                <div class="status-title">
+                    🔴 {score_text} — {score}/100
+                </div>
+                <div class="status-text">
+                    Significant data-quality issues require attention.
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
         )
 
-        invalid_rate = (
-            invalid_count
-            /
-            max(rows, 1)
-            * 100
-        )
+    st.write("")
 
-        city_rate = (
-            city_info["rows"]
-            /
-            max(rows, 1)
-            * 100
-        )
+    missing_rate = (
+        missing
+        / max(rows * columns, 1)
+        * 100
+    )
 
-        outlier_rate = (
-            outlier_count
-            /
-            max(rows, 1)
-            * 100
-        )
+    duplicate_rate = (
+        duplicates
+        / max(rows, 1)
+        * 100
+    )
 
-        quality_breakdown = pd.DataFrame({
-            "Metric": [
-                "Missing Rate",
-                "Duplicate Rate",
-                "Invalid Rate",
-                "City Inconsistency Rate",
-                "IQR Outlier Rate"
-            ],
-            "Rate %": [
-                missing_rate,
-                duplicate_rate,
-                invalid_rate,
-                city_rate,
-                outlier_rate
-            ]
-        }).set_index("Metric")
+    invalid_rate = (
+        invalid_count
+        / max(rows, 1)
+        * 100
+    )
 
-        st.bar_chart(
-            quality_breakdown
-        )
+    city_rate = (
+        cities["rows"]
+        / max(rows, 1)
+        * 100
+    )
 
-    st.markdown("### Missing Values")
+    outlier_rate = (
+        outlier_count
+        / max(rows, 1)
+        * 100
+    )
 
-    missing_summary = calculate_missing_summary(
-        df
+    breakdown = pd.DataFrame({
+        "Metric": [
+            "Missing",
+            "Duplicates",
+            "Invalid",
+            "City inconsistencies",
+            "IQR outliers",
+        ],
+        "Rate": [
+            missing_rate,
+            duplicate_rate,
+            invalid_rate,
+            city_rate,
+            outlier_rate,
+        ],
+    }).set_index(
+        "Metric"
+    )
+
+    st.markdown(
+        '<div class="section-title">Quality Breakdown</div>',
+        unsafe_allow_html=True,
+    )
+
+    st.bar_chart(
+        breakdown
+    )
+
+    st.markdown(
+        '<div class="section-title">Missing Values</div>',
+        unsafe_allow_html=True,
     )
 
     st.dataframe(
-        missing_summary,
-        use_container_width=True
+        missing_summary(df),
+        use_container_width=True,
     )
 
-    st.markdown("### Invalid Values")
+    st.markdown(
+        '<div class="section-title">Invalid Values</div>',
+        unsafe_allow_html=True,
+    )
 
     if invalid_df.empty:
 
         st.success(
-            "No rule-based invalid Age or Quantity values detected."
+            "No invalid Age or Quantity values detected."
         )
 
     else:
 
         st.dataframe(
             invalid_df,
-            use_container_width=True
+            use_container_width=True,
         )
 
-    st.markdown("### Duplicate Rows")
+    st.markdown(
+        '<div class="section-title">City Consistency</div>',
+        unsafe_allow_html=True,
+    )
 
-    if duplicate_count > 0:
+    if cities["rows"]:
 
         st.warning(
-            f"{duplicate_count:,} duplicate rows detected."
+            f"{cities['rows']:,} rows contain mapped city inconsistencies."
+        )
+
+        st.write(
+            "Values:",
+            ", ".join(
+                cities["labels"]
+            ),
         )
 
     else:
 
         st.success(
-            "No duplicate rows detected."
+            "No mapped city inconsistencies detected."
         )
 
-    st.markdown("### City Consistency")
+    st.markdown(
+        '<div class="section-title">IQR Outliers</div>',
+        unsafe_allow_html=True,
+    )
 
-    if city_info["exists"]:
-
-        if city_info["count"] > 0:
-
-            st.warning(
-                f"Detected {city_info['count']} inconsistent city labels "
-                f"affecting {city_info['rows']:,} rows."
-            )
-
-            st.write(
-                "Detected values:",
-                ", ".join(city_info["values"])
-            )
-
-        else:
-
-            st.success(
-                "No mapped city inconsistencies detected."
-            )
-
-    else:
+    if outlier_df.empty:
 
         st.info(
-            "City column not found."
-        )
-
-    st.markdown("### IQR Outlier Analysis")
-
-    if outlier_summary.empty:
-
-        st.info(
-            "No numeric columns were suitable for IQR analysis."
+            "No suitable numeric columns for IQR analysis."
         )
 
     else:
 
         st.dataframe(
-            outlier_summary,
-            use_container_width=True
+            outlier_df,
+            use_container_width=True,
         )
 
         st.caption(
-            f"{outlier_count:,} rows contain at least one IQR-based outlier."
+            f"{outlier_count:,} rows contain at least one IQR outlier."
         )
 
 
@@ -1437,40 +1689,51 @@ with tabs[1]:
 
 with tabs[2]:
 
-    st.markdown("### 🚨 Machine Learning Anomaly Detection")
+    st.markdown(
+        '<div class="section-title">Machine Learning Anomaly Detection</div>',
+        unsafe_allow_html=True,
+    )
 
     st.markdown(
         f"""
-        <div class="info-box">
-        <b>Current sensitivity: {anomaly_contamination:.0%}</b><br>
-        Isolation Forest is being used as a screening method to identify
-        unusual records. A flagged record is not automatically considered
-        incorrect.
+        <div class="status-warning">
+            <div class="status-title">
+                🚨 ML screening sensitivity: {anomaly_sensitivity}%
+            </div>
+            <div class="status-text">
+                Isolation Forest flags unusual records for review.
+                A flagged record is not automatically a data error.
+            </div>
         </div>
         """,
-        unsafe_allow_html=True
+        unsafe_allow_html=True,
     )
 
-    a1, a2, a3 = st.columns(3)
+    st.write("")
 
-    a1.metric(
+    a, b, c = st.columns(3)
+
+    a.metric(
         "Records",
-        f"{rows:,}"
+        f"{rows:,}",
     )
 
-    a2.metric(
-        "ML Flags",
-        f"{anomaly_count:,}"
+    b.metric(
+        "ML Anomalies",
+        f"{anomaly_count:,}",
     )
 
-    a3.metric(
-        "Flag Rate",
-        f"{anomaly_rate:.2f}%"
+    c.metric(
+        "Anomaly Rate",
+        f"{anomaly_rate:.2f}%",
     )
 
     if ml_df is not None:
 
-        st.markdown("### Flagged Records")
+        st.markdown(
+            '<div class="section-title">Flagged Records</div>',
+            unsafe_allow_html=True,
+        )
 
         flagged = ml_df[
             ml_df["ML_Anomaly"]
@@ -1479,27 +1742,22 @@ with tabs[2]:
         st.dataframe(
             flagged.head(100),
             use_container_width=True,
-            height=400
-        )
-
-        st.caption(
-            "Showing the first 100 flagged records."
+            height=420,
         )
 
         st.download_button(
-            "⬇️ Download ML Anomaly Results",
+            "⬇️ Download ML Results",
             data=ml_df.to_csv(
                 index=False
             ).encode("utf-8"),
             file_name="ml_anomaly_results.csv",
-            mime="text/csv"
+            mime="text/csv",
         )
 
     else:
 
         st.info(
-            "ML anomaly detection could not be performed because "
-            "no suitable numeric features were available."
+            "No suitable numeric features were available for ML anomaly detection."
         )
 
 
@@ -1509,86 +1767,90 @@ with tabs[2]:
 
 with tabs[3]:
 
-    st.markdown("### 📈 Business Insights")
-
-    # --------------------------------------------------------
-    # Sales analysis
-    # --------------------------------------------------------
+    st.markdown(
+        '<div class="section-title">Business Insights</div>',
+        unsafe_allow_html=True,
+    )
 
     if "Sales" in df.columns:
 
         sales = pd.to_numeric(
             df["Sales"],
-            errors="coerce"
+            errors="coerce",
         ).dropna()
 
         if not sales.empty:
 
-            s1, s2, s3, s4 = st.columns(4)
+            a, b, c, d = st.columns(4)
 
-            s1.metric(
+            a.metric(
                 "Total Sales",
-                f"{sales.sum():,.2f}"
+                f"{sales.sum():,.2f}",
             )
 
-            s2.metric(
+            b.metric(
                 "Average Sale",
-                f"{sales.mean():,.2f}"
+                f"{sales.mean():,.2f}",
             )
 
-            s3.metric(
+            c.metric(
                 "Median Sale",
-                f"{sales.median():,.2f}"
+                f"{sales.median():,.2f}",
             )
 
-            s4.metric(
+            d.metric(
                 "Maximum Sale",
-                f"{sales.max():,.2f}"
+                f"{sales.max():,.2f}",
             )
 
-            st.markdown("### Sales Distribution")
+            st.markdown(
+                '<div class="section-title">Sales Distribution</div>',
+                unsafe_allow_html=True,
+            )
 
-            hist_counts, bin_edges = np.histogram(
+            counts, bins = np.histogram(
                 sales,
-                bins=20
+                bins=20,
             )
 
-            histogram_df = pd.DataFrame({
+            histogram = pd.DataFrame({
                 "Sales Range": [
-                    f"{bin_edges[i]:,.0f} – {bin_edges[i+1]:,.0f}"
+                    f"{bins[i]:,.0f} - {bins[i + 1]:,.0f}"
                     for i in range(
-                        len(bin_edges) - 1
+                        len(bins) - 1
                     )
                 ],
-                "Transactions": hist_counts
+                "Transactions": counts,
             }).set_index(
                 "Sales Range"
             )
 
             st.bar_chart(
-                histogram_df
+                histogram
             )
 
-            # Category analysis
             if "Category" in df.columns:
 
                 category_sales = (
                     df.assign(
                         Sales=pd.to_numeric(
                             df["Sales"],
-                            errors="coerce"
+                            errors="coerce",
                         )
                     )
-                    .groupby("Category")[
-                        "Sales"
-                    ]
+                    .groupby(
+                        "Category"
+                    )["Sales"]
                     .sum()
                     .sort_values(
                         ascending=False
                     )
                 )
 
-                st.markdown("### Sales by Category")
+                st.markdown(
+                    '<div class="section-title">Sales by Category</div>',
+                    unsafe_allow_html=True,
+                )
 
                 st.bar_chart(
                     category_sales
@@ -1600,129 +1862,127 @@ with tabs[3]:
             "A Sales column was not detected."
         )
 
-    # --------------------------------------------------------
-    # Datetime trend
-    # --------------------------------------------------------
+    if dates:
 
-    if datetime_columns:
-
-        st.markdown("### 📅 Trend Analysis")
+        st.markdown(
+            '<div class="section-title">Date Trend</div>',
+            unsafe_allow_html=True,
+        )
 
         selected_date = st.selectbox(
             "Select date column",
-            datetime_columns
+            dates,
         )
 
-        date_series = safe_to_datetime(
+        date_values = safe_to_datetime(
             df[selected_date]
         )
 
         trend_df = df.copy()
 
-        trend_df["_Date"] = date_series
+        trend_df["_Date"] = date_values
 
         if "Sales" in trend_df.columns:
 
             trend_df["Sales"] = pd.to_numeric(
                 trend_df["Sales"],
-                errors="coerce"
+                errors="coerce",
             )
 
             trend = (
                 trend_df
-                .dropna(subset=["_Date"])
+                .dropna(
+                    subset=["_Date"]
+                )
                 .groupby(
-                    trend_df["_Date"]
-                    .dt.date
+                    trend_df["_Date"].dt.date
                 )["Sales"]
                 .sum()
             )
-
-            if not trend.empty:
-
-                st.line_chart(
-                    trend
-                )
 
         else:
 
             trend = (
                 trend_df
-                .dropna(subset=["_Date"])
+                .dropna(
+                    subset=["_Date"]
+                )
                 .groupby(
-                    trend_df["_Date"]
-                    .dt.date
+                    trend_df["_Date"].dt.date
                 )
                 .size()
             )
 
-            if not trend.empty:
+        if not trend.empty:
 
-                st.line_chart(
-                    trend
-                )
+            st.line_chart(
+                trend
+            )
 
     else:
 
         st.info(
-            "No reliable date column was detected, so trend analysis is unavailable."
+            "Trend analysis is unavailable because no reliable date column was detected."
         )
 
 
 # ============================================================
-# DATA CLEANING
+# CLEANING
 # ============================================================
 
 with tabs[4]:
 
-    st.markdown("### 🧹 Automated Data Cleaning")
-
-    cleaned_df = clean_data(
-        df
+    st.markdown(
+        '<div class="section-title">Automated Data Cleaning</div>',
+        unsafe_allow_html=True,
     )
 
-    before_rows = len(df)
-    after_rows = len(cleaned_df)
+    cleaned = clean_dataset(
+        df
+    )
 
     before_missing = int(
         df.isna().sum().sum()
     )
 
     after_missing = int(
-        cleaned_df.isna().sum().sum()
+        cleaned.isna().sum().sum()
     )
 
-    c1, c2, c3, c4 = st.columns(4)
+    a, b, c, d = st.columns(4)
 
-    c1.metric(
+    a.metric(
         "Rows Before",
-        f"{before_rows:,}"
+        f"{len(df):,}",
     )
 
-    c2.metric(
+    b.metric(
         "Rows After",
-        f"{after_rows:,}"
+        f"{len(cleaned):,}",
     )
 
-    c3.metric(
+    c.metric(
         "Missing Before",
-        f"{before_missing:,}"
+        f"{before_missing:,}",
     )
 
-    c4.metric(
+    d.metric(
         "Missing After",
-        f"{after_missing:,}"
+        f"{after_missing:,}",
     )
 
-    st.markdown("### Cleaning Operations")
+    st.markdown(
+        '<div class="section-title">Cleaning Operations</div>',
+        unsafe_allow_html=True,
+    )
 
     operations = [
         "Standardized mapped city names",
-        "Handled invalid Age values",
-        "Handled invalid Quantity values",
-        "Filled missing numeric values using median",
-        "Filled missing categorical values using mode",
-        "Removed exact duplicate rows"
+        "Validated Age values",
+        "Validated Quantity values",
+        "Filled numeric missing values using median",
+        "Filled categorical missing values using mode",
+        "Removed exact duplicate rows",
     ]
 
     for operation in operations:
@@ -1731,21 +1991,24 @@ with tabs[4]:
             f"✓ {operation}"
         )
 
-    st.markdown("### Cleaned Dataset Preview")
+    st.markdown(
+        '<div class="section-title">Cleaned Dataset</div>',
+        unsafe_allow_html=True,
+    )
 
     st.dataframe(
-        cleaned_df.head(20),
+        cleaned.head(20),
         use_container_width=True,
-        height=400
+        height=400,
     )
 
     st.download_button(
-        "⬇️ Download Cleaned Dataset",
-        data=cleaned_df.to_csv(
+        "⬇️ Download Cleaned CSV",
+        data=cleaned.to_csv(
             index=False
         ).encode("utf-8"),
         file_name="cleaned_data.csv",
-        mime="text/csv"
+        mime="text/csv",
     )
 
 
@@ -1755,31 +2018,38 @@ with tabs[4]:
 
 with tabs[5]:
 
-    st.markdown("### 🤖 AI Data Quality Assessment")
+    st.markdown(
+        '<div class="section-title">AI Data Quality Assessment</div>',
+        unsafe_allow_html=True,
+    )
 
-    st.markdown("""
-    <div class="info-box">
-    AI analysis is evidence-based: the model is instructed to use only
-    metrics calculated by DataGuard AI and to label possible causes as
-    hypotheses rather than facts.
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        """
+        <div class="content-card">
+        <b>🤖 Evidence-based AI analysis</b>
+        <p style="color:#667085;">
+        Gemini receives calculated DataGuard AI metrics and is instructed
+        not to invent unsupported relationships or causes.
+        </p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
-    gemini_api_key = st.text_input(
+    api_key = st.text_input(
         "Gemini API Key",
         type="password",
-        help="Optional. Your API key is used only for this analysis."
     )
 
     if st.button(
         "🤖 Run AI Analysis",
-        use_container_width=True
+        use_container_width=True,
     ):
 
-        if not gemini_api_key:
+        if not api_key:
 
             st.warning(
-                "Enter a Gemini API key to run AI analysis."
+                "Please enter a Gemini API key."
             )
 
         else:
@@ -1789,7 +2059,7 @@ with tabs[5]:
                 import google.generativeai as genai
 
                 genai.configure(
-                    api_key=gemini_api_key
+                    api_key=api_key
                 )
 
                 model = genai.GenerativeModel(
@@ -1800,91 +2070,90 @@ with tabs[5]:
 
                 if "Sales" in df.columns:
 
-                    sales_numeric = pd.to_numeric(
+                    sales = pd.to_numeric(
                         df["Sales"],
-                        errors="coerce"
+                        errors="coerce",
                     ).dropna()
 
-                    if not sales_numeric.empty:
+                    if not sales.empty:
 
                         sales_summary = {
-                            "total_sales": round(
+                            "total": round(
                                 float(
-                                    sales_numeric.sum()
+                                    sales.sum()
                                 ),
-                                2
+                                2,
                             ),
-                            "average_sales": round(
+                            "average": round(
                                 float(
-                                    sales_numeric.mean()
+                                    sales.mean()
                                 ),
-                                2
+                                2,
                             ),
-                            "median_sales": round(
+                            "median": round(
                                 float(
-                                    sales_numeric.median()
+                                    sales.median()
                                 ),
-                                2
+                                2,
                             ),
-                            "maximum_sales": round(
+                            "maximum": round(
                                 float(
-                                    sales_numeric.max()
+                                    sales.max()
                                 ),
-                                2
-                            )
+                                2,
+                            ),
                         }
 
                 prompt = f"""
-You are a data quality analyst reviewing a dataset.
+You are a professional data quality analyst.
 
-Use ONLY the facts and metrics supplied below.
+Use ONLY the facts supplied below.
 
-Do not invent relationships.
-Do not invent causes.
-Do not claim a relationship unless the supplied metrics demonstrate it.
-If you suggest a possible cause, explicitly label it as a hypothesis.
+Do NOT invent relationships.
+Do NOT invent causes.
+If you suggest a possible cause, label it as a HYPOTHESIS.
 
-Important distinction:
-- Missing values, duplicates, invalid values and mapped inconsistencies
-  are data-quality issues.
-- IQR outliers are statistical observations.
-- Isolation Forest anomalies are ML screening flags and are NOT proof
-  that records are incorrect.
+Distinguish:
 
-Dataset facts:
+1. Confirmed data-quality issues
+2. Statistical outliers
+3. Machine-learning screening flags
 
+Isolation Forest anomaly flags are NOT proof that a record is incorrect.
+
+Dataset:
 Rows: {rows}
 Columns: {columns}
 
-Missing cells: {missing_cells}
-Duplicate rows: {duplicate_count}
+Missing cells: {missing}
+Duplicate rows: {duplicates}
 Invalid values: {invalid_count}
 
-City inconsistency rows: {city_info["rows"]}
-City inconsistency labels: {city_info["values"]}
+City issue rows: {cities["rows"]}
+City issue labels: {cities["labels"]}
 
 IQR outlier rows: {outlier_count}
 
-Isolation Forest anomaly rows: {anomaly_count}
-Isolation Forest anomaly rate: {anomaly_rate:.2f}%
+ML anomaly rows: {anomaly_count}
+ML anomaly rate: {anomaly_rate:.2f}%
 
-Rule-based quality score: {quality_score}/100
+Rule-based quality score: {score}/100
 
 Sales summary:
 {sales_summary}
 
-Provide the following:
+Return:
 
 1. Executive summary
-2. Confirmed data-quality issues
+2. Confirmed issues
 3. Statistical observations
 4. ML anomaly interpretation
-5. Possible causes — clearly label these as hypotheses
-6. Recommended data-cleaning actions
-7. Business impact
-8. Final priority level: Low, Medium, High or Critical
+5. Possible causes (HYPOTHESES)
+6. Recommended actions
+7. Potential business impact
+8. Priority: Low / Medium / High / Critical
 
-Do not say the dataset is unusable solely because of ML anomaly flags.
+Do not claim the dataset is unusable only because ML anomalies exist.
 """
 
                 response = model.generate_content(
@@ -1903,77 +2172,107 @@ Do not say the dataset is unusable solely because of ML anomaly flags.
 
 
 # ============================================================
-# POWER BI EXPORT
+# POWER BI
 # ============================================================
 
 with tabs[6]:
 
-    st.markdown("### 📦 Power BI-Ready Export")
+    st.markdown(
+        '<div class="section-title">Power BI-Ready Export</div>',
+        unsafe_allow_html=True,
+    )
 
-    cleaned_df = clean_data(
+    cleaned = clean_dataset(
         df
     )
 
-    data_dictionary = create_data_dictionary(
-        cleaned_df
+    dictionary = data_dictionary(
+        cleaned
     )
 
-    quality_summary = create_quality_summary(
-        df,
-        quality_score,
-        invalid_count,
-        duplicate_count,
-        city_info["rows"],
-        outlier_count,
-        anomaly_count
+    quality = pd.DataFrame({
+        "Metric": [
+            "Rows",
+            "Columns",
+            "Missing Cells",
+            "Duplicate Rows",
+            "Invalid Values",
+            "City Issue Rows",
+            "IQR Outlier Rows",
+            "ML Anomaly Rows",
+            "ML Anomaly Rate %",
+            "Quality Score",
+        ],
+        "Value": [
+            rows,
+            columns,
+            missing,
+            duplicates,
+            invalid_count,
+            cities["rows"],
+            outlier_count,
+            anomaly_count,
+            round(
+                anomaly_rate,
+                2,
+            ),
+            score,
+        ],
+    })
+
+    numeric = numeric_summary(
+        cleaned
     )
 
-    numeric_summary = calculate_numeric_summary(
-        cleaned_df
-    )
-
-    missing_summary = calculate_missing_summary(
-        cleaned_df
+    missing_clean = missing_summary(
+        cleaned
     )
 
     files = {
         "cleaned_data.csv":
-            cleaned_df.to_csv(
+            cleaned.to_csv(
                 index=False
             ),
 
         "data_dictionary.csv":
-            data_dictionary.to_csv(
+            dictionary.to_csv(
                 index=False
             ),
 
         "quality_summary.csv":
-            quality_summary.to_csv(
+            quality.to_csv(
                 index=False
             ),
 
         "numeric_summary.csv":
-            numeric_summary.to_csv(
+            numeric.to_csv(
                 index=False
             ),
 
         "missing_summary.csv":
-            missing_summary.to_csv(
+            missing_clean.to_csv(
                 index=False
-            )
+            ),
     }
 
-    st.markdown("""
-    <div class="success-box">
-    <b>✓ Power BI package ready</b><br>
-    Import the cleaned CSV into Power BI and use the supporting
-    summary files for data-quality reporting.
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        """
+        <div class="status-good">
+            <div class="status-title">
+                ✓ Power BI package ready
+            </div>
+            <div class="status-text">
+                Your cleaned dataset and supporting quality reports
+                are ready for Power BI.
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
-    st.markdown("### Available Files")
+    st.write("")
 
-    for filename in files.keys():
+    for filename in files:
 
         st.write(
             f"📄 {filename}"
@@ -1986,7 +2285,7 @@ with tabs[6]:
         ].encode("utf-8"),
         file_name="cleaned_data.csv",
         mime="text/csv",
-        use_container_width=True
+        use_container_width=True,
     )
 
     st.download_button(
@@ -1996,19 +2295,17 @@ with tabs[6]:
         ].encode("utf-8"),
         file_name="quality_summary.csv",
         mime="text/csv",
-        use_container_width=True
-    )
-
-    zip_data = generate_zip(
-        files
+        use_container_width=True,
     )
 
     st.download_button(
         "📦 Download Complete Power BI Package",
-        data=zip_data,
+        data=zip_package(
+            files
+        ),
         file_name="dataguard_powerbi_package.zip",
         mime="application/zip",
-        use_container_width=True
+        use_container_width=True,
     )
 
 
@@ -2018,48 +2315,61 @@ with tabs[6]:
 
 with tabs[7]:
 
-    st.markdown("### 📄 DataGuard AI Final Report")
+    st.markdown(
+        '<div class="section-title">Final Data Quality Report</div>',
+        unsafe_allow_html=True,
+    )
 
-    report_data = {
-        "Generated At": datetime.now().strftime(
-            "%Y-%m-%d %H:%M:%S"
-        ),
-        "Dataset": uploaded_file.name,
-        "Rows": rows,
-        "Columns": columns,
-        "Missing Cells": missing_cells,
-        "Duplicate Rows": duplicate_count,
-        "Invalid Values": invalid_count,
-        "City Issue Rows": city_info["rows"],
-        "IQR Outlier Rows": outlier_count,
-        "ML Anomaly Rows": anomaly_count,
-        "ML Anomaly Rate": f"{anomaly_rate:.2f}%",
-        "Quality Score": quality_score,
-        "Quality Status": quality_status,
-        "Rows After Cleaning": len(
-            clean_data(df)
-        )
-    }
-
-    report_df = pd.DataFrame({
-        "Metric": report_data.keys(),
-        "Value": report_data.values()
+    report = pd.DataFrame({
+        "Metric": [
+            "Dataset",
+            "Generated At",
+            "Rows",
+            "Columns",
+            "Missing Cells",
+            "Duplicate Rows",
+            "Invalid Values",
+            "City Issue Rows",
+            "IQR Outlier Rows",
+            "ML Anomaly Rows",
+            "ML Anomaly Rate",
+            "Quality Score",
+            "Quality Status",
+        ],
+        "Value": [
+            uploaded_file.name,
+            datetime.now().strftime(
+                "%Y-%m-%d %H:%M:%S"
+            ),
+            rows,
+            columns,
+            missing,
+            duplicates,
+            invalid_count,
+            cities["rows"],
+            outlier_count,
+            anomaly_count,
+            f"{anomaly_rate:.2f}%",
+            score,
+            score_text,
+        ],
     })
 
     st.dataframe(
-        report_df,
-        use_container_width=True
+        report,
+        use_container_width=True,
     )
 
     report_text = f"""
-DataGuard AI - Data Quality Report
-===================================
+DATAGUARD AI
+DATA QUALITY REPORT
+===================
 
 Dataset:
 {uploaded_file.name}
 
 Generated:
-{report_data["Generated At"]}
+{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 
 DATASET
 -------
@@ -2068,55 +2378,56 @@ Columns: {columns}
 
 DATA QUALITY
 ------------
-Missing Cells: {missing_cells}
-Duplicate Rows: {duplicate_count}
+Missing Cells: {missing}
+Duplicate Rows: {duplicates}
 Invalid Values: {invalid_count}
-City Issue Rows: {city_info["rows"]}
+City Issue Rows: {cities["rows"]}
 IQR Outlier Rows: {outlier_count}
 
 MACHINE LEARNING
 ----------------
-Isolation Forest Sensitivity: {anomaly_contamination:.0%}
+Sensitivity: {anomaly_sensitivity}%
 ML Anomaly Rows: {anomaly_count}
 ML Anomaly Rate: {anomaly_rate:.2f}%
 
-QUALITY SCORE
--------------
-Score: {quality_score}/100
-Status: {quality_status}
+QUALITY
+-------
+Score: {score}/100
+Status: {score_text}
 
 CLEANING
 --------
-Rows Before: {rows}
-Rows After: {len(clean_data(df))}
-Missing Values After Cleaning:
-{int(clean_data(df).isna().sum().sum())}
+Rows Before: {len(df)}
+Rows After: {len(cleaned)}
 
-POWER BI EXPORTS
-----------------
-cleaned_data.csv
-data_dictionary.csv
-quality_summary.csv
-numeric_summary.csv
-missing_summary.csv
+Missing Before: {before_missing if 'before_missing' in locals() else missing}
+Missing After: {after_missing if 'after_missing' in locals() else 'N/A'}
 
-Note:
-ML anomaly flags are screening indicators and should be reviewed
-before being treated as confirmed data-quality errors.
+NOTE
+----
+Isolation Forest anomaly flags are screening indicators.
+They should be investigated before being treated as confirmed
+data-quality errors.
 """
 
     st.download_button(
         "⬇️ Download Final Report",
-        data=report_text.encode("utf-8"),
+        data=report_text.encode(
+            "utf-8"
+        ),
         file_name="dataguard_final_report.txt",
         mime="text/plain",
-        use_container_width=True
+        use_container_width=True,
     )
 
-    st.markdown("""
-    <div class="success-box">
-    <b>✓ DataGuard AI pipeline completed successfully.</b><br>
-    Your dataset has been profiled, checked, analyzed, cleaned and
-    prepared for downstream BI analysis.
-    </div>
-    """, unsafe_allow_html=True)
+
+# ============================================================
+# FOOTER
+# ============================================================
+
+st.markdown(
+    '<div class="footer">'
+    '🛡️ DataGuard AI • Data Quality • Anomaly Detection • Power BI Ready'
+    '</div>',
+    unsafe_allow_html=True,
+)
