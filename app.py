@@ -12,6 +12,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import requests
 import streamlit as st
 
 from sklearn.ensemble import IsolationForest
@@ -51,54 +52,26 @@ POWERBI_FOLDER = Path.cwd() / "powerbi_export"
 
 
 # ============================================================
-# POWER BI CONFIGURATION
-# ============================================================
-# These values must be stored in Streamlit Secrets.
-#
-# Do NOT put actual credentials directly in this file.
-#
-# Streamlit Secrets example:
-#
-# POWERBI_TENANT_ID = "your-tenant-id"
-# POWERBI_CLIENT_ID = "your-client-id"
-# POWERBI_CLIENT_SECRET = "your-client-secret"
-# POWERBI_WORKSPACE_ID = "your-workspace-id"
-# POWERBI_DATASET_ID = "your-dataset-id"
-#
+# POWER BI AUTOMATION CONFIGURATION
 # ============================================================
 
-def get_secret_or_env(name):
-
-    value = os.environ.get(name)
-
-    if value:
-        return value
-
-    try:
-        value = st.secrets.get(name)
-    except Exception:
-        value = None
-
-    return value
-
-
-POWERBI_TENANT_ID = get_secret_or_env(
+POWERBI_TENANT_ID = os.environ.get(
     "POWERBI_TENANT_ID"
 )
 
-POWERBI_CLIENT_ID = get_secret_or_env(
+POWERBI_CLIENT_ID = os.environ.get(
     "POWERBI_CLIENT_ID"
 )
 
-POWERBI_CLIENT_SECRET = get_secret_or_env(
+POWERBI_CLIENT_SECRET = os.environ.get(
     "POWERBI_CLIENT_SECRET"
 )
 
-POWERBI_WORKSPACE_ID = get_secret_or_env(
+POWERBI_WORKSPACE_ID = os.environ.get(
     "POWERBI_WORKSPACE_ID"
 )
 
-POWERBI_DATASET_ID = get_secret_or_env(
+POWERBI_DATASET_ID = os.environ.get(
     "POWERBI_DATASET_ID"
 )
 
@@ -127,7 +100,9 @@ Upload a CSV or Excel dataset and DataGuard AI will:
 
 def get_gemini_client():
 
-    api_key = os.environ.get("GEMINI_API_KEY")
+    api_key = os.environ.get(
+        "GEMINI_API_KEY"
+    )
 
     if not api_key:
 
@@ -165,17 +140,28 @@ client = get_gemini_client()
 
 st.sidebar.title("🛡️ DataGuard AI")
 
-st.sidebar.markdown("### Pipeline")
+st.sidebar.markdown(
+    "### Pipeline"
+)
 
 pipeline_steps = [
+
     "1. Upload Data",
+
     "2. Profile Dataset",
+
     "3. Detect Quality Issues",
+
     "4. Detect Statistical Outliers",
+
     "5. Detect ML Anomalies",
+
     "6. Analyze Root Causes",
+
     "7. Clean Data",
+
     "8. Export for Power BI",
+
     "9. Generate Report"
 ]
 
@@ -213,6 +199,7 @@ st.sidebar.caption(
 def load_data(uploaded_file):
 
     if uploaded_file is None:
+
         return None
 
     file_name = uploaded_file.name.lower()
@@ -247,7 +234,7 @@ def load_data(uploaded_file):
 
 
         # ----------------------------------------------------
-        # Automatic Date/Time Detection
+        # AUTOMATIC DATE/TIME DETECTION
         # ----------------------------------------------------
 
         for column in df.columns:
@@ -258,8 +245,7 @@ def load_data(uploaded_file):
 
             if (
                 "date" in column_name
-                or
-                "time" in column_name
+                or "time" in column_name
             ):
 
                 if df[column].dtype == "object":
@@ -275,9 +261,7 @@ def load_data(uploaded_file):
 
                     if valid_ratio >= 0.80:
 
-                        df[column] = (
-                            parsed_dates
-                        )
+                        df[column] = parsed_dates
 
 
         return df
@@ -299,7 +283,8 @@ def load_data(uploaded_file):
 def classify_columns(df):
 
     numeric_columns = (
-        df.select_dtypes(
+        df
+        .select_dtypes(
             include=np.number
         )
         .columns
@@ -307,7 +292,8 @@ def classify_columns(df):
     )
 
     categorical_columns = (
-        df.select_dtypes(
+        df
+        .select_dtypes(
             include=[
                 "object",
                 "category",
@@ -319,7 +305,8 @@ def classify_columns(df):
     )
 
     datetime_columns = (
-        df.select_dtypes(
+        df
+        .select_dtypes(
             include=[
                 "datetime64[ns]",
                 "datetime64[ns, UTC]"
@@ -333,25 +320,20 @@ def classify_columns(df):
 
     for column in df.columns:
 
-        column_lower = (
-            str(column)
-            .lower()
-        )
+        column_lower = str(
+            column
+        ).lower()
 
         if (
             column_lower.endswith("_id")
-            or
-            column_lower == "id"
-            or
-            "customer_id" in column_lower
-            or
-            "order_id" in column_lower
+            or column_lower == "id"
+            or "customer_id" in column_lower
+            or "order_id" in column_lower
         ):
 
             identifier_columns.append(
                 column
             )
-
 
     return (
         numeric_columns,
@@ -367,7 +349,11 @@ def classify_columns(df):
 
 def check_missing_values(df):
 
-    missing = df.isnull().sum()
+    missing = (
+        df
+        .isnull()
+        .sum()
+    )
 
     missing = missing[
         missing > 0
@@ -383,7 +369,6 @@ def check_missing_values(df):
             ]
         )
 
-
     return pd.DataFrame({
 
         "Column":
@@ -395,12 +380,9 @@ def check_missing_values(df):
         "Missing_Percentage":
             (
                 missing.values
-                /
-                len(df)
-                *
-                100
+                / len(df)
+                * 100
             ).round(2)
-
     })
 
 
@@ -423,6 +405,7 @@ def check_invalid_values(df):
 
     issues = []
 
+
     # --------------------------------------------------------
     # AGE
     # --------------------------------------------------------
@@ -435,18 +418,20 @@ def check_invalid_values(df):
         )
 
         invalid_age = (
+
             (
                 age_numeric
-                <
-                EXPECTED_AGE_MIN
+                < EXPECTED_AGE_MIN
             )
+
             |
+
             (
                 age_numeric
-                >
-                EXPECTED_AGE_MAX
+                > EXPECTED_AGE_MAX
             )
         ).sum()
+
 
         if invalid_age > 0:
 
@@ -463,7 +448,6 @@ def check_invalid_values(df):
 
                 "Severity":
                     "High"
-
             })
 
 
@@ -482,6 +466,7 @@ def check_invalid_values(df):
             quantity_numeric < 0
         ).sum()
 
+
         if invalid_quantity > 0:
 
             issues.append({
@@ -497,7 +482,6 @@ def check_invalid_values(df):
 
                 "Severity":
                     "High"
-
             })
 
 
@@ -513,14 +497,20 @@ def check_invalid_values(df):
         )
 
         invalid_discount = (
+
             (
-                discount_numeric < 0
+                discount_numeric
+                < 0
             )
+
             |
+
             (
-                discount_numeric > 1
+                discount_numeric
+                > 1
             )
         ).sum()
+
 
         if invalid_discount > 0:
 
@@ -537,7 +527,6 @@ def check_invalid_values(df):
 
                 "Severity":
                     "Medium"
-
             })
 
 
@@ -564,12 +553,15 @@ def find_city_inconsistencies(df):
 
 
     city_counts = (
+
         df["City"]
         .astype("string")
         .value_counts()
     )
 
+
     inconsistent_values = []
+
 
     for value in city_counts.index:
 
@@ -591,7 +583,6 @@ def find_city_inconsistencies(df):
                     int(
                         city_counts[value]
                     )
-
             })
 
 
@@ -639,7 +630,6 @@ def detect_iqr_outliers(
 
             "Count":
                 0
-
         }
 
 
@@ -671,17 +661,19 @@ def detect_iqr_outliers(
         errors="coerce"
     )
 
+
     mask = (
+
         (
             numeric_values
-            <
-            lower_bound
+            < lower_bound
         )
+
         |
+
         (
             numeric_values
-            >
-            upper_bound
+            > upper_bound
         )
     )
 
@@ -713,7 +705,6 @@ def detect_iqr_outliers(
 
         "Count":
             len(outliers)
-
     }
 
 
@@ -724,12 +715,15 @@ def detect_iqr_outliers(
 def detect_all_statistical_outliers(df):
 
     numeric_columns = (
-        df.select_dtypes(
+
+        df
+        .select_dtypes(
             include=np.number
         )
         .columns
         .tolist()
     )
+
 
     results = []
 
@@ -738,17 +732,20 @@ def detect_all_statistical_outliers(df):
 
     for column in numeric_columns:
 
-        column_lower = (
-            str(column)
-            .lower()
-        )
+        column_lower = str(
+            column
+        ).lower()
 
 
-        # Skip identifiers
-
+        # Skip identifier columns
         if (
-            column_lower.endswith("_id")
+
+            column_lower.endswith(
+                "_id"
+            )
+
             or
+
             column_lower == "id"
         ):
 
@@ -759,6 +756,7 @@ def detect_all_statistical_outliers(df):
             df,
             column
         )
+
 
         outlier_details[
             column
@@ -771,63 +769,86 @@ def detect_all_statistical_outliers(df):
                 column,
 
             "Q1":
-                round(
-                    result["Q1"],
-                    4
-                )
-                if pd.notna(
-                    result["Q1"]
-                )
-                else np.nan,
+                (
+                    round(
+                        result["Q1"],
+                        4
+                    )
+
+                    if pd.notna(
+                        result["Q1"]
+                    )
+
+                    else np.nan
+                ),
 
             "Q3":
-                round(
-                    result["Q3"],
-                    4
-                )
-                if pd.notna(
-                    result["Q3"]
-                )
-                else np.nan,
+                (
+                    round(
+                        result["Q3"],
+                        4
+                    )
+
+                    if pd.notna(
+                        result["Q3"]
+                    )
+
+                    else np.nan
+                ),
 
             "IQR":
-                round(
-                    result["IQR"],
-                    4
-                )
-                if pd.notna(
-                    result["IQR"]
-                )
-                else np.nan,
+                (
+                    round(
+                        result["IQR"],
+                        4
+                    )
+
+                    if pd.notna(
+                        result["IQR"]
+                    )
+
+                    else np.nan
+                ),
 
             "Lower_Bound":
-                round(
-                    result["Lower_Bound"],
-                    4
-                )
-                if pd.notna(
-                    result["Lower_Bound"]
-                )
-                else np.nan,
+                (
+                    round(
+                        result["Lower_Bound"],
+                        4
+                    )
+
+                    if pd.notna(
+                        result["Lower_Bound"]
+                    )
+
+                    else np.nan
+                ),
 
             "Upper_Bound":
-                round(
-                    result["Upper_Bound"],
-                    4
-                )
-                if pd.notna(
-                    result["Upper_Bound"]
-                )
-                else np.nan,
+                (
+                    round(
+                        result["Upper_Bound"],
+                        4
+                    )
+
+                    if pd.notna(
+                        result["Upper_Bound"]
+                    )
+
+                    else np.nan
+                ),
 
             "Outlier_Count":
                 result["Count"]
-
         })
 
 
     return (
-        pd.DataFrame(results),
+
+        pd.DataFrame(
+            results
+        ),
+
         outlier_details
     )
 
@@ -844,27 +865,29 @@ def detect_ml_anomalies(df):
         "Quantity",
         "Sales",
         "Discount"
-
     ]
 
 
     anomaly_features = [
 
         column
-        for column in preferred_features
-        if column in df.columns
 
+        for column in preferred_features
+
+        if column in df.columns
     ]
 
 
     # --------------------------------------------------------
-    # FALLBACK
+    # FALLBACK FEATURES
     # --------------------------------------------------------
 
     if len(anomaly_features) < 2:
 
         numeric_columns = (
-            df.select_dtypes(
+
+            df
+            .select_dtypes(
                 include=np.number
             )
             .columns
@@ -875,19 +898,21 @@ def detect_ml_anomalies(df):
         anomaly_features = [
 
             column
+
             for column in numeric_columns
 
             if not (
+
                 str(column)
                 .lower()
                 .endswith("_id")
+
                 or
+
                 str(column)
                 .lower()
-                ==
-                "id"
+                == "id"
             )
-
         ]
 
 
@@ -896,16 +921,18 @@ def detect_ml_anomalies(df):
         result_df = df.copy()
 
         return (
+
             result_df,
+
             [],
+
             0
         )
 
 
-    ml_data = (
-        df[anomaly_features]
-        .copy()
-    )
+    ml_data = df[
+        anomaly_features
+    ].copy()
 
 
     # --------------------------------------------------------
@@ -918,6 +945,7 @@ def detect_ml_anomalies(df):
             ml_data[column],
             errors="coerce"
         )
+
 
         median_value = (
             ml_data[column]
@@ -933,8 +961,11 @@ def detect_ml_anomalies(df):
 
 
         ml_data[column] = (
+
             ml_data[column]
-            .fillna(median_value)
+            .fillna(
+                median_value
+            )
         )
 
 
@@ -951,8 +982,11 @@ def detect_ml_anomalies(df):
         ] = 1
 
         return (
+
             result_df,
+
             anomaly_features,
+
             0
         )
 
@@ -968,7 +1002,6 @@ def detect_ml_anomalies(df):
         contamination=0.02,
 
         random_state=42
-
     )
 
 
@@ -979,26 +1012,32 @@ def detect_ml_anomalies(df):
 
     result_df = df.copy()
 
+
+    # -1 = anomaly
+    #  1 = normal
+
     result_df[
         "ML_Anomaly"
     ] = predictions
 
 
     anomaly_count = int(
+
         (
             result_df[
                 "ML_Anomaly"
             ]
-            ==
-            -1
-        )
-        .sum()
+            == -1
+        ).sum()
     )
 
 
     return (
+
         result_df,
+
         anomaly_features,
+
         anomaly_count
     )
 
@@ -1008,10 +1047,15 @@ def detect_ml_anomalies(df):
 # ============================================================
 
 def calculate_quality_score(
+
     df,
+
     missing_count,
+
     duplicate_count,
+
     invalid_count
+
 ):
 
     if len(df) == 0:
@@ -1020,17 +1064,20 @@ def calculate_quality_score(
 
 
     total_cells = max(
+
         len(df)
         *
         max(
             len(df.columns),
             1
         ),
+
         1
     )
 
 
     missing_rate = (
+
         missing_count
         /
         total_cells
@@ -1038,6 +1085,7 @@ def calculate_quality_score(
 
 
     duplicate_rate = (
+
         duplicate_count
         /
         len(df)
@@ -1045,6 +1093,7 @@ def calculate_quality_score(
 
 
     invalid_rate = (
+
         invalid_count
         /
         len(df)
@@ -1054,21 +1103,17 @@ def calculate_quality_score(
     score = 100 - (
 
         missing_rate
-        *
-        40
+        * 40
 
         +
 
         duplicate_rate
-        *
-        30
+        * 30
 
         +
 
         invalid_rate
-        *
-        30
-
+        * 30
     )
 
 
@@ -1083,7 +1128,6 @@ def calculate_quality_score(
         ),
 
         2
-
     )
 
 
@@ -1115,12 +1159,19 @@ def quality_label(score):
 # ============================================================
 
 def rule_based_root_cause(
+
     missing_count,
+
     duplicate_count,
+
     invalid_count,
+
     city_count,
+
     statistical_outlier_count,
+
     ml_anomaly_count
+
 ):
 
     causes = []
@@ -1134,14 +1185,12 @@ def rule_based_root_cause(
                 "Missing Values",
 
             "Possible Root Cause":
-                "Incomplete data entry, unavailable source "
-                "values, or missing information during data "
-                "integration.",
+                "Incomplete data entry, unavailable source values, "
+                "or missing information during data integration.",
 
             "Recommendation":
-                "Investigate the source system and define "
-                "an appropriate missing-value handling strategy."
-
+                "Investigate the source system and define an "
+                "appropriate missing-value handling strategy."
         })
 
 
@@ -1157,9 +1206,8 @@ def rule_based_root_cause(
                 "or repeated ingestion of the same records.",
 
             "Recommendation":
-                "Check unique identifiers and ingestion "
-                "processes before removing duplicates."
-
+                "Check unique identifiers and ingestion processes "
+                "before removing duplicates."
         })
 
 
@@ -1175,9 +1223,7 @@ def rule_based_root_cause(
                 "or source-system validation problems.",
 
             "Recommendation":
-                "Add validation rules at the point where "
-                "data is created."
-
+                "Add validation rules at the point where data is created."
         })
 
 
@@ -1194,7 +1240,6 @@ def rule_based_root_cause(
 
             "Recommendation":
                 "Use a standardized master-data mapping."
-
         })
 
 
@@ -1206,14 +1251,12 @@ def rule_based_root_cause(
                 "Statistical Outliers",
 
             "Possible Root Cause":
-                "Legitimate unusual transactions, extreme "
-                "business events, data-entry errors, or "
-                "unusual customer behavior.",
+                "Legitimate unusual transactions, extreme business "
+                "events, data-entry errors, or unusual customer behavior.",
 
             "Recommendation":
                 "Investigate individual records before changing "
                 "or deleting them."
-
         })
 
 
@@ -1229,9 +1272,7 @@ def rule_based_root_cause(
 
             "Recommendation":
                 "Review flagged records with domain context. "
-                "ML anomalies are not automatically data errors "
-                "or fraud."
-
+                "ML anomalies are not automatically data errors or fraud."
         })
 
 
@@ -1249,10 +1290,17 @@ def ask_gemini(issue_summary):
     if client is None:
 
         return (
+
             "### Gemini AI unavailable\n\n"
+
             "Gemini AI is not configured for this deployment.\n\n"
+
+            "For local or Colab execution, configure the "
+            "`GEMINI_API_KEY` environment variable.\n\n"
+
             "For Streamlit Community Cloud, add "
             "`GEMINI_API_KEY` under App Settings → Secrets.\n\n"
+
             "Never place your API key directly inside `app.py` "
             "or upload it to GitHub."
         )
@@ -1304,7 +1352,6 @@ Provide the analysis using these sections:
 ### 8. Recommended Actions
 
 ### 9. Priority Order
-
 """
 
 
@@ -1319,13 +1366,15 @@ Provide the analysis using these sections:
             generation_config={
                 "temperature": 0.2
             }
-
         )
 
 
         output = getattr(
+
             response,
+
             "output_text",
+
             None
         )
 
@@ -1336,6 +1385,7 @@ Provide the analysis using these sections:
 
 
         return (
+
             "Gemini returned an empty response. "
             "Please try again."
         )
@@ -1344,8 +1394,11 @@ Provide the analysis using these sections:
     except Exception as e:
 
         return (
+
             "### Gemini AI Error\n\n"
+
             "Gemini could not complete the analysis.\n\n"
+
             f"Error: {str(e)}"
         )
 
@@ -1355,8 +1408,11 @@ Provide the analysis using these sections:
 # ============================================================
 
 def clean_data(
+
     df,
+
     identifier_columns
+
 ):
 
     cleaned_df = df.copy()
@@ -1377,6 +1433,7 @@ def clean_data(
 
 
         cleaned_df["City"] = (
+
             cleaned_df["City"]
             .replace(
                 CITY_MAPPING
@@ -1387,15 +1444,12 @@ def clean_data(
         changed = int(
 
             (
-
                 city_before
                 !=
                 cleaned_df["City"]
-
             )
             .fillna(False)
             .sum()
-
         )
 
 
@@ -1411,7 +1465,6 @@ def clean_data(
 
                 "Affected_Rows":
                     changed
-
             })
 
 
@@ -1442,15 +1495,13 @@ def clean_data(
                 |
                 (x > 1)
             )
-
     }
 
 
-    for column, rule in (
-        invalid_rules.items()
-    ):
+    for column, rule in invalid_rules.items():
 
         if column not in cleaned_df.columns:
+
             continue
 
 
@@ -1459,7 +1510,6 @@ def clean_data(
             cleaned_df[column],
 
             errors="coerce"
-
         )
 
 
@@ -1491,7 +1541,6 @@ def clean_data(
 
                 "Affected_Rows":
                     count
-
             })
 
 
@@ -1507,17 +1556,16 @@ def clean_data(
         )
         .columns
         .tolist()
-
     )
 
 
     numeric_columns = [
 
         column
+
         for column in numeric_columns
 
         if column not in identifier_columns
-
     ]
 
 
@@ -1531,15 +1579,16 @@ def clean_data(
             cleaned_df[column]
             .isnull()
             .sum()
-
         )
 
 
         if before_missing == 0:
+
             continue
 
 
         median_value = (
+
             cleaned_df[column]
             .median()
         )
@@ -1552,8 +1601,9 @@ def clean_data(
             cleaned_df[column] = (
 
                 cleaned_df[column]
-                .fillna(median_value)
-
+                .fillna(
+                    median_value
+                )
             )
 
 
@@ -1562,7 +1612,6 @@ def clean_data(
                 cleaned_df[column]
                 .isnull()
                 .sum()
-
             )
 
 
@@ -1571,7 +1620,6 @@ def clean_data(
                 before_missing
                 -
                 after_missing
-
             )
 
 
@@ -1590,7 +1638,6 @@ def clean_data(
 
                     "Affected_Rows":
                         filled
-
                 })
 
 
@@ -1598,8 +1645,8 @@ def clean_data(
     # REMOVE DUPLICATES
     # --------------------------------------------------------
 
-    before_duplicates = (
-        len(cleaned_df)
+    before_duplicates = len(
+        cleaned_df
     )
 
 
@@ -1614,7 +1661,6 @@ def clean_data(
         before_duplicates
         -
         len(cleaned_df)
-
     )
 
 
@@ -1630,12 +1676,11 @@ def clean_data(
 
             "Affected_Rows":
                 duplicates_removed
-
         })
 
 
     # --------------------------------------------------------
-    # CLEANING LOG
+    # LOG
     # --------------------------------------------------------
 
     if not cleaning_log:
@@ -1650,7 +1695,6 @@ def clean_data(
 
             "Affected_Rows":
                 0
-
         })
 
 
@@ -1666,7 +1710,6 @@ def clean_data(
         cleaning_log_df,
 
         total_filled
-
     )
 
 
@@ -1675,14 +1718,23 @@ def clean_data(
 # ============================================================
 
 def generate_report(
+
     df,
+
     duplicate_count,
+
     invalid_df,
+
     city_df,
+
     statistical_df,
+
     ml_anomaly_count,
+
     quality_score,
+
     cleaned_df
+
 ):
 
     invalid_total = (
@@ -1694,7 +1746,6 @@ def generate_report(
         if not invalid_df.empty
 
         else 0
-
     )
 
 
@@ -1708,42 +1759,29 @@ def generate_report(
 
         f"Columns: {len(df.columns)}",
 
-        (
-            "Missing Cells: "
-            f"{int(df.isnull().sum().sum())}"
-        ),
+        f"Missing Cells: "
+        f"{int(df.isnull().sum().sum())}",
 
-        (
-            "Duplicate Records: "
-            f"{duplicate_count}"
-        ),
+        f"Duplicate Records: "
+        f"{duplicate_count}",
 
-        (
-            "Invalid Values: "
-            f"{invalid_total}"
-        ),
+        f"Invalid Values: "
+        f"{invalid_total}",
 
-        (
-            "ML Anomalies: "
-            f"{ml_anomaly_count}"
-        ),
+        f"ML Anomalies: "
+        f"{ml_anomaly_count}",
 
-        (
-            "Data Quality Score: "
-            f"{quality_score}/100"
-        ),
+        f"Data Quality Score: "
+        f"{quality_score}/100",
 
-        (
-            "Quality Status: "
-            f"{quality_label(quality_score)}"
-        ),
+        f"Quality Status: "
+        f"{quality_label(quality_score)}",
 
         "",
 
         "STATISTICAL OUTLIERS",
 
         "-" * 60
-
     ]
 
 
@@ -1752,6 +1790,7 @@ def generate_report(
         lines.append(
             "No numeric statistical outlier analysis available."
         )
+
 
     else:
 
@@ -1763,7 +1802,6 @@ def generate_report(
 
                 f"{row['Column']}: "
                 f"{int(row['Outlier_Count'])} outliers"
-
             )
 
 
@@ -1774,7 +1812,6 @@ def generate_report(
         "CITY INCONSISTENCIES",
 
         "-" * 60
-
     ])
 
 
@@ -1783,6 +1820,7 @@ def generate_report(
         lines.append(
             "No city inconsistencies detected."
         )
+
 
     else:
 
@@ -1795,7 +1833,6 @@ def generate_report(
                 f"{row['Original_Value']} -> "
                 f"{row['Standard_Value']} "
                 f"({int(row['Count'])} records)"
-
             )
 
 
@@ -1807,13 +1844,11 @@ def generate_report(
 
         "-" * 60,
 
-        f"Cleaned Rows: {len(cleaned_df)}",
+        f"Cleaned Rows: "
+        f"{len(cleaned_df)}",
 
-        (
-            "Rows Removed: "
-            f"{len(df) - len(cleaned_df)}"
-        )
-
+        f"Rows Removed: "
+        f"{len(df) - len(cleaned_df)}"
     ])
 
 
@@ -1827,19 +1862,31 @@ def generate_report(
 # ============================================================
 
 def create_powerbi_export(
+
     original_df,
+
     cleaned_df,
+
     missing_df,
+
     invalid_df,
+
     city_df,
+
     statistical_df,
+
     ml_df,
+
     cleaning_log,
+
     quality_score
+
 ):
 
     POWERBI_FOLDER.mkdir(
+
         parents=True,
+
         exist_ok=True
     )
 
@@ -1873,7 +1920,6 @@ def create_powerbi_export(
             "Rows Removed",
 
             "Data Quality Score"
-
         ],
 
 
@@ -1884,6 +1930,7 @@ def create_powerbi_export(
             len(original_df.columns),
 
             int(
+
                 original_df
                 .isnull()
                 .sum()
@@ -1891,15 +1938,16 @@ def create_powerbi_export(
             ),
 
             int(
+
                 original_df
                 .duplicated()
                 .sum()
             ),
 
             (
+
                 int(
-                    invalid_df["Count"]
-                    .sum()
+                    invalid_df["Count"].sum()
                 )
 
                 if not invalid_df.empty
@@ -1908,9 +1956,9 @@ def create_powerbi_export(
             ),
 
             (
+
                 int(
-                    city_df["Count"]
-                    .sum()
+                    city_df["Count"].sum()
                 )
 
                 if not city_df.empty
@@ -1919,11 +1967,12 @@ def create_powerbi_export(
             ),
 
             (
+
                 int(
+
                     statistical_df[
                         "Outlier_Count"
-                    ]
-                    .sum()
+                    ].sum()
                 )
 
                 if not statistical_df.empty
@@ -1932,37 +1981,31 @@ def create_powerbi_export(
             ),
 
             (
+
                 int(
+
                     (
                         ml_df[
                             "ML_Anomaly"
                         ]
-                        ==
-                        -1
-                    )
-                    .sum()
+                        == -1
+                    ).sum()
                 )
 
-                if
-                "ML_Anomaly"
-                in
-                ml_df.columns
+                if "ML_Anomaly"
+                in ml_df.columns
 
                 else 0
             ),
 
             len(cleaned_df),
 
-            (
-                len(original_df)
-                -
-                len(cleaned_df)
-            ),
+            len(original_df)
+            -
+            len(cleaned_df),
 
             quality_score
-
         ]
-
     })
 
 
@@ -1992,7 +2035,6 @@ def create_powerbi_export(
 
                 "Severity":
                     "Medium"
-
             })
 
 
@@ -2015,7 +2057,6 @@ def create_powerbi_export(
 
                 "Severity":
                     row["Severity"]
-
             })
 
 
@@ -2038,7 +2079,6 @@ def create_powerbi_export(
 
                 "Severity":
                     "Low"
-
             })
 
 
@@ -2053,12 +2093,15 @@ def create_powerbi_export(
         quality_issues_df = pd.DataFrame(
 
             columns=[
+
                 "Issue_Type",
+
                 "Column",
+
                 "Count",
+
                 "Severity"
             ]
-
         )
 
 
@@ -2066,14 +2109,15 @@ def create_powerbi_export(
     # ANOMALY RESULTS
     # --------------------------------------------------------
 
-    anomaly_results = (
-        ml_df.copy()
-    )
+    anomaly_results = ml_df.copy()
 
 
     (
+
         _,
+
         original_statistical_details
+
     ) = detect_all_statistical_outliers(
         original_df
     )
@@ -2093,7 +2137,6 @@ def create_powerbi_export(
             anomaly_results[column],
 
             errors="coerce"
-
         )
 
 
@@ -2110,12 +2153,11 @@ def create_powerbi_export(
             numeric_values.gt(
                 result["Upper_Bound"]
             )
-
         )
 
 
     # --------------------------------------------------------
-    # FILES
+    # SAVE CSV FILES
     # --------------------------------------------------------
 
     files = {
@@ -2134,13 +2176,8 @@ def create_powerbi_export(
 
         "cleaned_data.csv":
             cleaned_df
-
     }
 
-
-    # --------------------------------------------------------
-    # SAVE CSV FILES
-    # --------------------------------------------------------
 
     for filename, dataframe in (
         files.items()
@@ -2153,7 +2190,6 @@ def create_powerbi_export(
             filename,
 
             index=False
-
         )
 
 
@@ -2166,7 +2202,6 @@ def create_powerbi_export(
         Path.cwd()
         /
         "DataGuard_AI_PowerBI_Export.zip"
-
     )
 
 
@@ -2180,7 +2215,6 @@ def create_powerbi_export(
 
     ) as zip_file:
 
-
         for filename in files:
 
             file_path = (
@@ -2188,7 +2222,6 @@ def create_powerbi_export(
                 POWERBI_FOLDER
                 /
                 filename
-
             )
 
 
@@ -2197,18 +2230,19 @@ def create_powerbi_export(
                 file_path,
 
                 arcname=filename
-
             )
 
 
     return (
+
         zip_path,
+
         files
     )
 
 
 # ============================================================
-# POWER BI AUTOMATIC REFRESH
+# POWER BI REFRESH AUTOMATION
 # ============================================================
 
 def trigger_powerbi_refresh():
@@ -2229,7 +2263,6 @@ def trigger_powerbi_refresh():
 
         "POWERBI_DATASET_ID":
             POWERBI_DATASET_ID
-
     }
 
 
@@ -2241,7 +2274,6 @@ def trigger_powerbi_refresh():
         in required_values.items()
 
         if not value
-
     ]
 
 
@@ -2255,20 +2287,12 @@ def trigger_powerbi_refresh():
             "message":
                 (
                     "Power BI automation is not configured. "
-                    "Missing: "
-                    +
-                    ", ".join(
-                        missing_values
-                    )
+                    f"Missing: {', '.join(missing_values)}"
                 )
-
         }
 
 
     try:
-
-        import requests
-
 
         # ----------------------------------------------------
         # MICROSOFT TOKEN
@@ -2278,12 +2302,9 @@ def trigger_powerbi_refresh():
 
             "https://login.microsoftonline.com/"
 
-            +
-            POWERBI_TENANT_ID
+            f"{POWERBI_TENANT_ID}"
 
-            +
             "/oauth2/v2.0/token"
-
         )
 
 
@@ -2296,12 +2317,13 @@ def trigger_powerbi_refresh():
                 POWERBI_CLIENT_SECRET,
 
             "scope":
-                "https://analysis.windows.net/"
-                "powerbi/api/.default",
+                (
+                    "https://analysis.windows.net/"
+                    "powerbi/api/.default"
+                ),
 
             "grant_type":
                 "client_credentials"
-
         }
 
 
@@ -2312,7 +2334,6 @@ def trigger_powerbi_refresh():
             data=token_data,
 
             timeout=30
-
         )
 
 
@@ -2325,20 +2346,16 @@ def trigger_powerbi_refresh():
 
                 "message":
                     (
-                        "Microsoft authentication failed. "
-                        f"Status: "
-                        f"{token_response.status_code}"
+                        "Microsoft authentication failed."
                     )
-
             }
 
 
         access_token = (
+
             token_response
             .json()
-            .get(
-                "access_token"
-            )
+            .get("access_token")
         )
 
 
@@ -2351,7 +2368,6 @@ def trigger_powerbi_refresh():
 
                 "message":
                     "Access token was not returned."
-
             }
 
 
@@ -2365,10 +2381,7 @@ def trigger_powerbi_refresh():
 
             f"groups/{POWERBI_WORKSPACE_ID}/"
 
-            f"datasets/{POWERBI_DATASET_ID}/"
-
-            "refreshes"
-
+            f"datasets/{POWERBI_DATASET_ID}/refreshes"
         )
 
 
@@ -2379,7 +2392,6 @@ def trigger_powerbi_refresh():
 
             "Content-Type":
                 "application/json"
-
         }
 
 
@@ -2392,7 +2404,6 @@ def trigger_powerbi_refresh():
             json={},
 
             timeout=30
-
         )
 
 
@@ -2404,8 +2415,9 @@ def trigger_powerbi_refresh():
                     True,
 
                 "message":
-                    "Power BI refresh request accepted."
-
+                    (
+                        "Power BI refresh successfully triggered."
+                    )
             }
 
 
@@ -2420,7 +2432,6 @@ def trigger_powerbi_refresh():
                     f"Status: "
                     f"{refresh_response.status_code}"
                 )
-
         }
 
 
@@ -2432,8 +2443,9 @@ def trigger_powerbi_refresh():
                 False,
 
             "message":
-                f"Power BI automation error: {str(e)}"
-
+                (
+                    f"Power BI automation error: {str(e)}"
+                )
         }
 
 
@@ -2450,7 +2462,6 @@ uploaded_file = st.file_uploader(
         "xlsx",
         "xls"
     ]
-
 )
 
 
@@ -2459,7 +2470,6 @@ uploaded_file = st.file_uploader(
 # ============================================================
 
 if uploaded_file is not None:
-
 
     # ========================================================
     # LOAD DATA
@@ -2484,18 +2494,13 @@ if uploaded_file is not None:
         st.stop()
 
 
-    df = (
-        df_original
-        .copy()
-    )
+    df = df_original.copy()
 
 
     st.success(
 
-        "Successfully uploaded: "
-        +
-        uploaded_file.name
-
+        f"Successfully uploaded: "
+        f"{uploaded_file.name}"
     )
 
 
@@ -2513,7 +2518,6 @@ if uploaded_file is not None:
         df.head(10),
 
         use_container_width=True
-
     )
 
 
@@ -2527,16 +2531,19 @@ if uploaded_file is not None:
 
 
     (
+
         numeric_columns,
+
         categorical_columns,
+
         datetime_columns,
+
         identifier_columns
+
     ) = classify_columns(df)
 
 
-    col1, col2, col3, col4 = (
-        st.columns(4)
-    )
+    col1, col2, col3, col4 = st.columns(4)
 
 
     with col1:
@@ -2562,7 +2569,6 @@ if uploaded_file is not None:
             "Missing Cells",
 
             f"{int(df.isnull().sum().sum()):,}"
-
         )
 
 
@@ -2573,7 +2579,6 @@ if uploaded_file is not None:
             "Duplicates",
 
             f"{int(df.duplicated().sum()):,}"
-
         )
 
 
@@ -2582,9 +2587,7 @@ if uploaded_file is not None:
     )
 
 
-    c1, c2 = (
-        st.columns(2)
-    )
+    c1, c2 = st.columns(2)
 
 
     with c1:
@@ -2596,9 +2599,10 @@ if uploaded_file is not None:
         st.write(
 
             numeric_columns
-            if numeric_columns
-            else "None"
 
+            if numeric_columns
+
+            else "None"
         )
 
 
@@ -2609,9 +2613,10 @@ if uploaded_file is not None:
         st.write(
 
             categorical_columns
-            if categorical_columns
-            else "None"
 
+            if categorical_columns
+
+            else "None"
         )
 
 
@@ -2624,9 +2629,10 @@ if uploaded_file is not None:
         st.write(
 
             datetime_columns
-            if datetime_columns
-            else "None"
 
+            if datetime_columns
+
+            else "None"
         )
 
 
@@ -2637,14 +2643,15 @@ if uploaded_file is not None:
         st.write(
 
             identifier_columns
-            if identifier_columns
-            else "None"
 
+            if identifier_columns
+
+            else "None"
         )
 
 
     # ========================================================
-    # QUALITY CHECKS
+    # QUALITY ISSUES
     # ========================================================
 
     st.header(
@@ -2652,23 +2659,23 @@ if uploaded_file is not None:
     )
 
 
-    missing_df = (
-        check_missing_values(df)
+    missing_df = check_missing_values(
+        df
     )
 
 
-    duplicate_count = (
-        check_duplicates(df)
+    duplicate_count = check_duplicates(
+        df
     )
 
 
-    invalid_df = (
-        check_invalid_values(df)
+    invalid_df = check_invalid_values(
+        df
     )
 
 
-    city_df = (
-        find_city_inconsistencies(df)
+    city_df = find_city_inconsistencies(
+        df
     )
 
 
@@ -2677,41 +2684,34 @@ if uploaded_file is not None:
         df.isnull()
         .sum()
         .sum()
-
     )
 
 
     invalid_count = (
 
         int(
-            invalid_df["Count"]
-            .sum()
+            invalid_df["Count"].sum()
         )
 
         if not invalid_df.empty
 
         else 0
-
     )
 
 
     city_count = (
 
         int(
-            city_df["Count"]
-            .sum()
+            city_df["Count"].sum()
         )
 
         if not city_df.empty
 
         else 0
-
     )
 
 
-    q1, q2, q3, q4 = (
-        st.columns(4)
-    )
+    q1, q2, q3, q4 = st.columns(4)
 
 
     with q1:
@@ -2721,7 +2721,6 @@ if uploaded_file is not None:
             "Missing Cells",
 
             f"{missing_count:,}"
-
         )
 
 
@@ -2732,7 +2731,6 @@ if uploaded_file is not None:
             "Duplicates",
 
             f"{duplicate_count:,}"
-
         )
 
 
@@ -2743,7 +2741,6 @@ if uploaded_file is not None:
             "Invalid Values",
 
             f"{invalid_count:,}"
-
         )
 
 
@@ -2754,12 +2751,11 @@ if uploaded_file is not None:
             "City Inconsistencies",
 
             f"{city_count:,}"
-
         )
 
 
     # --------------------------------------------------------
-    # Missing
+    # MISSING
     # --------------------------------------------------------
 
     st.subheader(
@@ -2780,12 +2776,11 @@ if uploaded_file is not None:
             missing_df,
 
             use_container_width=True
-
         )
 
 
     # --------------------------------------------------------
-    # Duplicates
+    # DUPLICATES
     # --------------------------------------------------------
 
     st.subheader(
@@ -2805,12 +2800,11 @@ if uploaded_file is not None:
 
             f"{duplicate_count:,} "
             "duplicate records detected."
-
         )
 
 
     # --------------------------------------------------------
-    # Invalid
+    # INVALID
     # --------------------------------------------------------
 
     st.subheader(
@@ -2831,12 +2825,11 @@ if uploaded_file is not None:
             invalid_df,
 
             use_container_width=True
-
         )
 
 
     # --------------------------------------------------------
-    # City
+    # CITY
     # --------------------------------------------------------
 
     st.subheader(
@@ -2857,7 +2850,6 @@ if uploaded_file is not None:
             city_df,
 
             use_container_width=True
-
         )
 
 
@@ -2877,13 +2869,15 @@ IQR outliers identify observations that are statistically unusual.
 They are **not automatically errors** and should be investigated before
 removing or modifying them.
 """
-
     )
 
 
     (
+
         statistical_df,
+
         statistical_details
+
     ) = detect_all_statistical_outliers(
         df
     )
@@ -2892,8 +2886,11 @@ removing or modifying them.
     if statistical_df.empty:
 
         st.warning(
-            "No numeric columns were available for IQR analysis."
+
+            "No numeric columns were available "
+            "for IQR analysis."
         )
+
 
     else:
 
@@ -2901,9 +2898,7 @@ removing or modifying them.
 
             statistical_df[
                 "Outlier_Count"
-            ]
-            .sum()
-
+            ].sum()
         )
 
 
@@ -2912,7 +2907,6 @@ removing or modifying them.
             "Total Statistical Outlier Flags",
 
             f"{total_statistical_outliers:,}"
-
         )
 
 
@@ -2921,7 +2915,6 @@ removing or modifying them.
             statistical_df,
 
             use_container_width=True
-
         )
 
 
@@ -2941,9 +2934,8 @@ removing or modifying them.
 
             st.write(
 
-                "**Outliers detected:** "
+                f"**Outliers detected:** "
                 f"{result['Count']:,}"
-
             )
 
 
@@ -2951,31 +2943,35 @@ removing or modifying them.
 
                 st.write(
 
-                    f"Q1 = {result['Q1']:.4f} | "
-                    f"Q3 = {result['Q3']:.4f} | "
-                    f"IQR = {result['IQR']:.4f}"
+                    f"**Q1:** "
+                    f"{result['Q1']:.4f} | "
 
+                    f"**Q3:** "
+                    f"{result['Q3']:.4f} | "
+
+                    f"**IQR:** "
+                    f"{result['IQR']:.4f}"
                 )
 
 
                 st.write(
 
-                    f"Lower Bound = "
+                    f"**Lower Bound:** "
                     f"{result['Lower_Bound']:.4f} | "
 
-                    f"Upper Bound = "
+                    f"**Upper Bound:** "
                     f"{result['Upper_Bound']:.4f}"
-
                 )
 
 
                 st.dataframe(
 
-                    result["outliers"].head(20),
+                    result["outliers"]
+                    .head(20),
 
                     use_container_width=True
-
                 )
+
 
             else:
 
@@ -2994,10 +2990,16 @@ removing or modifying them.
 
 
     (
+
         ml_df,
+
         anomaly_features,
+
         ml_anomaly_count
-    ) = detect_ml_anomalies(df)
+
+    ) = detect_ml_anomalies(
+        df
+    )
 
 
     if anomaly_features:
@@ -3009,7 +3011,6 @@ removing or modifying them.
             ", ".join(
                 anomaly_features
             )
-
         )
 
 
@@ -3019,13 +3020,10 @@ removing or modifying them.
 These records contain unusual multivariate patterns.
 They are **not automatically treated as data errors or fraud**.
 """
-
         )
 
 
-        m1, m2 = (
-            st.columns(2)
-        )
+        m1, m2 = st.columns(2)
 
 
         with m1:
@@ -3035,7 +3033,6 @@ They are **not automatically treated as data errors or fraud**.
                 "ML Anomalies",
 
                 f"{ml_anomaly_count:,}"
-
             )
 
 
@@ -3046,21 +3043,15 @@ They are **not automatically treated as data errors or fraud**.
                 "Normal Records",
 
                 f"{len(df) - ml_anomaly_count:,}"
-
             )
 
 
         anomaly_display = (
 
             ml_df[
-                ml_df[
-                    "ML_Anomaly"
-                ]
-                ==
-                -1
+                ml_df["ML_Anomaly"] == -1
             ]
             .copy()
-
         )
 
 
@@ -3076,7 +3067,6 @@ They are **not automatically treated as data errors or fraud**.
                 anomaly_display.head(100),
 
                 use_container_width=True
-
             )
 
 
@@ -3086,7 +3076,6 @@ They are **not automatically treated as data errors or fraud**.
 
             "Not enough numeric features "
             "for ML anomaly detection."
-
         )
 
 
@@ -3099,24 +3088,19 @@ They are **not automatically treated as data errors or fraud**.
     )
 
 
-    quality_score = (
-        calculate_quality_score(
+    quality_score = calculate_quality_score(
 
-            df,
+        df,
 
-            missing_count,
+        missing_count,
 
-            duplicate_count,
+        duplicate_count,
 
-            invalid_count
-
-        )
+        invalid_count
     )
 
 
-    score_col1, score_col2 = (
-        st.columns(2)
-    )
+    score_col1, score_col2 = st.columns(2)
 
 
     with score_col1:
@@ -3126,7 +3110,6 @@ They are **not automatically treated as data errors or fraud**.
             "Data Quality Score",
 
             f"{quality_score}/100"
-
         )
 
 
@@ -3139,7 +3122,6 @@ They are **not automatically treated as data errors or fraud**.
             quality_label(
                 quality_score
             )
-
         )
 
 
@@ -3150,7 +3132,6 @@ The score is based on missing values, duplicates, and rule-based invalid
 values. Statistical outliers and ML anomalies are not automatically
 treated as errors because unusual observations can be legitimate.
 """
-
     )
 
 
@@ -3169,15 +3150,12 @@ treated as errors because unusual observations can be legitimate.
 
             statistical_df[
                 "Outlier_Count"
-            ]
-            .sum()
-
+            ].sum()
         )
 
         if not statistical_df.empty
 
         else 0
-
     )
 
 
@@ -3194,7 +3172,6 @@ treated as errors because unusual observations can be legitimate.
         total_statistical_outliers,
 
         ml_anomaly_count
-
     )
 
 
@@ -3202,9 +3179,10 @@ treated as errors because unusual observations can be legitimate.
 
         st.success(
 
-            "No major rule-based quality issues detected."
-
+            "No major rule-based quality "
+            "issues detected."
         )
+
 
     else:
 
@@ -3213,7 +3191,6 @@ treated as errors because unusual observations can be legitimate.
             rca_df,
 
             use_container_width=True
-
         )
 
 
@@ -3255,7 +3232,6 @@ ML anomalies detected by Isolation Forest:
 Data quality score:
 
 {quality_score}/100
-
 """
 
 
@@ -3264,19 +3240,16 @@ Data quality score:
         "🤖 Analyze Root Causes with Gemini AI",
 
         type="primary"
-
     ):
 
         with st.spinner(
 
             "Gemini is analyzing the dataset..."
-
         ):
 
             gemini_result = ask_gemini(
 
                 issue_summary
-
             )
 
 
@@ -3287,18 +3260,15 @@ Data quality score:
 
         st.download_button(
 
-            label=
-                "⬇️ Download AI Analysis",
+            label="⬇️ Download AI Analysis",
 
-            data=
-                gemini_result,
+            data=gemini_result,
 
-            file_name=
-                "DataGuard_AI_Root_Cause_Analysis.txt",
+            file_name=(
+                "DataGuard_AI_Root_Cause_Analysis.txt"
+            ),
 
-            mime=
-                "text/plain"
-
+            mime="text/plain"
         )
 
 
@@ -3312,21 +3282,22 @@ Data quality score:
 
 
     (
+
         cleaned_df,
+
         cleaning_log_df,
+
         total_filled
+
     ) = clean_data(
 
         df,
 
         identifier_columns
-
     )
 
 
-    c1, c2, c3, c4 = (
-        st.columns(4)
-    )
+    c1, c2, c3, c4 = st.columns(4)
 
 
     with c1:
@@ -3336,7 +3307,6 @@ Data quality score:
             "Original Rows",
 
             f"{len(df):,}"
-
         )
 
 
@@ -3347,7 +3317,6 @@ Data quality score:
             "Cleaned Rows",
 
             f"{len(cleaned_df):,}"
-
         )
 
 
@@ -3358,7 +3327,6 @@ Data quality score:
             "Rows Removed",
 
             f"{len(df) - len(cleaned_df):,}"
-
         )
 
 
@@ -3369,7 +3337,6 @@ Data quality score:
             "Values Filled",
 
             f"{total_filled:,}"
-
         )
 
 
@@ -3383,7 +3350,6 @@ Data quality score:
         cleaning_log_df,
 
         use_container_width=True
-
     )
 
 
@@ -3397,7 +3363,6 @@ Data quality score:
         cleaned_df.head(10),
 
         use_container_width=True
-
     )
 
 
@@ -3408,47 +3373,36 @@ Data quality score:
     cleaned_csv = (
 
         cleaned_df
-        .to_csv(
-            index=False
-        )
+        .to_csv(index=False)
         .encode("utf-8")
-
     )
 
 
     original_name = Path(
-
         uploaded_file.name
-
     ).stem
 
 
     cleaned_filename = (
 
         f"{original_name}_cleaned.csv"
-
     )
 
 
     st.download_button(
 
-        label=
-            "⬇️ Download Cleaned CSV",
+        label="⬇️ Download Cleaned CSV",
 
-        data=
-            cleaned_csv,
+        data=cleaned_csv,
 
-        file_name=
-            cleaned_filename,
+        file_name=cleaned_filename,
 
-        mime=
-            "text/csv"
-
+        mime="text/csv"
     )
 
 
     # ========================================================
-    # POWER BI EXPORT
+    # POWER BI EXPORT + AUTOMATION
     # ========================================================
 
     st.header(
@@ -3461,12 +3415,11 @@ Data quality score:
         """
 DataGuard AI generates Power BI-ready datasets.
 
-Create the Power BI dashboard once in Power BI Desktop.
-After the dashboard is connected to a persistent
-Power BI-accessible data source, DataGuard AI can trigger
-the Power BI dataset refresh through the REST API.
-"""
+The Power BI dashboard is created once in Power BI Desktop.
 
+After the dashboard is connected to a persistent data source,
+DataGuard AI can trigger a Power BI dataset refresh automatically.
+"""
     )
 
 
@@ -3481,12 +3434,14 @@ the Power BI dataset refresh through the REST API.
         with st.spinner(
 
             "Creating Power BI export files..."
-
         ):
 
             (
+
                 zip_path,
+
                 exported_files
+
             ) = create_powerbi_export(
 
                 original_df=df,
@@ -3506,14 +3461,12 @@ the Power BI dataset refresh through the REST API.
                 cleaning_log=cleaning_log_df,
 
                 quality_score=quality_score
-
             )
 
 
         st.success(
 
             "Power BI export created successfully!"
-
         )
 
 
@@ -3539,23 +3492,22 @@ the Power BI dataset refresh through the REST API.
 
             st.download_button(
 
-                label=
-                    "⬇️ Download Power BI Export ZIP",
+                label=(
+                    "⬇️ Download Power BI Export ZIP"
+                ),
 
-                data=
-                    file.read(),
+                data=file.read(),
 
-                file_name=
-                    "DataGuard_AI_PowerBI_Export.zip",
+                file_name=(
+                    "DataGuard_AI_PowerBI_Export.zip"
+                ),
 
-                mime=
-                    "application/zip"
-
+                mime="application/zip"
             )
 
 
     # --------------------------------------------------------
-    # POWER BI AUTOMATIC REFRESH
+    # AUTOMATIC POWER BI REFRESH
     # --------------------------------------------------------
 
     st.subheader(
@@ -3563,90 +3515,57 @@ the Power BI dataset refresh through the REST API.
     )
 
 
-    if all([
+    st.write(
 
-        POWERBI_TENANT_ID,
-
-        POWERBI_CLIENT_ID,
-
-        POWERBI_CLIENT_SECRET,
-
-        POWERBI_WORKSPACE_ID,
-
-        POWERBI_DATASET_ID
-
-    ]):
-
-        st.success(
-            "Power BI automation credentials are configured."
-        )
+        """
+Once your Power BI dataset is connected to the persistent
+data source, DataGuard AI can trigger its refresh through
+the Power BI REST API.
+"""
+    )
 
 
-        if st.button(
-            "🔄 Refresh Power BI Dashboard"
+    if st.button(
+        "🔄 Refresh Power BI Dashboard"
+    ):
+
+        with st.spinner(
+
+            "Triggering Power BI refresh..."
         ):
 
-            with st.spinner(
-
-                "Triggering Power BI refresh..."
-
-            ):
-
-                refresh_result = (
-                    trigger_powerbi_refresh()
-                )
+            refresh_result = (
+                trigger_powerbi_refresh()
+            )
 
 
-            if refresh_result["success"]:
+        if refresh_result["success"]:
 
-                st.success(
+            st.success(
 
-                    "✅ "
-                    +
-                    refresh_result["message"]
+                "✅ "
+                +
+                refresh_result["message"]
+            )
 
-                )
 
+            st.info(
 
-                st.info(
-
-                    """
-Power BI accepted the refresh request.
+                """
+The refresh request has been accepted by Power BI.
 The dashboard will update after the dataset refresh completes.
 """
-
-                )
-
-            else:
-
-                st.error(
-
-                    "❌ "
-                    +
-                    refresh_result["message"]
-
-                )
+            )
 
 
-    else:
+        else:
 
-        st.warning(
+            st.warning(
 
-            """
-Power BI automation is not configured yet.
-
-The export/download functionality still works.
-
-To enable automatic refresh, configure these Streamlit Secrets:
-
-• POWERBI_TENANT_ID
-• POWERBI_CLIENT_ID
-• POWERBI_CLIENT_SECRET
-• POWERBI_WORKSPACE_ID
-• POWERBI_DATASET_ID
-"""
-
-        )
+                "⚠️ "
+                +
+                refresh_result["message"]
+            )
 
 
     # ========================================================
@@ -3675,7 +3594,6 @@ To enable automatic refresh, configure these Streamlit Secrets:
         quality_score=quality_score,
 
         cleaned_df=cleaned_df
-
     )
 
 
@@ -3686,24 +3604,20 @@ To enable automatic refresh, configure these Streamlit Secrets:
         report_text,
 
         height=450
-
     )
 
 
     st.download_button(
 
-        label=
-            "⬇️ Download Data Quality Report",
+        label="⬇️ Download Data Quality Report",
 
-        data=
-            report_text,
+        data=report_text,
 
-        file_name=
-            "DataGuard_AI_Data_Quality_Report.txt",
+        file_name=(
+            "DataGuard_AI_Data_Quality_Report.txt"
+        ),
 
-        mime=
-            "text/plain"
-
+        mime="text/plain"
     )
 
 
@@ -3743,7 +3657,6 @@ To enable automatic refresh, configure these Streamlit Secrets:
             "Values Filled",
 
             "Quality Score"
-
         ],
 
 
@@ -3767,16 +3680,12 @@ To enable automatic refresh, configure these Streamlit Secrets:
 
             f"{len(cleaned_df):,}",
 
-            (
-                f"{len(df) - len(cleaned_df):,}"
-            ),
+            f"{len(df) - len(cleaned_df):,}",
 
             f"{total_filled:,}",
 
             f"{quality_score}/100"
-
         ]
-
     })
 
 
@@ -3787,7 +3696,6 @@ To enable automatic refresh, configure these Streamlit Secrets:
         use_container_width=True,
 
         hide_index=True
-
     )
 
 
@@ -3802,7 +3710,6 @@ To enable automatic refresh, configure these Streamlit Secrets:
 
         "DataGuard AI | Data Quality • Statistical Analysis • "
         "Machine Learning • Root-Cause Analysis • Power BI"
-
     )
 
 
@@ -3812,5 +3719,4 @@ else:
 
         "👆 Upload a CSV or Excel dataset to start "
         "the DataGuard AI pipeline."
-
     )
