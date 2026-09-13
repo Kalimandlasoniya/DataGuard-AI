@@ -1317,12 +1317,9 @@ def create_zip_file(
 # GEMINI ANALYSIS
 # ============================================================
 
-def get_gemini_analysis(
-    summary_text
-):
+def get_gemini_analysis(summary_text):
 
     if not GEMINI_API_KEY:
-
         return (
             "⚠️ Gemini AI is not configured.\n\n"
             "Add GEMINI_API_KEY to Streamlit Secrets "
@@ -1338,34 +1335,109 @@ def get_gemini_analysis(
         )
 
         prompt = f"""
-You are a senior data quality analyst.
+You are a senior Data Quality Analyst reviewing
+the DataGuard AI dataset report below.
 
-Analyze ONLY the supplied dataset report.
+IMPORTANT:
 
-STRICT RULES:
+You MUST use ONLY the evidence explicitly provided
+in the dataset report.
 
-- Do not invent columns.
-- Do not invent data types.
-- Do not invent errors.
-- Do not claim fraud.
-- Do not claim system failure as fact.
-- Do not claim ETL problems as fact.
-- Possible causes must be labelled as hypotheses.
-- IQR outliers are not automatically errors.
-- Isolation Forest anomalies are not automatically errors.
-- Use the exact metrics supplied.
-- Keep recommendations practical.
+DO NOT invent facts.
 
-Provide:
+DO NOT assume the exact cause of an issue.
 
-1. Overall Assessment
-2. Confirmed Data Quality Problems
-3. Statistical Outlier Findings
-4. ML Anomaly Findings
-5. Possible Root Causes
-6. Recommended Cleaning Actions
-7. Business Impact
-8. Power BI Recommendations
+DO NOT claim fraud, user error, ETL failure,
+system failure, double-click submission, API retry,
+manual entry, or business misconduct as a fact.
+
+If you mention a possible cause, label it explicitly
+as a "Hypothesis" and keep it general.
+
+DO NOT create new data-quality problems.
+
+DO NOT invent columns.
+
+DO NOT change any numbers.
+
+DO NOT contradict the supplied metrics.
+
+IMPORTANT DISTINCTIONS:
+
+1. Missing values are confirmed data-quality issues.
+
+2. Duplicate rows are confirmed data-quality issues.
+
+3. Invalid Age and Quantity values are confirmed
+   because they were detected by implemented rules.
+
+4. City standardization is a confirmed cleaning action.
+
+5. IQR outliers are statistical observations.
+   They are NOT automatically errors.
+
+6. Isolation Forest anomalies are screening signals.
+   They are NOT automatically errors.
+
+7. The quality score is calculated from the
+   implemented confirmed quality checks.
+
+8. Automated cleaning has ALREADY been performed.
+   Do not recommend repeating cleaning that has
+   already been completed.
+
+9. The cleaned row count, rows removed and values
+   filled are final results from the current pipeline.
+
+10. Business charts exclude extreme Sales values
+    only for visualization. Those records are NOT
+    deleted from the analytical dataset.
+
+11. Power BI recommendations should match the
+    actual DataGuard AI workflow.
+
+Write the analysis using exactly these sections:
+
+### 1. Overall Assessment
+
+Briefly summarize the dataset quality.
+
+### 2. Confirmed Data Quality Problems
+
+Only mention confirmed problems from the report.
+
+### 3. Statistical Outlier Findings
+
+Explain the IQR findings without calling them errors.
+
+### 4. ML Anomaly Findings
+
+Explain Isolation Forest results and clearly state
+that anomalies require validation.
+
+### 5. Possible Root Causes
+
+Give only general hypotheses.
+
+Every hypothesis MUST start with:
+
+"Hypothesis:"
+
+### 6. Cleaning Results
+
+Describe what DataGuard AI already cleaned.
+
+Do not recommend repeating completed cleaning.
+
+### 7. Business Impact
+
+Explain possible analytical/reporting impact
+without inventing business events.
+
+### 8. Power BI Recommendations
+
+Give practical Power BI recommendations based
+ONLY on the supplied dataset report.
 
 Dataset Report:
 
@@ -1376,7 +1448,7 @@ Dataset Report:
             model="gemini-3.6-flash",
             input=prompt,
             generation_config={
-                "temperature": 0.2
+                "temperature": 0.1
             },
         )
 
@@ -1384,41 +1456,35 @@ Dataset Report:
 
     except Exception as e:
 
-        error_text = str(
-            e
-        )
-
-        # ----------------------------------------------------
-        # FRIENDLY QUOTA MESSAGE
-        # ----------------------------------------------------
+        error_text = str(e)
 
         if (
             "429" in error_text
-            or
-            "quota" in error_text.lower()
-            or
-            "too_many_requests"
-            in error_text.lower()
+            or "quota" in error_text.lower()
+            or "too_many_requests" in error_text.lower()
         ):
 
             return (
                 "⚠️ **Gemini AI quota temporarily exceeded.**\n\n"
-                "The DataGuard AI pipeline itself is working correctly. "
-                "The Gemini API has reached its current request quota.\n\n"
-                "**What you can do:**\n"
-                "- Wait for the quota window to reset and try again.\n"
-                "- Check your Gemini API usage/quota.\n"
-                "- If needed, use a billing-enabled API project.\n\n"
-                "All DataGuard AI data-quality, anomaly-detection, "
-                "cleaning and Power BI features continue to work "
-                "without Gemini."
+                "The DataGuard AI pipeline is working correctly, "
+                "but the Gemini API request quota has been reached.\n\n"
+                "The following DataGuard AI features continue "
+                "to work without Gemini:\n\n"
+                "- Data profiling\n"
+                "- Data quality detection\n"
+                "- IQR outlier detection\n"
+                "- Isolation Forest anomaly detection\n"
+                "- Automated cleaning\n"
+                "- Business analytics\n"
+                "- Power BI export\n"
+                "- Final data-quality report\n\n"
+                "Please try Gemini again after the API quota resets."
             )
 
         return (
             "⚠️ Gemini AI analysis could not be generated.\n\n"
             f"Technical reason: {error_text}"
         )
-
 
 # ============================================================
 # FILE UPLOAD
@@ -2482,6 +2548,13 @@ Identifier columns:
 IQR outlier observations:
 {total_iqr_outliers}
 
+IQR details:
+{
+    iqr_df.to_dict(orient="records")
+    if not iqr_df.empty
+    else "None"
+}
+
 Isolation Forest sensitivity:
 {contamination_pct}%
 
@@ -2491,18 +2564,24 @@ Isolation Forest anomalies:
 Normal records:
 {normal_count}
 
-Automated cleaning:
-Original rows: {original_rows}
-Cleaned rows: {cleaned_rows}
-Rows removed: {rows_removed}
-Values filled: {values_filled}
+Automated cleaning results:
+
+Original rows:
+{original_rows}
+
+Cleaned rows:
+{cleaned_rows}
+
+Rows removed:
+{rows_removed}
+
+Values filled:
+{values_filled}
 
 City standardization actions:
 {
     int(
-        city_changes_df[
-            "Rows Affected"
-        ].sum()
+        city_changes_df["Rows Affected"].sum()
     )
     if not city_changes_df.empty
     else 0
@@ -2517,45 +2596,21 @@ Invalid-value details:
     else "None"
 }
 
-IQR details:
-{
-    iqr_df.to_dict(
-        orient="records"
-    )
-    if not iqr_df.empty
-    else "None"
-}
+Business visualization rule:
+
+Business charts use validated non-negative Sales values.
+
+Extreme Sales values above the calculated IQR upper
+bound are excluded from business visualizations only.
+
+Those records are NOT deleted from the analytical dataset.
+
+IQR outliers and Isolation Forest anomalies remain
+available for further investigation.
+
+Cleaning has already been performed by DataGuard AI.
+Gemini must not recommend repeating completed cleaning.
 """
-
-
-with st.expander(
-    "View report sent to Gemini"
-):
-
-    st.text(
-        summary_text
-    )
-
-
-if st.button(
-    "🤖 Generate Gemini AI Analysis",
-    use_container_width=True,
-):
-
-    with st.spinner(
-        "Gemini is analyzing the dataset..."
-    ):
-
-        result = (
-            get_gemini_analysis(
-                summary_text
-            )
-        )
-
-    st.markdown(
-        result
-    )
-
 
 # ============================================================
 # FINAL REPORT
