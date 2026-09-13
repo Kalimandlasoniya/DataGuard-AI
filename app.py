@@ -1,3 +1,5 @@
+%%writefile /content/app.py
+
 import io
 import os
 import zipfile
@@ -272,12 +274,7 @@ def detect_identifier_columns(
 
     for column in df.columns:
 
-        # ----------------------------------------------------
-        # IMPORTANT FIX
-        #
-        # Date columns must NEVER be identified as ID columns.
-        # ----------------------------------------------------
-
+        # Date columns must never be identified as IDs.
         if column in datetime_columns:
 
             continue
@@ -286,7 +283,6 @@ def detect_identifier_columns(
             column
         ).lower()
 
-        # Explicit ID names
         identifier_tokens = [
             "_id",
             "id_",
@@ -1320,9 +1316,10 @@ def create_zip_file(
 def get_gemini_analysis(summary_text):
 
     if not GEMINI_API_KEY:
+
         return (
-            "⚠️ Gemini AI is not configured.\n\n"
-            "Add GEMINI_API_KEY to Streamlit Secrets "
+            "⚠️ **Gemini AI is not configured.**\n\n"
+            "Add `GEMINI_API_KEY` to Streamlit Secrets "
             "to enable AI analysis."
         )
 
@@ -1338,7 +1335,7 @@ def get_gemini_analysis(summary_text):
 You are a senior Data Quality Analyst reviewing
 the DataGuard AI dataset report below.
 
-IMPORTANT:
+IMPORTANT EVIDENCE RULES:
 
 You MUST use ONLY the evidence explicitly provided
 in the dataset report.
@@ -1362,6 +1359,11 @@ DO NOT change any numbers.
 
 DO NOT contradict the supplied metrics.
 
+DO NOT recommend changing, removing, imputing,
+or standardizing data unless the supplied report
+explicitly indicates that such an action has not
+already been performed.
+
 IMPORTANT DISTINCTIONS:
 
 1. Missing values are confirmed data-quality issues.
@@ -1369,38 +1371,43 @@ IMPORTANT DISTINCTIONS:
 2. Duplicate rows are confirmed data-quality issues.
 
 3. Invalid Age and Quantity values are confirmed
-   because they were detected by implemented rules.
+because they were detected by implemented rules.
 
 4. City standardization is a confirmed cleaning action.
 
 5. IQR outliers are statistical observations.
-   They are NOT automatically errors.
+They are NOT automatically errors.
 
 6. Isolation Forest anomalies are screening signals.
-   They are NOT automatically errors.
+They are NOT automatically errors.
 
 7. The quality score is calculated from the
-   implemented confirmed quality checks.
+implemented confirmed quality checks.
 
 8. Automated cleaning has ALREADY been performed.
-   Do not recommend repeating cleaning that has
-   already been completed.
+Do not recommend repeating cleaning that has
+already been completed.
 
 9. The cleaned row count, rows removed and values
-   filled are final results from the current pipeline.
+filled are final results from the current pipeline.
 
 10. Business charts exclude extreme Sales values
-    only for visualization. Those records are NOT
-    deleted from the analytical dataset.
+only for visualization. Those records are NOT
+deleted from the analytical dataset.
 
 11. Power BI recommendations should match the
-    actual DataGuard AI workflow.
+actual DataGuard AI workflow.
+
+12. Do not recommend Azure automation, Power BI API
+automation, cloud storage automation, or other
+features that are not part of the supplied workflow.
 
 Write the analysis using exactly these sections:
 
 ### 1. Overall Assessment
 
-Briefly summarize the dataset quality.
+Briefly summarize the dataset quality using
+the supplied metrics.
 
 ### 2. Confirmed Data Quality Problems
 
@@ -1410,10 +1417,12 @@ Only mention confirmed problems from the report.
 
 Explain the IQR findings without calling them errors.
 
+Include the actual IQR details when available.
+
 ### 4. ML Anomaly Findings
 
-Explain Isolation Forest results and clearly state
-that anomalies require validation.
+Explain the Isolation Forest results and clearly
+state that anomalies require validation.
 
 ### 5. Possible Root Causes
 
@@ -1436,8 +1445,11 @@ without inventing business events.
 
 ### 8. Power BI Recommendations
 
-Give practical Power BI recommendations based
-ONLY on the supplied dataset report.
+Give practical Power BI recommendations based ONLY
+on the supplied dataset report.
+
+Do not invent DAX columns or measures that depend
+on unavailable fields.
 
 Dataset Report:
 
@@ -1461,7 +1473,8 @@ Dataset Report:
         if (
             "429" in error_text
             or "quota" in error_text.lower()
-            or "too_many_requests" in error_text.lower()
+            or "too_many_requests"
+            in error_text.lower()
         ):
 
             return (
@@ -1482,9 +1495,10 @@ Dataset Report:
             )
 
         return (
-            "⚠️ Gemini AI analysis could not be generated.\n\n"
+            "⚠️ **Gemini AI analysis could not be generated.**\n\n"
             f"Technical reason: {error_text}"
         )
+
 
 # ============================================================
 # FILE UPLOAD
@@ -2150,10 +2164,11 @@ else:
     if sales_upper_bound is not None:
 
         st.caption(
-            f"Extreme values above the calculated IQR upper bound "
-            f"({sales_upper_bound:,.2f}) are excluded only from "
-            f"business visualizations. They remain available in "
-            f"the dataset and outlier/anomaly analysis."
+            f"Business charts use the cleaned dataset. "
+            f"For visualization only, Sales values above the "
+            f"cleaned-data IQR upper bound "
+            f"({sales_upper_bound:,.2f}) are excluded. "
+            f"These records are not deleted from the analytical dataset."
         )
 
 
@@ -2173,12 +2188,6 @@ else:
     ).dropna()
 
     if len(sales_values) > 0:
-
-        # FIX:
-        # Use a histogram instead of value_counts(bins=10).
-        #
-        # This produces cleaner sales distribution bins.
-        #
 
         hist_counts, hist_edges = (
             np.histogram(
@@ -2504,13 +2513,8 @@ for filename, data in (
 
 
 # ============================================================
-# GEMINI
+# GEMINI SUMMARY
 # ============================================================
-
-st.markdown(
-    '<div class="section-title">✨ Gemini AI Analysis</div>',
-    unsafe_allow_html=True,
-)
 
 summary_text = f"""
 Dataset name:
@@ -2600,8 +2604,11 @@ Business visualization rule:
 
 Business charts use validated non-negative Sales values.
 
+Business charts use the cleaned dataset.
+
 Extreme Sales values above the calculated IQR upper
-bound are excluded from business visualizations only.
+bound for the cleaned business dataset are excluded
+from business visualizations only.
 
 Those records are NOT deleted from the analytical dataset.
 
@@ -2610,7 +2617,33 @@ available for further investigation.
 
 Cleaning has already been performed by DataGuard AI.
 Gemini must not recommend repeating completed cleaning.
+
+Power BI workflow:
+
+Power BI export is manual through CSV/ZIP files.
+
+No Azure Blob Storage automation or Power BI API
+automation is part of the current workflow.
 """
+
+
+# ============================================================
+# GEMINI AI ANALYSIS
+# ============================================================
+
+st.markdown(
+    '<div class="section-title">✨ Gemini AI Analysis</div>',
+    unsafe_allow_html=True,
+)
+
+gemini_analysis = get_gemini_analysis(
+    summary_text
+)
+
+st.markdown(
+    gemini_analysis
+)
+
 
 # ============================================================
 # FINAL REPORT
@@ -2636,9 +2669,36 @@ Generated:
 - Invalid values: {invalid_count:,}
 - Quality score: {quality_score:.2f}/100
 
+## Column Classification
+
+- Numeric columns: {len(numeric_columns)}
+- Categorical columns: {len(categorical_columns)}
+- Date/Time columns: {len(datetime_columns)}
+- Identifier columns: {len(identifier_columns)}
+
 ## Statistical Analysis
 
 - IQR outlier observations: {total_iqr_outliers:,}
+
+"""
+
+if not iqr_df.empty:
+
+    report += "\n### IQR Details\n\n"
+
+    for _, row in iqr_df.iterrows():
+
+        report += (
+            f"- {row['Column']}: "
+            f"Q1={row['Q1']}, "
+            f"Q3={row['Q3']}, "
+            f"Lower Bound={row['Lower Bound']}, "
+            f"Upper Bound={row['Upper Bound']}, "
+            f"Outliers={row['Outliers']}\n"
+        )
+
+
+report += f"""
 
 ## Machine Learning Analysis
 
@@ -2661,11 +2721,22 @@ Generated:
   and are not automatically errors.
 - Isolation Forest anomalies are screening signals
   and require business validation.
-- Business charts use validated sales values.
+- Business charts use validated non-negative sales values.
 - Extreme sales values are excluded only from
   business visualizations, not deleted from the
   analytical dataset.
+- Power BI files are provided through manual CSV/ZIP export.
+
+## Power BI Workflow
+
+1. Download the DataGuard AI Power BI ZIP.
+2. Extract the CSV files.
+3. Open Power BI Desktop.
+4. Select Get Data → Text/CSV.
+5. Import the cleaned dataset.
+6. Import supporting profile, IQR and anomaly tables.
 """
+
 
 st.download_button(
     "📄 Download Final Report",
