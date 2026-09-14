@@ -2318,68 +2318,217 @@ else:
             mime="text/csv",
         )
 
-
     # ========================================================
     # ANALYTICS
     # ========================================================
 
-    elif page == "AI Analysis":
+    elif page == "Analytics":
 
-    st.write(
-        "AI Analysis"
-    )
+        st.write(
+            "Analytics"
+        )
 
-    st.caption(
-        "Gemini-powered interpretation of "
-        "DataGuard AI findings."
-    )
+        st.caption(
+            "Business analytics generated from the "
+            "cleaned dataset."
+        )
 
-    if st.button(
-        "Generate AI Analysis",
-        type="primary",
-    ):
+        sales_column = analysis[
+            "sales_column"
+        ]
 
-        with st.spinner(
-            "Generating AI analysis..."
-        ):
+        if sales_column is None:
 
-            gemini_result = (
-                generate_gemini_analysis(
-                    analysis
-                )
+            st.info(
+                "No suitable sales or revenue column "
+                "was detected for business analytics."
             )
 
-            st.session_state[
-                "gemini_analysis"
-            ] = gemini_result
+        else:
 
-    gemini_result = (
-        st.session_state[
-            "gemini_analysis"
-        ]
-    )
+            sales_series = pd.to_numeric(
+                business_df[
+                    sales_column
+                ],
+                errors="coerce",
+            )
 
-    if gemini_result is None:
+            st.write(
+                "Sales Overview"
+            )
 
-        st.info(
-            "Click 'Generate AI Analysis' "
-            "to analyze the current dataset."
-        )
+            a1, a2, a3, a4 = (
+                st.columns(4)
+            )
 
-    elif (
-        gemini_result["status"]
-        == "error"
-    ):
+            with a1:
 
-        st.error(
-            gemini_result["message"]
-        )
+                st.metric(
+                    "Total Sales",
+                    f"{sales_series.sum():,.2f}",
+                )
 
-    else:
+            with a2:
 
-        st.markdown(
-            gemini_result["content"]
-        )
+                st.metric(
+                    "Average Sale",
+                    f"{sales_series.mean():,.2f}",
+                )
+
+            with a3:
+
+                st.metric(
+                    "Minimum Sale",
+                    f"{sales_series.min():,.2f}",
+                )
+
+            with a4:
+
+                st.metric(
+                    "Maximum Sale",
+                    f"{sales_series.max():,.2f}",
+                )
+
+            st.divider()
+
+            st.write(
+                "Sales Summary"
+            )
+
+            sales_summary = pd.DataFrame(
+                {
+                    "Metric": [
+                        "Total Sales",
+                        "Average Sale",
+                        "Minimum Sale",
+                        "Maximum Sale",
+                        "Sales Records",
+                    ],
+                    "Value": [
+                        sales_series.sum(),
+                        sales_series.mean(),
+                        sales_series.min(),
+                        sales_series.max(),
+                        sales_series.count(),
+                    ],
+                }
+            )
+
+            st.dataframe(
+                sales_summary,
+                use_container_width=True,
+                hide_index=True,
+            )
+
+            city_column = None
+
+            for column in business_df.columns:
+
+                if "city" in str(
+                    column
+                ).lower():
+
+                    city_column = column
+                    break
+
+            if city_column:
+
+                st.divider()
+
+                st.write(
+                    "Sales by City"
+                )
+
+                city_summary = (
+                    business_df
+                    .assign(
+                        _DG_Sales=pd.to_numeric(
+                            business_df[
+                                sales_column
+                            ],
+                            errors="coerce",
+                        )
+                    )
+                    .groupby(
+                        city_column,
+                        dropna=False,
+                    )["_DG_Sales"]
+                    .agg(
+                        Sales="sum",
+                        Records="count",
+                        Average_Sale="mean",
+                    )
+                    .reset_index()
+                    .sort_values(
+                        "Sales",
+                        ascending=False,
+                    )
+                )
+
+                st.dataframe(
+                    city_summary,
+                    use_container_width=True,
+                    hide_index=True,
+                )
+
+            category_column = None
+
+            for column in business_df.columns:
+
+                column_lower = str(
+                    column
+                ).lower()
+
+                if (
+                    "category"
+                    in column_lower
+                    or "segment"
+                    in column_lower
+                ):
+
+                    category_column = column
+                    break
+
+            if category_column:
+
+                st.divider()
+
+                st.write(
+                    "Sales by Category"
+                )
+
+                category_summary = (
+                    business_df
+                    .assign(
+                        _DG_Sales=pd.to_numeric(
+                            business_df[
+                                sales_column
+                            ],
+                            errors="coerce",
+                        )
+                    )
+                    .groupby(
+                        category_column,
+                        dropna=False,
+                    )["_DG_Sales"]
+                    .agg(
+                        Sales="sum",
+                        Records="count",
+                        Average_Sale="mean",
+                    )
+                    .reset_index()
+                    .sort_values(
+                        "Sales",
+                        ascending=False,
+                    )
+                )
+
+                st.dataframe(
+                    category_summary,
+                    use_container_width=True,
+                    hide_index=True,
+                )
+
 
     # ========================================================
     # POWER BI
@@ -2448,34 +2597,63 @@ else:
 
     elif page == "AI Analysis":
 
-    st.write("AI Analysis")
-
-    st.caption(
-        "Gemini-powered interpretation of "
-        "DataGuard AI findings."
-    )
-
-    if st.button(
-        "Generate AI Analysis",
-        type="primary",
-    ):
-        with st.spinner("Generating AI analysis..."):
-            gemini_result = generate_gemini_analysis(analysis)
-            st.session_state["gemini_analysis"] = gemini_result
-
-    gemini_result = st.session_state["gemini_analysis"]
-
-    if gemini_result is None:
-        st.info(
-            "Click 'Generate AI Analysis' "
-            "to analyze the current dataset."
+        st.write(
+            "AI Analysis"
         )
 
-    elif gemini_result["status"] == "error":
-        st.error(gemini_result["message"])
+        st.caption(
+            "Gemini-powered interpretation of "
+            "DataGuard AI findings."
+        )
 
-    else:
-        st.markdown(gemini_result["content"])
+        if st.button(
+            "Generate AI Analysis",
+            type="primary",
+        ):
+
+            with st.spinner(
+                "Generating AI analysis..."
+            ):
+
+                gemini_result = (
+                    generate_gemini_analysis(
+                        analysis
+                    )
+                )
+
+                st.session_state[
+                    "gemini_analysis"
+                ] = gemini_result
+
+        gemini_result = (
+            st.session_state[
+                "gemini_analysis"
+            ]
+        )
+
+        if gemini_result is None:
+
+            st.info(
+                "Click 'Generate AI Analysis' "
+                "to analyze the current dataset."
+            )
+
+        elif (
+            gemini_result["status"]
+            == "error"
+        ):
+
+            st.error(
+                gemini_result["message"]
+            )
+
+        else:
+
+            st.markdown(
+                gemini_result["content"]
+            )
+
+
     # ========================================================
     # REPORTS
     # ========================================================
