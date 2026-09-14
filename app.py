@@ -1,4 +1,3 @@
-```python
 import io
 import os
 import zipfile
@@ -3531,4 +3530,4 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
-```
+
