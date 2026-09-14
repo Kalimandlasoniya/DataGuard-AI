@@ -31,7 +31,7 @@ st.markdown(
 
     /* ========================================================
        GLOBAL
-    ======================================================== */
+       ======================================================== */
 
     .stApp {
         background: #f1f5f9;
@@ -49,8 +49,8 @@ st.markdown(
 
 
     /* ========================================================
-       SIDEBAR — DEEP NAVY
-    ======================================================== */
+       SIDEBAR
+       ======================================================== */
 
     section[data-testid="stSidebar"] {
         background: #0f172a;
@@ -92,7 +92,7 @@ st.markdown(
 
     /* ========================================================
        MAIN HEADERS
-    ======================================================== */
+       ======================================================== */
 
     .page-title {
         font-size: 34px;
@@ -124,7 +124,7 @@ st.markdown(
 
     /* ========================================================
        KPI CARDS
-    ======================================================== */
+       ======================================================== */
 
     .kpi-card {
         background: #ffffff;
@@ -132,20 +132,13 @@ st.markdown(
         border-radius: 14px;
         padding: 20px;
         min-height: 125px;
-
-        box-shadow:
-            0 4px 12px rgba(15, 23, 42, 0.05);
-
-        transition:
-            transform 0.2s ease,
-            box-shadow 0.2s ease;
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
     .kpi-card:hover {
         transform: translateY(-2px);
-
-        box-shadow:
-            0 8px 20px rgba(37, 99, 235, 0.10);
+        box-shadow: 0 8px 20px rgba(37, 99, 235, 0.10);
     }
 
     .kpi-label {
@@ -170,7 +163,7 @@ st.markdown(
 
     /* ========================================================
        STATUS BADGES
-    ======================================================== */
+       ======================================================== */
 
     .status-good {
         display: inline-block;
@@ -215,19 +208,16 @@ st.markdown(
 
     /* ========================================================
        PANELS
-    ======================================================== */
+       ======================================================== */
 
     .dashboard-panel {
         background: #ffffff;
         border: 1px solid #e2e8f0;
         border-radius: 14px;
-
         padding: 20px;
         margin-top: 12px;
         margin-bottom: 15px;
-
-        box-shadow:
-            0 4px 12px rgba(15, 23, 42, 0.04);
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
     }
 
     .panel-title {
@@ -246,7 +236,7 @@ st.markdown(
 
     /* ========================================================
        UPLOAD AREA
-    ======================================================== */
+       ======================================================== */
 
     .upload-banner {
         background: #ffffff;
@@ -258,8 +248,8 @@ st.markdown(
 
 
     /* ========================================================
-       INFO BOX
-    ======================================================== */
+       INFO / WARNING / SUCCESS
+       ======================================================== */
 
     .info-box {
         background: #eff6ff;
@@ -294,7 +284,7 @@ st.markdown(
 
     /* ========================================================
        DATAFRAME
-    ======================================================== */
+       ======================================================== */
 
     [data-testid="stDataFrame"] {
         border-radius: 10px;
@@ -305,17 +295,14 @@ st.markdown(
 
     /* ========================================================
        BUTTONS
-    ======================================================== */
+       ======================================================== */
 
     .stButton > button {
         border-radius: 9px;
         font-weight: 650;
-
         border: 1px solid #2563eb;
-
         background: #2563eb;
         color: #ffffff;
-
         transition: all 0.2s ease;
     }
 
@@ -323,20 +310,12 @@ st.markdown(
         background: #1d4ed8;
         border-color: #1d4ed8;
         color: #ffffff;
-
-        box-shadow:
-            0 4px 12px rgba(37, 99, 235, 0.25);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
     }
-
-
-    /* ========================================================
-       DOWNLOAD BUTTONS
-    ======================================================== */
 
     .stDownloadButton > button {
         border-radius: 9px;
         font-weight: 650;
-
         border: 1px solid #2563eb;
         color: #2563eb;
         background: #ffffff;
@@ -351,19 +330,14 @@ st.markdown(
 
     /* ========================================================
        STREAMLIT METRICS
-    ======================================================== */
+       ======================================================== */
 
     [data-testid="stMetric"] {
         background: #ffffff;
-
         border: 1px solid #e2e8f0;
-
         padding: 15px;
-
         border-radius: 12px;
-
-        box-shadow:
-            0 3px 10px rgba(15, 23, 42, 0.04);
+        box-shadow: 0 3px 10px rgba(15, 23, 42, 0.04);
     }
 
     [data-testid="stMetricValue"] {
@@ -373,7 +347,7 @@ st.markdown(
 
     /* ========================================================
        FILE UPLOADER
-    ======================================================== */
+       ======================================================== */
 
     [data-testid="stFileUploader"] {
         background: #ffffff;
@@ -385,7 +359,7 @@ st.markdown(
 
     /* ========================================================
        SELECTBOX / SLIDER / INPUTS
-    ======================================================== */
+       ======================================================== */
 
     [data-baseweb="select"] > div {
         border-radius: 9px;
@@ -398,7 +372,7 @@ st.markdown(
 
     /* ========================================================
        EXPANDERS
-    ======================================================== */
+       ======================================================== */
 
     [data-testid="stExpander"] {
         background: #ffffff;
@@ -409,359 +383,15 @@ st.markdown(
 
     /* ========================================================
        FOOTER
-    ======================================================== */
+       ======================================================== */
 
     .footer {
         text-align: center;
         color: #94a3b8;
-
         font-size: 12px;
-
         margin-top: 45px;
         padding-top: 20px;
-
         border-top: 1px solid #e2e8f0;
-    }
-
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
-
-
-    /* ========================================================
-       HEADERS
-       ======================================================== */
-
-    .page-title {
-        font-size: 34px;
-        font-weight: 800;
-        color: #111827 !important;
-        margin-bottom: 2px;
-    }
-
-    .page-subtitle {
-        font-size: 15px;
-        color: #6b7280 !important;
-        margin-bottom: 25px;
-    }
-
-    .section-title {
-        font-size: 21px;
-        font-weight: 750;
-        color: #111827 !important;
-        margin-top: 25px;
-        margin-bottom: 12px;
-    }
-
-    .section-description {
-        color: #6b7280 !important;
-        font-size: 14px;
-        margin-bottom: 15px;
-    }
-
-    /* ========================================================
-       KPI CARDS
-       ======================================================== */
-
-    .kpi-card {
-        background: #ffffff;
-        border: 1px solid #e5e7eb;
-        border-radius: 14px;
-        padding: 20px;
-        min-height: 125px;
-        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
-        color: #111827 !important;
-    }
-
-    .kpi-card * {
-        color: #111827;
-    }
-
-    .kpi-label {
-        font-size: 13px;
-        color: #6b7280 !important;
-        font-weight: 600;
-        margin-bottom: 10px;
-    }
-
-    .kpi-value {
-        font-size: 28px;
-        font-weight: 800;
-        color: #111827 !important;
-    }
-
-    .kpi-caption {
-        font-size: 12px;
-        color: #9ca3af !important;
-        margin-top: 5px;
-    }
-
-    /* ========================================================
-       STATUS BADGES
-       ======================================================== */
-
-    .status-good {
-        display: inline-block;
-        padding: 5px 11px;
-        border-radius: 20px;
-        background: #dcfce7;
-        color: #166534 !important;
-        font-size: 12px;
-        font-weight: 700;
-    }
-
-    .status-warning {
-        display: inline-block;
-        padding: 5px 11px;
-        border-radius: 20px;
-        background: #fef3c7;
-        color: #92400e !important;
-        font-size: 12px;
-        font-weight: 700;
-    }
-
-    .status-danger {
-        display: inline-block;
-        padding: 5px 11px;
-        border-radius: 20px;
-        background: #fee2e2;
-        color: #991b1b !important;
-        font-size: 12px;
-        font-weight: 700;
-    }
-
-    .status-info {
-        display: inline-block;
-        padding: 5px 11px;
-        border-radius: 20px;
-        background: #dbeafe;
-        color: #1e40af !important;
-        font-size: 12px;
-        font-weight: 700;
-    }
-
-    /* ========================================================
-       PANELS
-       ======================================================== */
-
-    .dashboard-panel {
-        background: #ffffff;
-        border: 1px solid #e5e7eb;
-        border-radius: 14px;
-        padding: 20px;
-        margin-top: 12px;
-        margin-bottom: 15px;
-        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
-        color: #111827 !important;
-    }
-
-    .dashboard-panel * {
-        color: #111827;
-    }
-
-    .panel-title {
-        font-size: 17px;
-        font-weight: 750;
-        color: #111827 !important;
-        margin-bottom: 4px;
-    }
-
-    .panel-description {
-        color: #6b7280 !important;
-        font-size: 13px;
-        margin-bottom: 14px;
-    }
-
-    /* ========================================================
-       UPLOAD
-       ======================================================== */
-
-    .upload-banner {
-        background: #ffffff;
-        border: 1px dashed #cbd5e1;
-        border-radius: 16px;
-        padding: 28px;
-        margin-bottom: 20px;
-        color: #111827 !important;
-    }
-
-    /* ========================================================
-       INFO / WARNING / SUCCESS
-       ======================================================== */
-
-    .info-box {
-        background: #eff6ff;
-        border: 1px solid #bfdbfe;
-        border-radius: 10px;
-        padding: 13px 15px;
-        color: #1e3a8a !important;
-        font-size: 13px;
-        margin: 10px 0;
-    }
-
-    .info-box * {
-        color: #1e3a8a !important;
-    }
-
-    .warning-box {
-        background: #fffbeb;
-        border: 1px solid #fde68a;
-        border-radius: 10px;
-        padding: 13px 15px;
-        color: #92400e !important;
-        font-size: 13px;
-        margin: 10px 0;
-    }
-
-    .warning-box * {
-        color: #92400e !important;
-    }
-
-    .success-box {
-        background: #f0fdf4;
-        border: 1px solid #bbf7d0;
-        border-radius: 10px;
-        padding: 13px 15px;
-        color: #166534 !important;
-        font-size: 13px;
-        margin: 10px 0;
-    }
-
-    .success-box * {
-        color: #166534 !important;
-    }
-
-    /* ========================================================
-       STREAMLIT WIDGET TEXT
-       ======================================================== */
-
-    /* Captions */
-    [data-testid="stCaptionContainer"],
-    [data-testid="stCaptionContainer"] * {
-        color: #6b7280 !important;
-    }
-
-    /* Widget labels */
-    [data-testid="stWidgetLabel"],
-    [data-testid="stWidgetLabel"] * {
-        color: #111827 !important;
-    }
-
-    /* File uploader */
-    [data-testid="stFileUploader"],
-    [data-testid="stFileUploader"] * {
-        color: #111827 !important;
-    }
-
-    [data-testid="stFileUploaderDropzone"] {
-        background: #ffffff !important;
-        border: 1px dashed #cbd5e1 !important;
-    }
-
-    /* Expander */
-    [data-testid="stExpander"],
-    [data-testid="stExpander"] * {
-        color: #111827 !important;
-    }
-
-    /* ========================================================
-       BUTTONS
-       ======================================================== */
-
-    .stButton > button {
-        border-radius: 9px;
-        font-weight: 650;
-        color: #111827 !important;
-        background: #ffffff !important;
-        border: 1px solid #d1d5db !important;
-    }
-
-    .stButton > button:hover {
-        color: #111827 !important;
-        border-color: #9ca3af !important;
-    }
-
-    .stDownloadButton > button {
-        border-radius: 9px;
-        font-weight: 650;
-        color: #111827 !important;
-        background: #ffffff !important;
-        border: 1px solid #d1d5db !important;
-    }
-
-    .stDownloadButton > button:hover {
-        color: #111827 !important;
-        border-color: #9ca3af !important;
-    }
-
-    /* ========================================================
-       METRIC
-       ======================================================== */
-
-    [data-testid="stMetric"] {
-        background: #ffffff;
-        border: 1px solid #e5e7eb;
-        padding: 15px;
-        border-radius: 12px;
-        color: #111827 !important;
-    }
-
-    [data-testid="stMetric"] * {
-        color: #111827 !important;
-    }
-
-    [data-testid="stMetricLabel"] {
-        color: #6b7280 !important;
-    }
-
-    [data-testid="stMetricValue"] {
-        color: #111827 !important;
-    }
-
-    /* ========================================================
-       DATAFRAME
-       ======================================================== */
-
-    [data-testid="stDataFrame"] {
-        border-radius: 10px;
-        overflow: hidden;
-    }
-
-    /* ========================================================
-       SELECT / INPUTS
-       ======================================================== */
-
-    [data-baseweb="select"] {
-        background: #ffffff !important;
-    }
-
-    [data-baseweb="select"] * {
-        color: #111827 !important;
-    }
-
-    input,
-    textarea {
-        color: #111827 !important;
-        background: #ffffff !important;
-    }
-
-    /* ========================================================
-       FOOTER
-       ======================================================== */
-
-    .footer {
-        text-align: center;
-        color: #9ca3af !important;
-        font-size: 12px;
-        margin-top: 45px;
-        padding-top: 20px;
-        border-top: 1px solid #e5e7eb;
-    }
-
-    .footer * {
-        color: #9ca3af !important;
     }
 
     </style>
@@ -854,48 +484,29 @@ def detect_datetime_columns(df):
 
     for column in df.columns:
 
-        if pd.api.types.is_datetime64_any_dtype(
-            df[column]
-        ):
+        if pd.api.types.is_datetime64_any_dtype(df[column]):
             datetime_columns.append(column)
             continue
 
-        if pd.api.types.is_numeric_dtype(
-            df[column]
-        ):
+        if pd.api.types.is_numeric_dtype(df[column]):
             continue
 
         column_name = str(column).lower()
 
-        parsed = safe_to_datetime(
-            df[column]
-        )
-
+        parsed = safe_to_datetime(df[column])
         valid_ratio = parsed.notna().mean()
 
-        if any(
-            token in column_name
-            for token in tokens
-        ):
+        if any(token in column_name for token in tokens):
             if valid_ratio >= 0.50:
-                datetime_columns.append(
-                    column
-                )
+                datetime_columns.append(column)
         else:
             if valid_ratio >= 0.95:
-                datetime_columns.append(
-                    column
-                )
+                datetime_columns.append(column)
 
-    return list(
-        dict.fromkeys(datetime_columns)
-    )
+    return list(dict.fromkeys(datetime_columns))
 
 
-def detect_identifier_columns(
-    df,
-    datetime_columns=None,
-):
+def detect_identifier_columns(df, datetime_columns=None):
 
     if datetime_columns is None:
         datetime_columns = []
@@ -921,45 +532,28 @@ def detect_identifier_columns(
 
         name = str(column).lower()
 
-        if any(
-            token in name
-            for token in identifier_tokens
-        ):
-            identifier_columns.append(
-                column
-            )
+        if any(token in name for token in identifier_tokens):
+            identifier_columns.append(column)
             continue
 
         if len(df) > 0:
 
             unique_ratio = (
-                df[column].nunique(
-                    dropna=True
-                )
+                df[column].nunique(dropna=True)
                 / len(df)
             )
 
             if (
                 unique_ratio >= 0.98
                 and (
-                    pd.api.types.is_integer_dtype(
-                        df[column]
-                    )
-                    or pd.api.types.is_object_dtype(
-                        df[column]
-                    )
-                    or pd.api.types.is_string_dtype(
-                        df[column]
-                    )
+                    pd.api.types.is_integer_dtype(df[column])
+                    or pd.api.types.is_object_dtype(df[column])
+                    or pd.api.types.is_string_dtype(df[column])
                 )
             ):
-                identifier_columns.append(
-                    column
-                )
+                identifier_columns.append(column)
 
-    return list(
-        dict.fromkeys(identifier_columns)
-    )
+    return list(dict.fromkeys(identifier_columns))
 
 
 def profile_dataset(df):
@@ -971,23 +565,15 @@ def profile_dataset(df):
             for column in df.columns
         ],
         "Non-Null Count": [
-            int(
-                df[column].notna().sum()
-            )
+            int(df[column].notna().sum())
             for column in df.columns
         ],
         "Missing": [
-            int(
-                df[column].isna().sum()
-            )
+            int(df[column].isna().sum())
             for column in df.columns
         ],
         "Unique Values": [
-            int(
-                df[column].nunique(
-                    dropna=True
-                )
-            )
+            int(df[column].nunique(dropna=True))
             for column in df.columns
         ],
     })
@@ -1018,10 +604,7 @@ def detect_invalid_values(df):
 
         name = str(column).lower()
 
-        if not any(
-            token in name
-            for token in numeric_tokens
-        ):
+        if not any(token in name for token in numeric_tokens):
             continue
 
         numeric_values = pd.to_numeric(
@@ -1029,9 +612,7 @@ def detect_invalid_values(df):
             errors="coerce",
         )
 
-        original_non_null = (
-            df[column].notna()
-        )
+        original_non_null = df[column].notna()
 
         conversion_failures = (
             numeric_values.isna()
@@ -1055,9 +636,7 @@ def detect_invalid_values(df):
                 "price",
             ]
         ):
-            negative_values = (
-                numeric_values < 0
-            )
+            negative_values = numeric_values < 0
 
         count = int(
             conversion_failures.sum()
@@ -1084,13 +663,11 @@ def standardize_city_column(df):
     result = df.copy()
 
     total_changes = 0
-    change_details = []
 
     city_columns = [
         column
         for column in result.columns
-        if "city"
-        in str(column).lower()
+        if "city" in str(column).lower()
     ]
 
     for column in city_columns:
@@ -1104,35 +681,23 @@ def standardize_city_column(df):
             .str.lower()
         )
 
-        standardized = cleaned.map(
-            CITY_MAPPING
-        )
+        standardized = cleaned.map(CITY_MAPPING)
 
         standardized = standardized.fillna(
             cleaned.str.title()
         )
 
-        valid_original = (
-            original.astype("string")
-        )
+        valid_original = original.astype("string")
 
         changes = (
             valid_original.fillna("")
             != standardized.fillna("")
         )
 
-        changed_count = int(
-            changes.sum()
-        )
+        changed_count = int(changes.sum())
 
         if changed_count > 0:
-
             total_changes += changed_count
-
-            change_details.append({
-                "Column": column,
-                "Changed Values": changed_count,
-            })
 
         result[column] = standardized
 
@@ -1147,11 +712,9 @@ def detect_iqr_outliers(df):
     details = []
     total_outliers = 0
 
-    numeric_columns = (
-        df.select_dtypes(
-            include=np.number
-        ).columns
-    )
+    numeric_columns = df.select_dtypes(
+        include=np.number
+    ).columns
 
     for column in numeric_columns:
 
@@ -1171,22 +734,15 @@ def detect_iqr_outliers(df):
         if iqr == 0:
             continue
 
-        lower = q1 - (
-            1.5 * iqr
-        )
-
-        upper = q3 + (
-            1.5 * iqr
-        )
+        lower = q1 - (1.5 * iqr)
+        upper = q3 + (1.5 * iqr)
 
         mask = (
             (df[column] < lower)
             | (df[column] > upper)
         )
 
-        count = int(
-            mask.sum()
-        )
+        count = int(mask.sum())
 
         if count > 0:
 
@@ -1207,10 +763,7 @@ def detect_iqr_outliers(df):
     )
 
 
-def detect_ml_anomalies(
-    df,
-    contamination_pct,
-):
+def detect_ml_anomalies(df, contamination_pct):
 
     numeric_df = df.select_dtypes(
         include=np.number
@@ -1218,10 +771,7 @@ def detect_ml_anomalies(
 
     if numeric_df.shape[1] == 0:
         return (
-            pd.Series(
-                False,
-                index=df.index,
-            ),
+            pd.Series(False, index=df.index),
             0,
         )
 
@@ -1231,46 +781,33 @@ def detect_ml_anomalies(
     )
 
     numeric_df = numeric_df.fillna(
-        numeric_df.median(
-            numeric_only=True
-        )
+        numeric_df.median(numeric_only=True)
     )
 
     numeric_df = numeric_df.fillna(0)
 
     if len(numeric_df) < 10:
         return (
-            pd.Series(
-                False,
-                index=df.index,
-            ),
+            pd.Series(False, index=df.index),
             0,
         )
 
     model = IsolationForest(
         n_estimators=200,
-        contamination=(
-            contamination_pct / 100
-        ),
+        contamination=contamination_pct / 100,
         random_state=42,
     )
 
-    predictions = model.fit_predict(
-        numeric_df
-    )
+    predictions = model.fit_predict(numeric_df)
 
-    anomaly_mask = (
-        predictions == -1
-    )
+    anomaly_mask = predictions == -1
 
     return (
         pd.Series(
             anomaly_mask,
             index=df.index,
         ),
-        int(
-            anomaly_mask.sum()
-        ),
+        int(anomaly_mask.sum()),
     )
 
 
@@ -1285,18 +822,15 @@ def build_quality_score(
         return 100.0
 
     missing_penalty = (
-        missing_count
-        / total_cells
+        missing_count / total_cells
     ) * 100
 
     duplicate_penalty = (
-        duplicate_count
-        / max(1, total_cells)
+        duplicate_count / max(1, total_cells)
     ) * 100
 
     invalid_penalty = (
-        invalid_count
-        / max(1, total_cells)
+        invalid_count / max(1, total_cells)
     ) * 100
 
     score = 100 - (
@@ -1306,10 +840,7 @@ def build_quality_score(
     )
 
     return round(
-        max(
-            0,
-            min(100, score),
-        ),
+        max(0, min(100, score)),
         2,
     )
 
@@ -1323,67 +854,51 @@ def clean_dataset(df):
     cleaned = cleaned.drop_duplicates()
 
     rows_removed = (
-        original_rows
-        - len(cleaned)
+        original_rows - len(cleaned)
     )
 
-    cleaned, city_changes = (
-        standardize_city_column(
-            cleaned
-        )
+    cleaned, city_changes = standardize_city_column(
+        cleaned
     )
 
     values_filled = 0
 
     numeric_columns = (
         cleaned
-        .select_dtypes(
-            include=np.number
-        )
+        .select_dtypes(include=np.number)
         .columns
     )
 
     for column in numeric_columns:
 
         try:
-
             cleaned[column] = (
                 pd.to_numeric(
                     cleaned[column],
                     errors="coerce",
                 ).astype("float64")
             )
-
         except Exception:
             continue
 
         missing_before = int(
-            cleaned[column]
-            .isna()
-            .sum()
+            cleaned[column].isna().sum()
         )
 
         if missing_before > 0:
 
             median_value = (
-                cleaned[column]
-                .median()
+                cleaned[column].median()
             )
 
-            if pd.notna(
-                median_value
-            ):
+            if pd.notna(median_value):
 
                 cleaned[column] = (
                     cleaned[column]
-                    .fillna(
-                        median_value
-                    )
+                    .fillna(median_value)
                 )
 
-                values_filled += (
-                    missing_before
-                )
+                values_filled += missing_before
 
     categorical_columns = (
         cleaned
@@ -1400,30 +915,23 @@ def clean_dataset(df):
     for column in categorical_columns:
 
         missing_before = int(
-            cleaned[column]
-            .isna()
-            .sum()
+            cleaned[column].isna().sum()
         )
 
         if missing_before > 0:
 
             mode_values = (
-                cleaned[column]
-                .mode(dropna=True)
+                cleaned[column].mode(dropna=True)
             )
 
             if len(mode_values) > 0:
 
                 cleaned[column] = (
                     cleaned[column]
-                    .fillna(
-                        mode_values.iloc[0]
-                    )
+                    .fillna(mode_values.iloc[0])
                 )
 
-                values_filled += (
-                    missing_before
-                )
+                values_filled += missing_before
 
     return (
         cleaned,
@@ -1454,9 +962,7 @@ def find_sales_column(df):
 
             column = lower_map[name]
 
-            if pd.api.types.is_numeric_dtype(
-                df[column]
-            ):
+            if pd.api.types.is_numeric_dtype(df[column]):
                 return column
 
     for column in df.columns:
@@ -1472,9 +978,7 @@ def find_sales_column(df):
             ]
         ):
 
-            if pd.api.types.is_numeric_dtype(
-                df[column]
-            ):
+            if pd.api.types.is_numeric_dtype(df[column]):
                 return column
 
     return None
@@ -1482,61 +986,38 @@ def find_sales_column(df):
 
 def prepare_business_data(df):
 
-    sales_column = (
-        find_sales_column(df)
-    )
+    sales_column = find_sales_column(df)
 
     if sales_column is None:
         return None, None, None
 
     business_df = df.copy()
 
-    business_df[sales_column] = (
-        pd.to_numeric(
-            business_df[
-                sales_column
-            ],
-            errors="coerce",
-        )
+    business_df[sales_column] = pd.to_numeric(
+        business_df[sales_column],
+        errors="coerce",
     )
 
     business_df = business_df[
-        business_df[
-            sales_column
-        ].notna()
+        business_df[sales_column].notna()
     ]
 
     business_df = business_df[
-        business_df[
-            sales_column
-        ] >= 0
+        business_df[sales_column] >= 0
     ]
 
     if len(business_df) == 0:
-        return (
-            None,
-            sales_column,
-            None,
-        )
+        return None, sales_column, None
 
-    q1 = business_df[
-        sales_column
-    ].quantile(0.25)
-
-    q3 = business_df[
-        sales_column
-    ].quantile(0.75)
+    q1 = business_df[sales_column].quantile(0.25)
+    q3 = business_df[sales_column].quantile(0.75)
 
     iqr = q3 - q1
 
-    upper_bound = (
-        q3 + 1.5 * iqr
-    )
+    upper_bound = q3 + 1.5 * iqr
 
     chart_df = business_df[
-        business_df[
-            sales_column
-        ] <= upper_bound
+        business_df[sales_column] <= upper_bound
     ].copy()
 
     return (
@@ -1554,21 +1035,15 @@ def create_powerbi_exports(
 
     exports = {}
 
-    profile = profile_dataset(
-        cleaned_df
-    )
+    profile = profile_dataset(cleaned_df)
 
-    exports[
-        "DataGuard_Cleaned_Data.csv"
-    ] = (
+    exports["DataGuard_Cleaned_Data.csv"] = (
         cleaned_df
         .to_csv(index=False)
         .encode("utf-8")
     )
 
-    exports[
-        "DataGuard_Data_Profile.csv"
-    ] = (
+    exports["DataGuard_Data_Profile.csv"] = (
         profile
         .to_csv(index=False)
         .encode("utf-8")
@@ -1583,14 +1058,10 @@ def create_powerbi_exports(
             business_df
             .groupby(sales_column)
             .size()
-            .reset_index(
-                name="Record_Count"
-            )
+            .reset_index(name="Record_Count")
         )
 
-        exports[
-            "DataGuard_Sales_Summary.csv"
-        ] = (
+        exports["DataGuard_Sales_Summary.csv"] = (
             sales_summary
             .to_csv(index=False)
             .encode("utf-8")
@@ -1599,37 +1070,28 @@ def create_powerbi_exports(
     city_columns = [
         column
         for column in cleaned_df.columns
-        if "city"
-        in str(column).lower()
+        if "city" in str(column).lower()
     ]
 
     if city_columns:
 
-        city_column = (
-            city_columns[0]
-        )
+        city_column = city_columns[0]
 
         city_summary = (
             cleaned_df
             .groupby(city_column)
             .size()
-            .reset_index(
-                name="Record_Count"
-            )
+            .reset_index(name="Record_Count")
         )
 
-        exports[
-            "DataGuard_City_Summary.csv"
-        ] = (
+        exports["DataGuard_City_Summary.csv"] = (
             city_summary
             .to_csv(index=False)
             .encode("utf-8")
         )
 
-    datetime_columns = (
-        detect_datetime_columns(
-            cleaned_df
-        )
+    datetime_columns = detect_datetime_columns(
+        cleaned_df
     )
 
     if (
@@ -1637,60 +1099,40 @@ def create_powerbi_exports(
         and sales_column is not None
     ):
 
-        date_column = (
-            datetime_columns[0]
+        date_column = datetime_columns[0]
+
+        monthly_df = cleaned_df.copy()
+
+        monthly_df[date_column] = safe_to_datetime(
+            monthly_df[date_column]
         )
 
-        monthly_df = (
-            cleaned_df.copy()
-        )
-
-        monthly_df[
-            date_column
-        ] = safe_to_datetime(
-            monthly_df[
-                date_column
-            ]
-        )
-
-        monthly_df[
-            sales_column
-        ] = pd.to_numeric(
-            monthly_df[
-                sales_column
-            ],
+        monthly_df[sales_column] = pd.to_numeric(
+            monthly_df[sales_column],
             errors="coerce",
         )
 
-        monthly_df = (
-            monthly_df.dropna(
-                subset=[
-                    date_column,
-                    sales_column,
-                ]
-            )
+        monthly_df = monthly_df.dropna(
+            subset=[
+                date_column,
+                sales_column,
+            ]
         )
 
         monthly_summary = (
             monthly_df
             .assign(
-                Month=monthly_df[
-                    date_column
-                ]
+                Month=monthly_df[date_column]
                 .dt
                 .to_period("M")
                 .astype(str)
             )
-            .groupby("Month")[
-                sales_column
-            ]
+            .groupby("Month")[sales_column]
             .sum()
             .reset_index()
         )
 
-        exports[
-            "DataGuard_Monthly_Sales.csv"
-        ] = (
+        exports["DataGuard_Monthly_Sales.csv"] = (
             monthly_summary
             .to_csv(index=False)
             .encode("utf-8")
@@ -1709,10 +1151,7 @@ def create_zip(exports):
         zipfile.ZIP_DEFLATED,
     ) as zip_file:
 
-        for filename, data in (
-            exports.items()
-        ):
-
+        for filename, data in exports.items():
             zip_file.writestr(
                 filename,
                 data,
@@ -1740,9 +1179,7 @@ if not GEMINI_API_KEY:
     )
 
 
-def get_gemini_analysis(
-    summary_text,
-):
+def get_gemini_analysis(summary_text):
 
     if not GEMINI_API_KEY:
 
@@ -1853,9 +1290,7 @@ with st.sidebar:
         unsafe_allow_html=True,
     )
 
-    st.markdown(
-        "### Navigation"
-    )
+    st.markdown("### Navigation")
 
     page = st.radio(
         "Navigation",
@@ -1877,9 +1312,7 @@ with st.sidebar:
         unsafe_allow_html=True,
     )
 
-    st.markdown(
-        "### Anomaly Detection"
-    )
+    st.markdown("### Anomaly Detection")
 
     contamination_pct = st.slider(
         "Isolation Forest sensitivity",
@@ -1904,9 +1337,7 @@ with st.sidebar:
         unsafe_allow_html=True,
     )
 
-    st.markdown(
-        "### Pipeline"
-    )
+    st.markdown("### Pipeline")
 
     st.markdown(
         """
@@ -2006,19 +1437,13 @@ if uploaded_file is not None:
 
         try:
 
-            if uploaded_file.name.lower().endswith(
-                ".csv"
-            ):
+            if uploaded_file.name.lower().endswith(".csv"):
 
-                df = pd.read_csv(
-                    uploaded_file
-                )
+                df = pd.read_csv(uploaded_file)
 
             else:
 
-                df = pd.read_excel(
-                    uploaded_file
-                )
+                df = pd.read_excel(uploaded_file)
 
             st.session_state.df = df
 
@@ -2051,16 +1476,12 @@ if st.session_state.df is not None:
 
     if not st.session_state.analysis_complete:
 
-        with st.spinner(
-            "Analyzing your dataset..."
-        ):
+        with st.spinner("Analyzing your dataset..."):
 
             rows = len(df)
             columns = len(df.columns)
 
-            total_cells = (
-                rows * columns
-            )
+            total_cells = rows * columns
 
             missing_count = int(
                 df.isna().sum().sum()
@@ -2073,30 +1494,20 @@ if st.session_state.df is not None:
             (
                 invalid_count,
                 invalid_details,
-            ) = detect_invalid_values(
-                df
+            ) = detect_invalid_values(df)
+
+            quality_score = build_quality_score(
+                total_cells,
+                missing_count,
+                duplicate_count,
+                invalid_count,
             )
 
-            quality_score = (
-                build_quality_score(
-                    total_cells,
-                    missing_count,
-                    duplicate_count,
-                    invalid_count,
-                )
-            )
+            datetime_columns = detect_datetime_columns(df)
 
-            datetime_columns = (
-                detect_datetime_columns(
-                    df
-                )
-            )
-
-            identifier_columns = (
-                detect_identifier_columns(
-                    df,
-                    datetime_columns,
-                )
+            identifier_columns = detect_identifier_columns(
+                df,
+                datetime_columns,
             )
 
             numeric_count = len(
@@ -2118,9 +1529,7 @@ if st.session_state.df is not None:
             (
                 iqr_outlier_count,
                 iqr_details,
-            ) = detect_iqr_outliers(
-                df
-            )
+            ) = detect_iqr_outliers(df)
 
             (
                 anomaly_mask,
@@ -2139,9 +1548,7 @@ if st.session_state.df is not None:
                 rows_removed,
                 values_filled,
                 city_changes,
-            ) = clean_dataset(
-                df
-            )
+            ) = clean_dataset(df)
 
             (
                 business_df,
@@ -2151,13 +1558,9 @@ if st.session_state.df is not None:
                 cleaned_df
             )
 
-            st.session_state.cleaned_df = (
-                cleaned_df
-            )
+            st.session_state.cleaned_df = cleaned_df
 
-            st.session_state.business_df = (
-                business_df
-            )
+            st.session_state.business_df = business_df
 
             st.session_state.analysis = {
 
@@ -2167,62 +1570,43 @@ if st.session_state.df is not None:
 
                 "total_cells": total_cells,
 
-                "missing_count":
-                    missing_count,
+                "missing_count": missing_count,
 
-                "duplicate_count":
-                    duplicate_count,
+                "duplicate_count": duplicate_count,
 
-                "invalid_count":
-                    invalid_count,
+                "invalid_count": invalid_count,
 
-                "quality_score":
-                    quality_score,
+                "quality_score": quality_score,
 
-                "datetime_columns":
-                    datetime_columns,
+                "datetime_columns": datetime_columns,
 
-                "identifier_columns":
-                    identifier_columns,
+                "identifier_columns": identifier_columns,
 
-                "numeric_count":
-                    numeric_count,
+                "numeric_count": numeric_count,
 
-                "categorical_count":
-                    categorical_count,
+                "categorical_count": categorical_count,
 
-                "iqr_outlier_count":
-                    iqr_outlier_count,
+                "iqr_outlier_count": iqr_outlier_count,
 
-                "iqr_details":
-                    iqr_details,
+                "iqr_details": iqr_details,
 
-                "anomaly_mask":
-                    anomaly_mask,
+                "anomaly_mask": anomaly_mask,
 
-                "ml_anomaly_count":
-                    ml_anomaly_count,
+                "ml_anomaly_count": ml_anomaly_count,
 
-                "normal_count":
-                    normal_count,
+                "normal_count": normal_count,
 
-                "invalid_details":
-                    invalid_details,
+                "invalid_details": invalid_details,
 
-                "rows_removed":
-                    rows_removed,
+                "rows_removed": rows_removed,
 
-                "values_filled":
-                    values_filled,
+                "values_filled": values_filled,
 
-                "city_changes":
-                    city_changes,
+                "city_changes": city_changes,
 
-                "sales_column":
-                    sales_column,
+                "sales_column": sales_column,
 
-                "upper_bound":
-                    upper_bound,
+                "upper_bound": upper_bound,
             }
 
             st.session_state.analysis_complete = True
@@ -2239,17 +1623,11 @@ if (
 
     df = st.session_state.df
 
-    cleaned_df = (
-        st.session_state.cleaned_df
-    )
+    cleaned_df = st.session_state.cleaned_df
 
-    business_df = (
-        st.session_state.business_df
-    )
+    business_df = st.session_state.business_df
 
-    analysis = (
-        st.session_state.analysis
-    )
+    analysis = st.session_state.analysis
 
 
     # ========================================================
@@ -2280,24 +1658,16 @@ if (
             unsafe_allow_html=True,
         )
 
-        # KPI ROW
+        k1, k2, k3, k4 = st.columns(4)
 
-        k1, k2, k3, k4 = (
-            st.columns(4)
-        )
-
-        score = analysis[
-            "quality_score"
-        ]
+        score = analysis["quality_score"]
 
         if score >= 99:
             score_status = "Excellent"
         elif score >= 95:
             score_status = "Good"
         elif score >= 85:
-            score_status = (
-                "Needs Attention"
-            )
+            score_status = "Needs Attention"
         else:
             score_status = "Critical"
 
@@ -2403,9 +1773,7 @@ if (
             unsafe_allow_html=True,
         )
 
-        p1, p2, p3, p4, p5 = (
-            st.columns(5)
-        )
+        p1, p2, p3, p4, p5 = st.columns(5)
 
         with p1:
             st.metric(
@@ -2428,9 +1796,7 @@ if (
         with p4:
             st.metric(
                 "Categorical",
-                analysis[
-                    "categorical_count"
-                ],
+                analysis["categorical_count"],
             )
 
         with p5:
@@ -2449,9 +1815,7 @@ if (
             unsafe_allow_html=True,
         )
 
-        left, right = st.columns(
-            [1.3, 1]
-        )
+        left, right = st.columns([1.3, 1])
 
         with left:
 
@@ -2464,28 +1828,16 @@ if (
                     "ML Anomalies",
                 ],
                 "Count": [
-                    analysis[
-                        "missing_count"
-                    ],
-                    analysis[
-                        "duplicate_count"
-                    ],
-                    analysis[
-                        "invalid_count"
-                    ],
-                    analysis[
-                        "iqr_outlier_count"
-                    ],
-                    analysis[
-                        "ml_anomaly_count"
-                    ],
+                    analysis["missing_count"],
+                    analysis["duplicate_count"],
+                    analysis["invalid_count"],
+                    analysis["iqr_outlier_count"],
+                    analysis["ml_anomaly_count"],
                 ],
             })
 
             st.bar_chart(
-                quality_data.set_index(
-                    "Metric"
-                )
+                quality_data.set_index("Metric")
             )
 
         with right:
@@ -2564,13 +1916,9 @@ if (
                 unsafe_allow_html=True,
             )
 
-            sales_column = (
-                analysis["sales_column"]
-            )
+            sales_column = analysis["sales_column"]
 
-            preview1, preview2 = (
-                st.columns(2)
-            )
+            preview1, preview2 = st.columns(2)
 
             with preview1:
 
@@ -2592,11 +1940,7 @@ if (
                     unsafe_allow_html=True,
                 )
 
-                chart_values = (
-                    business_df[
-                        sales_column
-                    ]
-                )
+                chart_values = business_df[sales_column]
 
                 hist, bins = np.histogram(
                     chart_values,
@@ -2608,40 +1952,30 @@ if (
                     "Sales Range": [
                         f"{bins[i]:,.0f} - "
                         f"{bins[i+1]:,.0f}"
-                        for i in range(
-                            len(bins) - 1
-                        )
+                        for i in range(len(bins) - 1)
                     ],
 
                     "Records": hist,
                 })
 
                 st.bar_chart(
-                    hist_df.set_index(
-                        "Sales Range"
-                    )
+                    hist_df.set_index("Sales Range")
                 )
 
             with preview2:
 
                 city_columns = [
                     column
-                    for column
-                    in cleaned_df.columns
-                    if "city"
-                    in str(column).lower()
+                    for column in cleaned_df.columns
+                    if "city" in str(column).lower()
                 ]
 
                 if city_columns:
 
-                    city_column = (
-                        city_columns[0]
-                    )
+                    city_column = city_columns[0]
 
                     city_counts = (
-                        cleaned_df[
-                            city_column
-                        ]
+                        cleaned_df[city_column]
                         .value_counts()
                         .head(10)
                     )
@@ -2659,9 +1993,7 @@ if (
                         unsafe_allow_html=True,
                     )
 
-                    st.bar_chart(
-                        city_counts
-                    )
+                    st.bar_chart(city_counts)
 
 
         # DATA PREVIEW
@@ -2704,9 +2036,7 @@ if (
             unsafe_allow_html=True,
         )
 
-        q1, q2, q3, q4 = (
-            st.columns(4)
-        )
+        q1, q2, q3, q4 = st.columns(4)
 
         q1.metric(
             "Quality Score",
@@ -2750,9 +2080,7 @@ if (
             unsafe_allow_html=True,
         )
 
-        c1, c2, c3 = (
-            st.columns(3)
-        )
+        c1, c2, c3 = st.columns(3)
 
         with c1:
 
@@ -2815,14 +2143,10 @@ if (
             "View detected Date/Time columns"
         ):
 
-            if analysis[
-                "datetime_columns"
-            ]:
+            if analysis["datetime_columns"]:
 
                 st.write(
-                    analysis[
-                        "datetime_columns"
-                    ]
+                    analysis["datetime_columns"]
                 )
 
             else:
@@ -2835,14 +2159,10 @@ if (
             "View detected Identifier columns"
         ):
 
-            if analysis[
-                "identifier_columns"
-            ]:
+            if analysis["identifier_columns"]:
 
                 st.write(
-                    analysis[
-                        "identifier_columns"
-                    ]
+                    analysis["identifier_columns"]
                 )
 
             else:
@@ -2858,9 +2178,7 @@ if (
             unsafe_allow_html=True,
         )
 
-        if analysis[
-            "invalid_details"
-        ].empty:
+        if analysis["invalid_details"].empty:
 
             st.success(
                 "No invalid values were detected."
@@ -2869,9 +2187,7 @@ if (
         else:
 
             st.dataframe(
-                analysis[
-                    "invalid_details"
-                ],
+                analysis["invalid_details"],
                 use_container_width=True,
             )
 
@@ -2909,9 +2225,7 @@ if (
             unsafe_allow_html=True,
         )
 
-        a1, a2, a3 = (
-            st.columns(3)
-        )
+        a1, a2, a3 = st.columns(3)
 
         a1.metric(
             "IQR Outlier Observations",
@@ -2945,9 +2259,7 @@ if (
             unsafe_allow_html=True,
         )
 
-        if analysis[
-            "iqr_details"
-        ].empty:
+        if analysis["iqr_details"].empty:
 
             st.success(
                 "No IQR outliers detected."
@@ -2956,9 +2268,7 @@ if (
         else:
 
             st.dataframe(
-                analysis[
-                    "iqr_details"
-                ],
+                analysis["iqr_details"],
                 use_container_width=True,
             )
 
@@ -2998,16 +2308,10 @@ if (
             unsafe_allow_html=True,
         )
 
-        anomaly_display = (
-            df.copy()
-        )
+        anomaly_display = df.copy()
 
-        anomaly_display[
-            "ML_Anomaly"
-        ] = np.where(
-            analysis[
-                "anomaly_mask"
-            ],
+        anomaly_display["ML_Anomaly"] = np.where(
+            analysis["anomaly_mask"],
             "Anomaly",
             "Normal",
         )
@@ -3016,13 +2320,9 @@ if (
             "View ML anomaly records"
         ):
 
-            anomaly_records = (
-                anomaly_display[
-                    anomaly_display[
-                        "ML_Anomaly"
-                    ] == "Anomaly"
-                ]
-            )
+            anomaly_records = anomaly_display[
+                anomaly_display["ML_Anomaly"] == "Anomaly"
+            ]
 
             st.caption(
                 f"Showing up to 500 anomaly records "
@@ -3057,9 +2357,7 @@ if (
             unsafe_allow_html=True,
         )
 
-        c1, c2, c3, c4 = (
-            st.columns(4)
-        )
+        c1, c2, c3, c4 = st.columns(4)
 
         c1.metric(
             "Original Rows",
@@ -3091,9 +2389,7 @@ if (
             unsafe_allow_html=True,
         )
 
-        if analysis[
-            "city_changes"
-        ] > 0:
+        if analysis["city_changes"] > 0:
 
             st.info(
                 f'{analysis["city_changes"]:,} city values '
@@ -3162,13 +2458,9 @@ if (
 
         else:
 
-            sales_column = (
-                analysis["sales_column"]
-            )
+            sales_column = analysis["sales_column"]
 
-            upper_bound = (
-                analysis["upper_bound"]
-            )
+            upper_bound = analysis["upper_bound"]
 
             st.markdown(
                 f"""
@@ -3196,9 +2488,7 @@ if (
             )
 
             hist, bins = np.histogram(
-                business_df[
-                    sales_column
-                ],
+                business_df[sales_column],
                 bins=10,
             )
 
@@ -3207,44 +2497,32 @@ if (
                 "Sales Range": [
                     f"{bins[i]:,.0f} - "
                     f"{bins[i+1]:,.0f}"
-                    for i in range(
-                        len(bins) - 1
-                    )
+                    for i in range(len(bins) - 1)
                 ],
 
                 "Records": hist,
             })
 
             st.bar_chart(
-                hist_df.set_index(
-                    "Sales Range"
-                )
+                hist_df.set_index("Sales Range")
             )
 
-            left, right = (
-                st.columns(2)
-            )
+            left, right = st.columns(2)
 
             with left:
 
                 city_columns = [
                     column
-                    for column
-                    in cleaned_df.columns
-                    if "city"
-                    in str(column).lower()
+                    for column in cleaned_df.columns
+                    if "city" in str(column).lower()
                 ]
 
                 if city_columns:
 
-                    city_column = (
-                        city_columns[0]
-                    )
+                    city_column = city_columns[0]
 
                     city_counts = (
-                        cleaned_df[
-                            city_column
-                        ]
+                        cleaned_df[city_column]
                         .value_counts()
                         .head(10)
                     )
@@ -3256,35 +2534,25 @@ if (
                         unsafe_allow_html=True,
                     )
 
-                    st.bar_chart(
-                        city_counts
-                    )
+                    st.bar_chart(city_counts)
 
             with right:
 
                 product_columns = [
                     column
-                    for column
-                    in cleaned_df.columns
-                    if "product"
-                    in str(column).lower()
+                    for column in cleaned_df.columns
+                    if "product" in str(column).lower()
                 ]
 
                 if product_columns:
 
-                    product_column = (
-                        product_columns[0]
-                    )
+                    product_column = product_columns[0]
 
                     product_sales = (
                         business_df
-                        .groupby(
-                            product_column
-                        )[sales_column]
+                        .groupby(product_column)[sales_column]
                         .sum()
-                        .sort_values(
-                            ascending=False
-                        )
+                        .sort_values(ascending=False)
                         .head(10)
                     )
 
@@ -3295,33 +2563,23 @@ if (
                         unsafe_allow_html=True,
                     )
 
-                    st.bar_chart(
-                        product_sales
-                    )
+                    st.bar_chart(product_sales)
 
             category_columns = [
                 column
-                for column
-                in cleaned_df.columns
-                if "category"
-                in str(column).lower()
+                for column in cleaned_df.columns
+                if "category" in str(column).lower()
             ]
 
             if category_columns:
 
-                category_column = (
-                    category_columns[0]
-                )
+                category_column = category_columns[0]
 
                 category_sales = (
                     business_df
-                    .groupby(
-                        category_column
-                    )[sales_column]
+                    .groupby(category_column)[sales_column]
                     .sum()
-                    .sort_values(
-                        ascending=False
-                    )
+                    .sort_values(ascending=False)
                 )
 
                 st.markdown(
@@ -3331,65 +2589,41 @@ if (
                     unsafe_allow_html=True,
                 )
 
-                st.bar_chart(
-                    category_sales
-                )
+                st.bar_chart(category_sales)
 
-            datetime_columns = (
-                analysis[
-                    "datetime_columns"
-                ]
-            )
+            datetime_columns = analysis["datetime_columns"]
 
             if datetime_columns:
 
-                date_column = (
-                    datetime_columns[0]
+                date_column = datetime_columns[0]
+
+                monthly_df = cleaned_df.copy()
+
+                monthly_df[date_column] = safe_to_datetime(
+                    monthly_df[date_column]
                 )
 
-                monthly_df = (
-                    cleaned_df.copy()
-                )
-
-                monthly_df[
-                    date_column
-                ] = safe_to_datetime(
-                    monthly_df[
-                        date_column
-                    ]
-                )
-
-                monthly_df[
-                    sales_column
-                ] = pd.to_numeric(
-                    monthly_df[
-                        sales_column
-                    ],
+                monthly_df[sales_column] = pd.to_numeric(
+                    monthly_df[sales_column],
                     errors="coerce",
                 )
 
-                monthly_df = (
-                    monthly_df.dropna(
-                        subset=[
-                            date_column,
-                            sales_column,
-                        ]
-                    )
+                monthly_df = monthly_df.dropna(
+                    subset=[
+                        date_column,
+                        sales_column,
+                    ]
                 )
 
                 monthly_sales = (
                     monthly_df
                     .assign(
-                        Month=monthly_df[
-                            date_column
-                        ]
+                        Month=monthly_df[date_column]
                         .dt
                         .to_period("M")
                         .astype(str)
                     )
-                    .groupby("Month")[
-                        sales_column
-                    ]
+                    .groupby("Month")[sales_column]
                     .sum()
                 )
 
@@ -3400,9 +2634,7 @@ if (
                     unsafe_allow_html=True,
                 )
 
-                st.line_chart(
-                    monthly_sales
-                )
+                st.line_chart(monthly_sales)
 
 
     # ========================================================
@@ -3429,9 +2661,7 @@ if (
         exports = create_powerbi_exports(
             cleaned_df,
             business_df,
-            analysis[
-                "sales_column"
-            ],
+            analysis["sales_column"],
         )
 
         st.markdown(
@@ -3458,13 +2688,9 @@ if (
             unsafe_allow_html=True,
         )
 
-        for filename, data in (
-            exports.items()
-        ):
+        for filename, data in exports.items():
 
-            left, right = (
-                st.columns([4, 1])
-            )
+            left, right = st.columns([4, 1])
 
             with left:
 
@@ -3491,9 +2717,7 @@ if (
                     key=f"download_{filename}",
                 )
 
-        zip_data = create_zip(
-            exports
-        )
+        zip_data = create_zip(exports)
 
         st.markdown(
             '<div class="section-title">'
@@ -3628,15 +2852,11 @@ Business visualization filtering does not delete records.
                 "Gemini is analyzing the data-quality report..."
             ):
 
-                result = (
-                    get_gemini_analysis(
-                        summary_text
-                    )
+                result = get_gemini_analysis(
+                    summary_text
                 )
 
-            st.session_state.gemini_analysis = (
-                result
-            )
+            st.session_state.gemini_analysis = result
 
         if st.session_state.gemini_analysis:
 
@@ -3748,12 +2968,8 @@ only for visualization and are not deleted from the analytical dataset.
 
         st.download_button(
             "📄 Download Report",
-            data=report_text.encode(
-                "utf-8"
-            ),
-            file_name=(
-                "DataGuard_Data_Quality_Report.txt"
-            ),
+            data=report_text.encode("utf-8"),
+            file_name="DataGuard_Data_Quality_Report.txt",
             mime="text/plain",
         )
 
@@ -3837,4 +3053,3 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
-
