@@ -2448,67 +2448,34 @@ else:
 
     elif page == "AI Analysis":
 
-        st.write(
-            "AI Analysis"
+    st.write("AI Analysis")
+
+    st.caption(
+        "Gemini-powered interpretation of "
+        "DataGuard AI findings."
+    )
+
+    if st.button(
+        "Generate AI Analysis",
+        type="primary",
+    ):
+        with st.spinner("Generating AI analysis..."):
+            gemini_result = generate_gemini_analysis(analysis)
+            st.session_state["gemini_analysis"] = gemini_result
+
+    gemini_result = st.session_state["gemini_analysis"]
+
+    if gemini_result is None:
+        st.info(
+            "Click 'Generate AI Analysis' "
+            "to analyze the current dataset."
         )
 
-        st.caption(
-            "Gemini-powered interpretation of "
-            "DataGuard AI findings."
-        )
+    elif gemini_result["status"] == "error":
+        st.error(gemini_result["message"])
 
-        if st.button(
-            "Generate AI Analysis",
-            type="primary",
-        ):
-
-            with st.spinner(
-                "Generating AI analysis..."
-            ):
-
-                gemini_result = (
-                    generate_gemini_analysis(
-                        analysis
-                    )
-                )
-
-                st.session_state[
-                    "gemini_analysis"
-                ] = gemini_result
-
-        gemini_result = (
-            st.session_state[
-                "gemini_analysis"
-            ]
-        )
-
-        if gemini_result is None:
-
-            st.info(
-                "Click 'Generate AI Analysis' "
-                "to analyze the current dataset."
-            )
-
-        elif (
-            gemini_result["status"]
-            == "error"
-        ):
-
-            st.error(
-                gemini_result[
-                    "message"
-                ]
-            )
-
-        else:
-
-            st.markdown(
-                gemini_result[
-                    "content"
-                ]
-            )
-
-
+    else:
+        st.markdown(gemini_result["content"])
     # ========================================================
     # REPORTS
     # ========================================================
