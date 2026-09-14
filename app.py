@@ -1,6 +1,5 @@
 import io
 import os
-import textwrap
 import zipfile
 from datetime import datetime
 
@@ -23,238 +22,162 @@ st.set_page_config(
 
 
 # ============================================================
-# MARKDOWN/HTML RENDERING FIX
-# ============================================================
-#
-# Throughout this app, HTML snippets are written as indented
-# triple-quoted strings (matching the surrounding Python code's
-# indentation level). CommonMark treats any line indented 4+
-# spaces as a literal code block, so those indented <div> blocks
-# were rendering as raw visible text instead of styled HTML,
-# even with unsafe_allow_html=True. Wrapping st.markdown so it
-# dedents the string first (when HTML is allowed) fixes every
-# call site in one place instead of hand-editing each one.
-
-_original_markdown = st.markdown
-
-
-def _dedented_markdown(body, *args, **kwargs):
-
-    if kwargs.get("unsafe_allow_html") and isinstance(body, str):
-        body = textwrap.dedent(body).strip("\n")
-
-    return _original_markdown(body, *args, **kwargs)
-
-
-st.markdown = _dedented_markdown
-
-
-# ============================================================
-# CUSTOM CSS — PRODUCTION DASHBOARD
+# CSS
 # ============================================================
 
 st.markdown(
     """
     <style>
 
-    /* ---------- GLOBAL ---------- */
-
     .stApp {
         background: #f6f8fb;
     }
 
-    [data-testid="stHeader"] {
-        background: transparent;
-    }
-
     .block-container {
+        max-width: 1450px;
         padding-top: 1.5rem;
         padding-bottom: 3rem;
-        max-width: 1500px;
     }
-
-    /* ---------- SIDEBAR ---------- */
 
     section[data-testid="stSidebar"] {
         background: #111827;
-        border-right: 1px solid #1f2937;
     }
 
     section[data-testid="stSidebar"] * {
         color: #e5e7eb;
     }
 
-    .sidebar-brand {
-        padding: 10px 5px 22px 5px;
-    }
-
-    .sidebar-logo {
-        font-size: 30px;
+    .brand-title {
+        font-size: 22px;
         font-weight: 800;
+        color: white;
     }
 
-    .sidebar-title {
-        font-size: 21px;
-        font-weight: 800;
-        margin-top: 3px;
-    }
-
-    .sidebar-subtitle {
+    .brand-subtitle {
         font-size: 12px;
         color: #9ca3af !important;
         margin-top: 3px;
     }
 
-    .sidebar-divider {
-        height: 1px;
-        background: #374151;
-        margin: 12px 0 18px 0;
-    }
-
-    /* ---------- HEADERS ---------- */
-
     .page-title {
-        font-size: 34px;
+        font-size: 32px;
         font-weight: 800;
         color: #111827;
         margin-bottom: 2px;
     }
 
     .page-subtitle {
-        font-size: 15px;
         color: #6b7280;
-        margin-bottom: 25px;
+        font-size: 14px;
+        margin-bottom: 22px;
     }
 
     .section-title {
         font-size: 21px;
         font-weight: 750;
         color: #111827;
-        margin-top: 25px;
-        margin-bottom: 12px;
-    }
-
-    .section-description {
-        color: #6b7280;
-        font-size: 14px;
-        margin-bottom: 15px;
-    }
-
-    /* ---------- KPI CARDS ---------- */
-
-    .kpi-card {
-        background: white;
-        border: 1px solid #e5e7eb;
-        border-radius: 14px;
-        padding: 20px;
-        min-height: 125px;
-        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
-    }
-
-    .kpi-label {
-        font-size: 13px;
-        color: #6b7280;
-        font-weight: 600;
+        margin-top: 24px;
         margin-bottom: 10px;
     }
 
-    .kpi-value {
-        font-size: 28px;
-        font-weight: 800;
-        color: #111827;
-    }
-
-    .kpi-caption {
-        font-size: 12px;
-        color: #9ca3af;
-        margin-top: 5px;
-    }
-
-    /* ---------- STATUS ---------- */
-
-    .status-good {
-        display: inline-block;
-        padding: 5px 11px;
-        border-radius: 20px;
-        background: #dcfce7;
-        color: #166534;
-        font-size: 12px;
-        font-weight: 700;
-    }
-
-    .status-warning {
-        display: inline-block;
-        padding: 5px 11px;
-        border-radius: 20px;
-        background: #fef3c7;
-        color: #92400e;
-        font-size: 12px;
-        font-weight: 700;
-    }
-
-    .status-danger {
-        display: inline-block;
-        padding: 5px 11px;
-        border-radius: 20px;
-        background: #fee2e2;
-        color: #991b1b;
-        font-size: 12px;
-        font-weight: 700;
-    }
-
-    .status-info {
-        display: inline-block;
-        padding: 5px 11px;
-        border-radius: 20px;
-        background: #dbeafe;
-        color: #1e40af;
-        font-size: 12px;
-        font-weight: 700;
-    }
-
-    /* ---------- PANELS ---------- */
-
-    .dashboard-panel {
-        background: white;
-        border: 1px solid #e5e7eb;
-        border-radius: 14px;
-        padding: 20px;
-        margin-top: 12px;
-        margin-bottom: 15px;
-        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
-    }
-
-    .panel-title {
-        font-size: 17px;
-        font-weight: 750;
-        color: #111827;
-        margin-bottom: 4px;
-    }
-
-    .panel-description {
+    .section-description {
         color: #6b7280;
         font-size: 13px;
         margin-bottom: 14px;
     }
 
-    /* ---------- UPLOAD ---------- */
-
-    .upload-banner {
+    .card {
         background: white;
-        border: 1px dashed #cbd5e1;
-        border-radius: 16px;
-        padding: 28px;
-        margin-bottom: 20px;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        padding: 20px;
+        margin-bottom: 14px;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
     }
 
-    /* ---------- INFO BOX ---------- */
+    .card-title {
+        font-size: 16px;
+        font-weight: 750;
+        color: #111827;
+    }
 
-    .info-box {
+    .card-text {
+        font-size: 13px;
+        color: #6b7280;
+        margin-top: 5px;
+    }
+
+    .kpi {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        padding: 18px;
+        min-height: 120px;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+    }
+
+    .kpi-label {
+        color: #6b7280;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .kpi-value {
+        color: #111827;
+        font-size: 27px;
+        font-weight: 800;
+        margin-top: 8px;
+    }
+
+    .kpi-caption {
+        color: #9ca3af;
+        font-size: 12px;
+        margin-top: 3px;
+    }
+
+    .good {
+        color: #166534;
+        background: #dcfce7;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .warning {
+        color: #92400e;
+        background: #fef3c7;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .danger {
+        color: #991b1b;
+        background: #fee2e2;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .info {
         background: #eff6ff;
         border: 1px solid #bfdbfe;
         border-radius: 10px;
         padding: 13px 15px;
         color: #1e3a8a;
+        font-size: 13px;
+        margin: 10px 0;
+    }
+
+    .success {
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        border-radius: 10px;
+        padding: 13px 15px;
+        color: #166534;
         font-size: 13px;
         margin: 10px 0;
     }
@@ -269,41 +192,6 @@ st.markdown(
         margin: 10px 0;
     }
 
-    .success-box {
-        background: #f0fdf4;
-        border: 1px solid #bbf7d0;
-        border-radius: 10px;
-        padding: 13px 15px;
-        color: #166534;
-        font-size: 13px;
-        margin: 10px 0;
-    }
-
-    /* ---------- TABLE ---------- */
-
-    [data-testid="stDataFrame"] {
-        border-radius: 10px;
-        overflow: hidden;
-    }
-
-    /* ---------- BUTTONS ---------- */
-
-    .stButton > button {
-        border-radius: 9px;
-        font-weight: 650;
-    }
-
-    /* ---------- METRIC ---------- */
-
-    [data-testid="stMetric"] {
-        background: white;
-        border: 1px solid #e5e7eb;
-        padding: 15px;
-        border-radius: 12px;
-    }
-
-    /* ---------- FOOTER ---------- */
-
     .footer {
         text-align: center;
         color: #9ca3af;
@@ -311,6 +199,11 @@ st.markdown(
         margin-top: 45px;
         padding-top: 20px;
         border-top: 1px solid #e5e7eb;
+    }
+
+    .stButton button {
+        border-radius: 9px;
+        font-weight: 650;
     }
 
     </style>
@@ -329,8 +222,8 @@ defaults = {
     "business_df": None,
     "file_name": None,
     "analysis_complete": False,
+    "analysis": None,
     "gemini_analysis": None,
-    "cleaning_done": False,
     "contamination_pct": 5,
 }
 
@@ -376,9 +269,15 @@ def safe_to_datetime(series):
                 errors="coerce",
             )
         except Exception:
-            return pd.Series(pd.NaT, index=series.index)
+            return pd.Series(
+                pd.NaT,
+                index=series.index,
+            )
     except Exception:
-        return pd.Series(pd.NaT, index=series.index)
+        return pd.Series(
+            pd.NaT,
+            index=series.index,
+        )
 
 
 def detect_datetime_columns(df):
@@ -397,30 +296,44 @@ def detect_datetime_columns(df):
 
     for column in df.columns:
 
-        if pd.api.types.is_datetime64_any_dtype(df[column]):
+        if pd.api.types.is_datetime64_any_dtype(
+            df[column]
+        ):
             datetime_columns.append(column)
             continue
 
-        if pd.api.types.is_numeric_dtype(df[column]):
+        if pd.api.types.is_numeric_dtype(
+            df[column]
+        ):
             continue
 
-        column_name = str(column).lower()
+        name = str(column).lower()
 
-        parsed = safe_to_datetime(df[column])
+        parsed = safe_to_datetime(
+            df[column]
+        )
 
-        valid_ratio = parsed.notna().mean()
+        ratio = parsed.notna().mean()
 
-        if any(token in column_name for token in tokens):
-            if valid_ratio >= 0.50:
+        if any(token in name for token in tokens):
+
+            if ratio >= 0.50:
                 datetime_columns.append(column)
+
         else:
-            if valid_ratio >= 0.95:
+
+            if ratio >= 0.95:
                 datetime_columns.append(column)
 
-    return list(dict.fromkeys(datetime_columns))
+    return list(
+        dict.fromkeys(datetime_columns)
+    )
 
 
-def detect_identifier_columns(df, datetime_columns=None):
+def detect_identifier_columns(
+    df,
+    datetime_columns=None,
+):
 
     if datetime_columns is None:
         datetime_columns = []
@@ -446,52 +359,83 @@ def detect_identifier_columns(df, datetime_columns=None):
 
         name = str(column).lower()
 
-        if any(token in name for token in identifier_tokens):
+        if any(
+            token in name
+            for token in identifier_tokens
+        ):
             identifier_columns.append(column)
             continue
 
         if len(df) > 0:
 
             unique_ratio = (
-                df[column].nunique(dropna=True) / len(df)
+                df[column].nunique(
+                    dropna=True
+                )
+                / len(df)
             )
 
             if (
                 unique_ratio >= 0.98
                 and (
-                    pd.api.types.is_integer_dtype(df[column])
-                    or pd.api.types.is_object_dtype(df[column])
-                    or pd.api.types.is_string_dtype(df[column])
+                    pd.api.types.is_integer_dtype(
+                        df[column]
+                    )
+                    or pd.api.types.is_object_dtype(
+                        df[column]
+                    )
+                    or pd.api.types.is_string_dtype(
+                        df[column]
+                    )
                 )
             ):
-                identifier_columns.append(column)
+                identifier_columns.append(
+                    column
+                )
 
-    return list(dict.fromkeys(identifier_columns))
+    return list(
+        dict.fromkeys(
+            identifier_columns
+        )
+    )
 
 
 def profile_dataset(df):
 
-    profile = pd.DataFrame({
-        "Column": df.columns,
-        "Data Type": [
-            str(df[column].dtype)
-            for column in df.columns
-        ],
-        "Non-Null Count": [
-            int(df[column].notna().sum())
-            for column in df.columns
-        ],
-        "Missing": [
-            int(df[column].isna().sum())
-            for column in df.columns
-        ],
-        "Unique Values": [
-            int(df[column].nunique(dropna=True))
-            for column in df.columns
-        ],
-    })
-
-    return profile
+    return pd.DataFrame(
+        {
+            "Column": df.columns,
+            "Data Type": [
+                str(df[column].dtype)
+                for column in df.columns
+            ],
+            "Non-Null Count": [
+                int(
+                    df[column]
+                    .notna()
+                    .sum()
+                )
+                for column in df.columns
+            ],
+            "Missing": [
+                int(
+                    df[column]
+                    .isna()
+                    .sum()
+                )
+                for column in df.columns
+            ],
+            "Unique Values": [
+                int(
+                    df[column]
+                    .nunique(
+                        dropna=True
+                    )
+                )
+                for column in df.columns
+            ],
+        }
+    )
 
 
 def detect_invalid_values(df):
@@ -511,27 +455,16 @@ def detect_invalid_values(df):
         "salary",
     ]
 
-    # Columns whose values should never legitimately be negative.
-    # "profit" is deliberately excluded here (losses are valid),
-    # even though it's still checked for non-numeric/parse failures.
-    non_negative_tokens = [
-        "age",
-        "quantity",
-        "qty",
-        "sales",
-        "revenue",
-        "amount",
-        "price",
-        "salary",
-    ]
-
     invalid_count = 0
 
     for column in df.columns:
 
         name = str(column).lower()
 
-        if not any(token in name for token in numeric_tokens):
+        if not any(
+            token in name
+            for token in numeric_tokens
+        ):
             continue
 
         numeric_values = pd.to_numeric(
@@ -539,7 +472,9 @@ def detect_invalid_values(df):
             errors="coerce",
         )
 
-        original_non_null = df[column].notna()
+        original_non_null = (
+            df[column].notna()
+        )
 
         conversion_failures = (
             numeric_values.isna()
@@ -551,8 +486,22 @@ def detect_invalid_values(df):
             index=df.index,
         )
 
-        if any(token in name for token in non_negative_tokens):
-            negative_values = numeric_values < 0
+        if any(
+            token in name
+            for token in [
+                "age",
+                "quantity",
+                "qty",
+                "sales",
+                "revenue",
+                "amount",
+                "price",
+            ]
+        ):
+
+            negative_values = (
+                numeric_values < 0
+            )
 
         count = int(
             conversion_failures.sum()
@@ -563,12 +512,19 @@ def detect_invalid_values(df):
 
             invalid_count += count
 
-            invalid_details.append({
-                "Column": column,
-                "Invalid Values": count,
-            })
+            invalid_details.append(
+                {
+                    "Column": column,
+                    "Invalid Values": count,
+                }
+            )
 
-    return invalid_count, pd.DataFrame(invalid_details)
+    return (
+        invalid_count,
+        pd.DataFrame(
+            invalid_details
+        ),
+    )
 
 
 def standardize_city_column(df):
@@ -576,12 +532,12 @@ def standardize_city_column(df):
     result = df.copy()
 
     total_changes = 0
-    change_details = []
 
     city_columns = [
         column
         for column in result.columns
-        if "city" in str(column).lower()
+        if "city"
+        in str(column).lower()
     ]
 
     for column in city_columns:
@@ -595,33 +551,31 @@ def standardize_city_column(df):
             .str.lower()
         )
 
-        standardized = cleaned.map(CITY_MAPPING)
+        standardized = cleaned.map(
+            CITY_MAPPING
+        )
 
         standardized = standardized.fillna(
             cleaned.str.title()
         )
 
-        valid_original = original.astype("string")
-
         changes = (
-            valid_original.fillna("")
-            != standardized.fillna("")
+            original.astype("string")
+            .fillna("")
+            != standardized
+            .fillna("")
         )
 
-        changed_count = int(changes.sum())
-
-        if changed_count > 0:
-
-            total_changes += changed_count
-
-            change_details.append({
-                "Column": column,
-                "Changed Values": changed_count,
-            })
+        total_changes += int(
+            changes.sum()
+        )
 
         result[column] = standardized
 
-    return result, total_changes
+    return (
+        result,
+        total_changes,
+    )
 
 
 def detect_iqr_outliers(df):
@@ -629,9 +583,11 @@ def detect_iqr_outliers(df):
     details = []
     total_outliers = 0
 
-    numeric_columns = df.select_dtypes(
-        include=np.number
-    ).columns
+    numeric_columns = (
+        df.select_dtypes(
+            include=np.number
+        ).columns
+    )
 
     for column in numeric_columns:
 
@@ -651,8 +607,8 @@ def detect_iqr_outliers(df):
         if iqr == 0:
             continue
 
-        lower = q1 - (1.5 * iqr)
-        upper = q3 + (1.5 * iqr)
+        lower = q1 - 1.5 * iqr
+        upper = q3 + 1.5 * iqr
 
         mask = (
             (df[column] < lower)
@@ -665,26 +621,44 @@ def detect_iqr_outliers(df):
 
             total_outliers += count
 
-            details.append({
-                "Column": column,
-                "Q1": q1,
-                "Q3": q3,
-                "Lower Bound": lower,
-                "Upper Bound": upper,
-                "Outliers": count,
-            })
+            details.append(
+                {
+                    "Column": column,
+                    "Q1": q1,
+                    "Q3": q3,
+                    "Lower Bound": lower,
+                    "Upper Bound": upper,
+                    "Outliers": count,
+                }
+            )
 
-    return total_outliers, pd.DataFrame(details)
+    return (
+        total_outliers,
+        pd.DataFrame(details),
+    )
 
 
-def detect_ml_anomalies(df, contamination_pct):
+def detect_ml_anomalies(
+    df,
+    contamination_pct,
+):
 
-    numeric_df = df.select_dtypes(
-        include=np.number
-    ).copy()
+    numeric_df = (
+        df.select_dtypes(
+            include=np.number
+        )
+        .copy()
+    )
 
     if numeric_df.shape[1] == 0:
-        return pd.Series(False, index=df.index), 0
+
+        return (
+            pd.Series(
+                False,
+                index=df.index,
+            ),
+            0,
+        )
 
     numeric_df = numeric_df.replace(
         [np.inf, -np.inf],
@@ -692,17 +666,28 @@ def detect_ml_anomalies(df, contamination_pct):
     )
 
     numeric_df = numeric_df.fillna(
-        numeric_df.median(numeric_only=True)
+        numeric_df.median(
+            numeric_only=True
+        )
     )
 
     numeric_df = numeric_df.fillna(0)
 
     if len(numeric_df) < 10:
-        return pd.Series(False, index=df.index), 0
+
+        return (
+            pd.Series(
+                False,
+                index=df.index,
+            ),
+            0,
+        )
 
     model = IsolationForest(
         n_estimators=200,
-        contamination=contamination_pct / 100,
+        contamination=(
+            contamination_pct / 100
+        ),
         random_state=42,
     )
 
@@ -710,14 +695,18 @@ def detect_ml_anomalies(df, contamination_pct):
         numeric_df
     )
 
-    anomaly_mask = predictions == -1
+    anomaly_mask = (
+        predictions == -1
+    )
 
     return (
         pd.Series(
             anomaly_mask,
             index=df.index,
         ),
-        int(anomaly_mask.sum()),
+        int(
+            anomaly_mask.sum()
+        ),
     )
 
 
@@ -732,17 +721,24 @@ def build_quality_score(
         return 100.0
 
     missing_penalty = (
-        missing_count / total_cells
+        missing_count
+        / total_cells
     ) * 100
 
     duplicate_penalty = (
         duplicate_count
-        / max(1, total_cells)
+        / max(
+            1,
+            total_cells,
+        )
     ) * 100
 
     invalid_penalty = (
         invalid_count
-        / max(1, total_cells)
+        / max(
+            1,
+            total_cells,
+        )
     ) * 100
 
     score = 100 - (
@@ -752,7 +748,13 @@ def build_quality_score(
     )
 
     return round(
-        max(0, min(100, score)),
+        max(
+            0,
+            min(
+                100,
+                score,
+            ),
+        ),
         2,
     )
 
@@ -761,9 +763,14 @@ def clean_dataset(df):
 
     cleaned = df.copy()
 
-    original_rows = len(cleaned)
+    original_rows = len(
+        cleaned
+    )
 
-    cleaned = cleaned.drop_duplicates()
+    cleaned = (
+        cleaned
+        .drop_duplicates()
+    )
 
     rows_removed = (
         original_rows
@@ -771,14 +778,18 @@ def clean_dataset(df):
     )
 
     cleaned, city_changes = (
-        standardize_city_column(cleaned)
+        standardize_city_column(
+            cleaned
+        )
     )
 
     values_filled = 0
 
     numeric_columns = (
         cleaned
-        .select_dtypes(include=np.number)
+        .select_dtypes(
+            include=np.number
+        )
         .columns
     )
 
@@ -786,29 +797,39 @@ def clean_dataset(df):
 
         try:
 
-            cleaned[column] = pd.to_numeric(
-                cleaned[column],
-                errors="coerce",
-            ).astype("float64")
+            cleaned[column] = (
+                pd.to_numeric(
+                    cleaned[column],
+                    errors="coerce",
+                )
+                .astype("float64")
+            )
 
         except Exception:
             continue
 
         missing_before = int(
-            cleaned[column].isna().sum()
+            cleaned[column]
+            .isna()
+            .sum()
         )
 
         if missing_before > 0:
 
             median_value = (
-                cleaned[column].median()
+                cleaned[column]
+                .median()
             )
 
-            if pd.notna(median_value):
+            if pd.notna(
+                median_value
+            ):
 
                 cleaned[column] = (
                     cleaned[column]
-                    .fillna(median_value)
+                    .fillna(
+                        median_value
+                    )
                 )
 
                 values_filled += (
@@ -827,24 +848,34 @@ def clean_dataset(df):
         .columns
     )
 
-    for column in categorical_columns:
+    for column in (
+        categorical_columns
+    ):
 
         missing_before = int(
-            cleaned[column].isna().sum()
+            cleaned[column]
+            .isna()
+            .sum()
         )
 
         if missing_before > 0:
 
             mode_values = (
                 cleaned[column]
-                .mode(dropna=True)
+                .mode(
+                    dropna=True
+                )
             )
 
-            if len(mode_values) > 0:
+            if len(
+                mode_values
+            ) > 0:
 
                 cleaned[column] = (
                     cleaned[column]
-                    .fillna(mode_values.iloc[0])
+                    .fillna(
+                        mode_values.iloc[0]
+                    )
                 )
 
                 values_filled += (
@@ -908,36 +939,65 @@ def find_sales_column(df):
 
 def prepare_business_data(df):
 
-    sales_column = find_sales_column(df)
+    sales_column = (
+        find_sales_column(df)
+    )
 
     if sales_column is None:
-        return None, None, None
+        return (
+            None,
+            None,
+            None,
+        )
 
     business_df = df.copy()
 
-    business_df[sales_column] = pd.to_numeric(
-        business_df[sales_column],
+    business_df[
+        sales_column
+    ] = pd.to_numeric(
+        business_df[
+            sales_column
+        ],
         errors="coerce",
     )
 
-    business_df = business_df[
-        business_df[sales_column].notna()
-    ]
+    business_df = (
+        business_df[
+            business_df[
+                sales_column
+            ].notna()
+        ]
+    )
 
-    business_df = business_df[
-        business_df[sales_column] >= 0
-    ]
+    business_df = (
+        business_df[
+            business_df[
+                sales_column
+            ] >= 0
+        ]
+    )
 
-    if len(business_df) == 0:
-        return None, sales_column, None
+    if len(
+        business_df
+    ) == 0:
 
-    q1 = business_df[
-        sales_column
-    ].quantile(0.25)
+        return (
+            None,
+            sales_column,
+            None,
+        )
 
-    q3 = business_df[
-        sales_column
-    ].quantile(0.75)
+    q1 = (
+        business_df[
+            sales_column
+        ].quantile(0.25)
+    )
+
+    q3 = (
+        business_df[
+            sales_column
+        ].quantile(0.75)
+    )
 
     iqr = q3 - q1
 
@@ -945,10 +1005,14 @@ def prepare_business_data(df):
         q3 + 1.5 * iqr
     )
 
-    chart_df = business_df[
-        business_df[sales_column]
-        <= upper_bound
-    ].copy()
+    chart_df = (
+        business_df[
+            business_df[
+                sales_column
+            ] <= upper_bound
+        ]
+        .copy()
+    )
 
     return (
         chart_df,
@@ -971,62 +1035,62 @@ def create_powerbi_exports(
 
     exports[
         "DataGuard_Cleaned_Data.csv"
-    ] = cleaned_df.to_csv(
-        index=False
-    ).encode("utf-8")
+    ] = (
+        cleaned_df
+        .to_csv(index=False)
+        .encode("utf-8")
+    )
 
     exports[
         "DataGuard_Data_Profile.csv"
-    ] = profile.to_csv(
-        index=False
-    ).encode("utf-8")
+    ] = (
+        profile
+        .to_csv(index=False)
+        .encode("utf-8")
+    )
 
     if (
         business_df is not None
         and sales_column is not None
     ):
 
-        # Aggregate summary stats rather than grouping by the raw
-        # sales value itself (which produced a near-meaningless
-        # "one row per distinct sales amount" table).
-        sales_summary = pd.DataFrame({
-            "Metric": [
-                "Total Records",
-                "Total Sales",
-                "Average Sales",
-                "Median Sales",
-                "Min Sales",
-                "Max Sales",
-            ],
-            "Value": [
-                len(business_df),
-                business_df[sales_column].sum(),
-                business_df[sales_column].mean(),
-                business_df[sales_column].median(),
-                business_df[sales_column].min(),
-                business_df[sales_column].max(),
-            ],
-        })
+        sales_summary = (
+            business_df
+            .groupby(
+                sales_column
+            )
+            .size()
+            .reset_index(
+                name="Record_Count"
+            )
+        )
 
         exports[
             "DataGuard_Sales_Summary.csv"
-        ] = sales_summary.to_csv(
-            index=False
-        ).encode("utf-8")
+        ] = (
+            sales_summary
+            .to_csv(index=False)
+            .encode("utf-8")
+        )
 
     city_columns = [
         column
         for column in cleaned_df.columns
-        if "city" in str(column).lower()
+        if "city"
+        in str(column).lower()
     ]
 
     if city_columns:
 
-        city_column = city_columns[0]
+        city_column = (
+            city_columns[0]
+        )
 
         city_summary = (
             cleaned_df
-            .groupby(city_column)
+            .groupby(
+                city_column
+            )
             .size()
             .reset_index(
                 name="Record_Count"
@@ -1035,9 +1099,11 @@ def create_powerbi_exports(
 
         exports[
             "DataGuard_City_Summary.csv"
-        ] = city_summary.to_csv(
-            index=False
-        ).encode("utf-8")
+        ] = (
+            city_summary
+            .to_csv(index=False)
+            .encode("utf-8")
+        )
 
     datetime_columns = (
         detect_datetime_columns(
@@ -1050,28 +1116,39 @@ def create_powerbi_exports(
         and sales_column is not None
     ):
 
-        date_column = datetime_columns[0]
-
-        monthly_df = cleaned_df.copy()
-
-        monthly_df[date_column] = (
-            safe_to_datetime(
-                monthly_df[date_column]
-            )
+        date_column = (
+            datetime_columns[0]
         )
 
-        monthly_df[sales_column] = (
-            pd.to_numeric(
-                monthly_df[sales_column],
-                errors="coerce",
-            )
+        monthly_df = (
+            cleaned_df.copy()
         )
 
-        monthly_df = monthly_df.dropna(
-            subset=[
-                date_column,
-                sales_column,
+        monthly_df[
+            date_column
+        ] = safe_to_datetime(
+            monthly_df[
+                date_column
             ]
+        )
+
+        monthly_df[
+            sales_column
+        ] = pd.to_numeric(
+            monthly_df[
+                sales_column
+            ],
+            errors="coerce",
+        )
+
+        monthly_df = (
+            monthly_df
+            .dropna(
+                subset=[
+                    date_column,
+                    sales_column,
+                ]
+            )
         )
 
         monthly_summary = (
@@ -1079,7 +1156,8 @@ def create_powerbi_exports(
             .assign(
                 Month=monthly_df[
                     date_column
-                ].dt.to_period("M")
+                ]
+                .dt.to_period("M")
                 .astype(str)
             )
             .groupby("Month")[
@@ -1091,9 +1169,11 @@ def create_powerbi_exports(
 
         exports[
             "DataGuard_Monthly_Sales.csv"
-        ] = monthly_summary.to_csv(
-            index=False
-        ).encode("utf-8")
+        ] = (
+            monthly_summary
+            .to_csv(index=False)
+            .encode("utf-8")
+        )
 
     return exports
 
@@ -1108,7 +1188,9 @@ def create_zip(exports):
         zipfile.ZIP_DEFLATED,
     ) as zip_file:
 
-        for filename, data in exports.items():
+        for filename, data in (
+            exports.items()
+        ):
 
             zip_file.writestr(
                 filename,
@@ -1124,24 +1206,22 @@ def create_zip(exports):
 # GEMINI
 # ============================================================
 
-try:
-    GEMINI_API_KEY = st.secrets.get(
-        "GEMINI_API_KEY",
-        "",
-    )
-except Exception:
-    # st.secrets raises if no secrets.toml exists at all in some
-    # Streamlit versions/environments — fall back to env var only.
-    GEMINI_API_KEY = ""
+GEMINI_API_KEY = st.secrets.get(
+    "GEMINI_API_KEY",
+    "",
+)
 
 if not GEMINI_API_KEY:
+
     GEMINI_API_KEY = os.getenv(
         "GEMINI_API_KEY",
         "",
     )
 
 
-def get_gemini_analysis(summary_text):
+def get_gemini_analysis(
+    summary_text
+):
 
     if not GEMINI_API_KEY:
 
@@ -1164,33 +1244,25 @@ You are a senior data quality analyst.
 
 Analyze ONLY the supplied DataGuard AI report.
 
-Do not invent:
-- facts
-- columns
-- errors
-- causes
-- business events
-- fraud
-- system failures
-- ETL failures
-- retry behavior
-- manual-entry behavior
+Do not invent facts, columns, errors, causes,
+business events, fraud, system failures,
+ETL failures, retry behavior, or manual-entry behavior.
 
 Possible causes must be clearly labeled as hypotheses.
 
-IQR outliers and Isolation Forest anomalies are NOT automatically
-confirmed data errors.
+IQR outliers and Isolation Forest anomalies are NOT
+automatically confirmed data errors.
 
 The cleaning process has already been performed.
 Do not recommend repeating the same cleaning steps.
 
-If business chart filtering is mentioned, understand that extreme
-sales values were excluded ONLY for visualization and were NOT
+Extreme sales values excluded from business charts
+were excluded ONLY for visualization and were NOT
 deleted from the analytical dataset.
 
-Use the exact supplied metrics and do not contradict them.
+Use the exact supplied metrics.
 
-Create a concise portfolio-friendly analysis with these sections:
+Create a concise portfolio-friendly analysis with:
 
 1. Overall Assessment
 2. Confirmed Data Quality Problems
@@ -1206,28 +1278,23 @@ REPORT:
 {summary_text}
 """
 
-        # NOTE: the google-genai SDK exposes generation via
-        # client.models.generate_content(...), returning a response
-        # object with a `.text` attribute — not `client.interactions`
-        # / `.output_text`, which don't exist on this SDK and would
-        # always raise, silently falling back to the error branch.
-        response = client.models.generate_content(
-            model="gemini-2.0-flash",
-            contents=prompt,
-            config={
+        response = client.interactions.create(
+            model="gemini-3.6-flash",
+            input=prompt,
+            generation_config={
                 "temperature": 0.1,
             },
         )
 
-        return response.text
+        return response.output_text
 
     except Exception as error:
 
         return (
-            f"Gemini analysis could not be generated.\n\n"
+            "Gemini analysis could not be generated.\n\n"
             f"Reason: {error}\n\n"
-            "The core DataGuard AI pipeline continues to work "
-            "without Gemini."
+            "The core DataGuard AI pipeline continues "
+            "to work without Gemini."
         )
 
 
@@ -1239,10 +1306,12 @@ with st.sidebar:
 
     st.markdown(
         """
-        <div class="sidebar-brand">
-            <div class="sidebar-logo">🛡️</div>
-            <div class="sidebar-title">DataGuard AI</div>
-            <div class="sidebar-subtitle">
+        <div style="padding:8px 2px 18px 2px;">
+            <div style="font-size:30px;">🛡️</div>
+            <div class="brand-title">
+                DataGuard AI
+            </div>
+            <div class="brand-subtitle">
                 AI Data Quality Platform
             </div>
         </div>
@@ -1250,10 +1319,7 @@ with st.sidebar:
         unsafe_allow_html=True,
     )
 
-    st.markdown(
-        '<div class="sidebar-divider"></div>',
-        unsafe_allow_html=True,
-    )
+    st.markdown("---")
 
     st.markdown("### Navigation")
 
@@ -1272,14 +1338,11 @@ with st.sidebar:
         label_visibility="collapsed",
     )
 
-    st.markdown(
-        '<div class="sidebar-divider"></div>',
-        unsafe_allow_html=True,
-    )
+    st.markdown("---")
 
     st.markdown("### Anomaly Detection")
 
-    contamination_pct = st.slider(
+    new_contamination = st.slider(
         "Isolation Forest sensitivity",
         min_value=1,
         max_value=20,
@@ -1287,9 +1350,20 @@ with st.sidebar:
         step=1,
     )
 
-    st.session_state.contamination_pct = (
-        contamination_pct
-    )
+    if (
+        new_contamination
+        != st.session_state.contamination_pct
+    ):
+
+        st.session_state.contamination_pct = (
+            new_contamination
+        )
+
+        if st.session_state.df is not None:
+            st.session_state.analysis_complete = False
+            st.session_state.gemini_analysis = None
+
+        st.rerun()
 
     st.caption(
         "Higher sensitivity flags more records "
@@ -1297,30 +1371,31 @@ with st.sidebar:
         "signals, not confirmed errors."
     )
 
-    st.markdown(
-        '<div class="sidebar-divider"></div>',
-        unsafe_allow_html=True,
-    )
+    st.markdown("---")
 
     st.markdown("### Pipeline")
 
     st.markdown(
         """
-        **01** Upload  
-        **02** Profile  
-        **03** Quality Checks  
-        **04** Anomaly Detection  
-        **05** Cleaning  
-        **06** Analytics  
-        **07** Power BI  
+        **01** Upload
+
+        **02** Profile
+
+        **03** Quality Checks
+
+        **04** Anomaly Detection
+
+        **05** Cleaning
+
+        **06** Analytics
+
+        **07** Power BI
+
         **08** AI Analysis
         """
     )
 
-    st.markdown(
-        '<div class="sidebar-divider"></div>',
-        unsafe_allow_html=True,
-    )
+    st.markdown("---")
 
     st.caption(
         "DataGuard AI • Portfolio Edition"
@@ -1328,7 +1403,7 @@ with st.sidebar:
 
 
 # ============================================================
-# PAGE: UPLOAD / GLOBAL ANALYSIS
+# HEADER
 # ============================================================
 
 st.markdown(
@@ -1338,55 +1413,40 @@ st.markdown(
 
 st.markdown(
     '<div class="page-subtitle">'
-    'AI-powered data quality, anomaly detection and analytics platform'
-    '</div>',
+    "AI-powered data quality, anomaly detection "
+    "and analytics platform"
+    "</div>",
     unsafe_allow_html=True,
 )
 
-with st.container():
 
-    st.markdown(
-        """
-        <div style="
-            background:white;
-            border:1px solid #e5e7eb;
-            border-radius:16px;
-            padding:22px 24px 10px 24px;
-            margin-bottom:10px;
-        ">
+# ============================================================
+# UPLOAD
+# ============================================================
 
-            <div style="
-                font-size:18px;
-                font-weight:750;
-                color:#111827;
-            ">
-                Upload your dataset
-            </div>
-
-            <div style="
-                color:#6b7280;
-                font-size:13px;
-                margin-top:5px;
-                margin-bottom:8px;
-            ">
-                Start a new data-quality analysis by uploading
-                a CSV or Excel dataset.
-            </div>
-
+st.markdown(
+    """
+    <div class="card">
+        <div class="card-title">
+            Upload your dataset
         </div>
-        """,
-        unsafe_allow_html=True,
-    )
+        <div class="card-text">
+            Start a new data-quality analysis by uploading
+            a CSV or Excel dataset.
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
-    uploaded_file = st.file_uploader(
-        "Choose a data file",
-        type=[
-            "csv",
-            "xlsx",
-            "xls",
-        ],
-        label_visibility="collapsed",
-    )
+uploaded_file = st.file_uploader(
+    "Choose a CSV or Excel file",
+    type=[
+        "csv",
+        "xlsx",
+        "xls",
+    ],
+)
 
 
 # ============================================================
@@ -1417,15 +1477,18 @@ if uploaded_file is not None:
                 )
 
             st.session_state.df = df
+
             st.session_state.file_name = (
                 uploaded_file.name
             )
 
             st.session_state.cleaned_df = None
             st.session_state.business_df = None
+            st.session_state.analysis = None
             st.session_state.analysis_complete = False
-            st.session_state.cleaning_done = False
             st.session_state.gemini_analysis = None
+
+            st.rerun()
 
         except Exception as error:
 
@@ -1439,116 +1502,147 @@ if uploaded_file is not None:
 # ANALYSIS ENGINE
 # ============================================================
 
-@st.cache_data(show_spinner=False)
-def run_full_analysis(df, contamination_pct):
-    """
-    Runs the whole quality/anomaly/cleaning pipeline once per
-    unique (dataset, contamination_pct) combination. Cached so
-    that switching pages doesn't recompute, but changing the
-    Isolation Forest sensitivity slider DOES recompute — the
-    previous version only ever ran this once per uploaded file
-    and silently ignored slider changes.
-    """
-
-    rows = len(df)
-    columns = len(df.columns)
-
-    total_cells = rows * columns
-
-    missing_count = int(df.isna().sum().sum())
-
-    duplicate_count = int(df.duplicated().sum())
-
-    invalid_count, invalid_details = detect_invalid_values(df)
-
-    quality_score = build_quality_score(
-        total_cells,
-        missing_count,
-        duplicate_count,
-        invalid_count,
-    )
-
-    datetime_columns = detect_datetime_columns(df)
-
-    identifier_columns = detect_identifier_columns(
-        df,
-        datetime_columns,
-    )
-
-    numeric_count = len(
-        df.select_dtypes(include=np.number).columns
-    )
-
-    categorical_count = len(
-        df.select_dtypes(
-            include=["object", "string", "category"]
-        ).columns
-    )
-
-    iqr_outlier_count, iqr_details = detect_iqr_outliers(df)
-
-    anomaly_mask, ml_anomaly_count = detect_ml_anomalies(
-        df,
-        contamination_pct,
-    )
-
-    normal_count = rows - ml_anomaly_count
-
-    cleaned_df, rows_removed, values_filled, city_changes = (
-        clean_dataset(df)
-    )
-
-    business_df, sales_column, upper_bound = (
-        prepare_business_data(cleaned_df)
-    )
-
-    analysis = {
-        "rows": rows,
-        "columns": columns,
-        "total_cells": total_cells,
-        "missing_count": missing_count,
-        "duplicate_count": duplicate_count,
-        "invalid_count": invalid_count,
-        "quality_score": quality_score,
-        "datetime_columns": datetime_columns,
-        "identifier_columns": identifier_columns,
-        "numeric_count": numeric_count,
-        "categorical_count": categorical_count,
-        "iqr_outlier_count": iqr_outlier_count,
-        "iqr_details": iqr_details,
-        "anomaly_mask": anomaly_mask,
-        "ml_anomaly_count": ml_anomaly_count,
-        "normal_count": normal_count,
-        "invalid_details": invalid_details,
-        "rows_removed": rows_removed,
-        "values_filled": values_filled,
-        "city_changes": city_changes,
-        "sales_column": sales_column,
-        "upper_bound": upper_bound,
-    }
-
-    return cleaned_df, business_df, analysis
-
-
 if st.session_state.df is not None:
 
     df = st.session_state.df
 
-    with st.spinner("Analyzing your dataset..."):
+    if not st.session_state.analysis_complete:
 
-        cleaned_df, business_df, analysis = run_full_analysis(
-            df,
-            contamination_pct,
-        )
+        with st.spinner(
+            "Analyzing the complete dataset..."
+        ):
 
-    st.session_state.cleaned_df = cleaned_df
-    st.session_state.business_df = business_df
-    st.session_state.analysis = analysis
-    st.session_state.analysis_complete = True
+            rows = len(df)
+            columns = len(df.columns)
+
+            total_cells = (
+                rows * columns
+            )
+
+            missing_count = int(
+                df.isna()
+                .sum()
+                .sum()
+            )
+
+            duplicate_count = int(
+                df.duplicated()
+                .sum()
+            )
+
+            invalid_count, invalid_details = (
+                detect_invalid_values(df)
+            )
+
+            quality_score = (
+                build_quality_score(
+                    total_cells,
+                    missing_count,
+                    duplicate_count,
+                    invalid_count,
+                )
+            )
+
+            datetime_columns = (
+                detect_datetime_columns(
+                    df
+                )
+            )
+
+            identifier_columns = (
+                detect_identifier_columns(
+                    df,
+                    datetime_columns,
+                )
+            )
+
+            numeric_count = len(
+                df.select_dtypes(
+                    include=np.number
+                ).columns
+            )
+
+            categorical_count = len(
+                df.select_dtypes(
+                    include=[
+                        "object",
+                        "string",
+                        "category",
+                    ]
+                ).columns
+            )
+
+            iqr_outlier_count, iqr_details = (
+                detect_iqr_outliers(df)
+            )
+
+            anomaly_mask, ml_anomaly_count = (
+                detect_ml_anomalies(
+                    df,
+                    st.session_state.contamination_pct,
+                )
+            )
+
+            normal_count = (
+                rows
+                - ml_anomaly_count
+            )
+
+            (
+                cleaned_df,
+                rows_removed,
+                values_filled,
+                city_changes,
+            ) = clean_dataset(df)
+
+            (
+                business_df,
+                sales_column,
+                upper_bound,
+            ) = prepare_business_data(
+                cleaned_df
+            )
+
+            st.session_state.cleaned_df = (
+                cleaned_df
+            )
+
+            st.session_state.business_df = (
+                business_df
+            )
+
+            st.session_state.analysis = {
+                "rows": rows,
+                "columns": columns,
+                "total_cells": total_cells,
+                "missing_count": missing_count,
+                "duplicate_count": duplicate_count,
+                "invalid_count": invalid_count,
+                "quality_score": quality_score,
+                "datetime_columns": datetime_columns,
+                "identifier_columns": identifier_columns,
+                "numeric_count": numeric_count,
+                "categorical_count": categorical_count,
+                "iqr_outlier_count": iqr_outlier_count,
+                "iqr_details": iqr_details,
+                "anomaly_mask": anomaly_mask,
+                "ml_anomaly_count": ml_anomaly_count,
+                "normal_count": normal_count,
+                "invalid_details": invalid_details,
+                "rows_removed": rows_removed,
+                "values_filled": values_filled,
+                "city_changes": city_changes,
+                "sales_column": sales_column,
+                "upper_bound": upper_bound,
+            }
+
+            st.session_state.analysis_complete = True
+
+            st.rerun()
 
 
 # ============================================================
-# SHOW DASHBOARD
+# DISPLAY APP
 # ============================================================
 
 if (
@@ -1561,20 +1655,23 @@ if (
     business_df = st.session_state.business_df
     analysis = st.session_state.analysis
 
-    # --------------------------------------------------------
+    contamination_pct = (
+        st.session_state.contamination_pct
+    )
+
+    # ========================================================
     # DASHBOARD
-    # --------------------------------------------------------
+    # ========================================================
 
     if page == "Dashboard":
 
         st.markdown(
-            '<div class="section-title">Dashboard Overview</div>',
-            unsafe_allow_html=True,
+            "## Dashboard Overview"
         )
 
         st.markdown(
             f"""
-            <div class="info-box">
+            <div class="info">
                 <b>{st.session_state.file_name}</b>
                 &nbsp; • &nbsp;
                 {analysis["rows"]:,} records
@@ -1587,43 +1684,53 @@ if (
             unsafe_allow_html=True,
         )
 
-        # KPI ROW 1
+        score = analysis[
+            "quality_score"
+        ]
+
+        if score >= 99:
+            status = "Excellent"
+        elif score >= 95:
+            status = "Good"
+        elif score >= 85:
+            status = "Needs Attention"
+        else:
+            status = "Critical"
 
         k1, k2, k3, k4 = st.columns(4)
 
-        score = analysis["quality_score"]
-
-        if score >= 99:
-            score_status = "Excellent"
-        elif score >= 95:
-            score_status = "Good"
-        elif score >= 85:
-            score_status = "Needs Attention"
-        else:
-            score_status = "Critical"
-
         with k1:
+
             st.markdown(
                 f"""
-                <div class="kpi-card">
-                    <div class="kpi-label">DATA QUALITY SCORE</div>
-                    <div class="kpi-value">{score}/100</div>
-                    <div class="kpi-caption">{score_status}</div>
+                <div class="kpi">
+                    <div class="kpi-label">
+                        DATA QUALITY SCORE
+                    </div>
+                    <div class="kpi-value">
+                        {score}/100
+                    </div>
+                    <div class="kpi-caption">
+                        {status}
+                    </div>
                 </div>
                 """,
                 unsafe_allow_html=True,
             )
 
         with k2:
+
             st.markdown(
                 f"""
-                <div class="kpi-card">
-                    <div class="kpi-label">MISSING CELLS</div>
+                <div class="kpi">
+                    <div class="kpi-label">
+                        MISSING CELLS
+                    </div>
                     <div class="kpi-value">
                         {analysis["missing_count"]:,}
                     </div>
                     <div class="kpi-caption">
-                        Across all columns
+                        Across dataset
                     </div>
                 </div>
                 """,
@@ -1631,15 +1738,18 @@ if (
             )
 
         with k3:
+
             st.markdown(
                 f"""
-                <div class="kpi-card">
-                    <div class="kpi-label">DUPLICATES</div>
+                <div class="kpi">
+                    <div class="kpi-label">
+                        DUPLICATES
+                    </div>
                     <div class="kpi-value">
                         {analysis["duplicate_count"]:,}
                     </div>
                     <div class="kpi-caption">
-                        Duplicate records detected
+                        Duplicate records
                     </div>
                 </div>
                 """,
@@ -1647,10 +1757,13 @@ if (
             )
 
         with k4:
+
             st.markdown(
                 f"""
-                <div class="kpi-card">
-                    <div class="kpi-label">ML ANOMALIES</div>
+                <div class="kpi">
+                    <div class="kpi-label">
+                        ML ANOMALIES
+                    </div>
                     <div class="kpi-value">
                         {analysis["ml_anomaly_count"]:,}
                     </div>
@@ -1662,59 +1775,43 @@ if (
                 unsafe_allow_html=True,
             )
 
-        # SECOND KPI ROW
-
         st.markdown(
-            '<div class="section-title">Data Profile</div>',
-            unsafe_allow_html=True,
+            "## Data Profile"
         )
 
         p1, p2, p3, p4, p5 = st.columns(5)
 
-        with p1:
-            st.metric(
-                "Rows",
-                f'{analysis["rows"]:,}',
-            )
+        p1.metric(
+            "Rows",
+            f'{analysis["rows"]:,}',
+        )
 
-        with p2:
-            st.metric(
-                "Columns",
-                analysis["columns"],
-            )
+        p2.metric(
+            "Columns",
+            analysis["columns"],
+        )
 
-        with p3:
-            st.metric(
-                "Numeric",
-                analysis["numeric_count"],
-            )
+        p3.metric(
+            "Numeric",
+            analysis["numeric_count"],
+        )
 
-        with p4:
-            st.metric(
-                "Categorical",
-                analysis["categorical_count"],
-            )
+        p4.metric(
+            "Categorical",
+            analysis["categorical_count"],
+        )
 
-        with p5:
-            st.metric(
-                "IQR Outliers",
-                f'{analysis["iqr_outlier_count"]:,}',
-            )
-
-        # QUALITY SUMMARY
+        p5.metric(
+            "IQR Outliers",
+            f'{analysis["iqr_outlier_count"]:,}',
+        )
 
         st.markdown(
-            '<div class="section-title">Quality Monitoring</div>',
-            unsafe_allow_html=True,
+            "## Quality Monitoring"
         )
 
-        left, right = st.columns(
-            [1.3, 1]
-        )
-
-        with left:
-
-            quality_data = pd.DataFrame({
+        quality_df = pd.DataFrame(
+            {
                 "Metric": [
                     "Missing",
                     "Duplicates",
@@ -1723,128 +1820,72 @@ if (
                     "ML Anomalies",
                 ],
                 "Count": [
-                    analysis["missing_count"],
-                    analysis["duplicate_count"],
-                    analysis["invalid_count"],
-                    analysis["iqr_outlier_count"],
-                    analysis["ml_anomaly_count"],
+                    analysis[
+                        "missing_count"
+                    ],
+                    analysis[
+                        "duplicate_count"
+                    ],
+                    analysis[
+                        "invalid_count"
+                    ],
+                    analysis[
+                        "iqr_outlier_count"
+                    ],
+                    analysis[
+                        "ml_anomaly_count"
+                    ],
                 ],
-            })
+            }
+        )
 
-            st.bar_chart(
-                quality_data.set_index(
-                    "Metric"
-                )
+        st.bar_chart(
+            quality_df.set_index(
+                "Metric"
             )
-
-        with right:
-
-            st.markdown(
-                """
-                <div class="dashboard-panel">
-                    <div class="panel-title">
-                        Dataset Status
-                    </div>
-                """,
-                unsafe_allow_html=True,
-            )
-
-            if score >= 95:
-                st.markdown(
-                    '<span class="status-good">'
-                    'GOOD DATA QUALITY'
-                    '</span>',
-                    unsafe_allow_html=True,
-                )
-            elif score >= 85:
-                st.markdown(
-                    '<span class="status-warning">'
-                    'NEEDS ATTENTION'
-                    '</span>',
-                    unsafe_allow_html=True,
-                )
-            else:
-                st.markdown(
-                    '<span class="status-danger">'
-                    'CRITICAL'
-                    '</span>',
-                    unsafe_allow_html=True,
-                )
-
-            st.markdown(
-                f"""
-                <p style="color:#6b7280;font-size:13px;margin-top:12px;">
-                DataGuard AI identified
-                <b>{analysis["missing_count"]:,}</b>
-                missing cells,
-                <b>{analysis["duplicate_count"]:,}</b>
-                duplicate records and
-                <b>{analysis["invalid_count"]:,}</b>
-                invalid values.
-                </p>
-                """,
-                unsafe_allow_html=True,
-            )
-
-            st.markdown(
-                "</div>",
-                unsafe_allow_html=True,
-            )
-
-        # BUSINESS PREVIEW
+        )
 
         if business_df is not None:
 
             st.markdown(
-                '<div class="section-title">'
-                'Business Analytics Preview'
-                '</div>',
-                unsafe_allow_html=True,
+                "## Business Analytics Preview"
             )
 
             sales_column = analysis[
                 "sales_column"
             ]
 
-            preview1, preview2 = st.columns(2)
+            left, right = st.columns(2)
 
-            with preview1:
+            with left:
 
                 st.markdown(
-                    f"""
-                    <div class="dashboard-panel">
-                        <div class="panel-title">
-                            Sales Distribution
-                        </div>
-                        <div class="panel-description">
-                            Distribution of {sales_column}
-                            values used for visualization.
-                        </div>
-                    </div>
-                    """,
-                    unsafe_allow_html=True,
+                    f"### Sales Distribution"
                 )
 
-                chart_values = (
+                values = (
                     business_df[
                         sales_column
                     ]
                 )
 
                 hist, bins = np.histogram(
-                    chart_values,
+                    values,
                     bins=10,
                 )
 
-                hist_df = pd.DataFrame({
-                    "Sales Range": [
-                        f"{bins[i]:,.0f} - {bins[i+1]:,.0f}"
-                        for i in range(
-                            len(bins) - 1
-                        )
-                    ],
-                    "Records": hist,
-                })
+                hist_df = pd.DataFrame(
+                    {
+                        "Sales Range": [
+                            f"{bins[i]:,.0f} - "
+                            f"{bins[i+1]:,.0f}"
+                            for i in range(
+                                len(bins) - 1
+                            )
+                        ],
+                        "Records": hist,
+                    }
+                )
 
                 st.bar_chart(
                     hist_df.set_index(
@@ -1852,7 +1893,7 @@ if (
                     )
                 )
 
-            with preview2:
+            with right:
 
                 city_columns = [
                     column
@@ -1863,36 +1904,24 @@ if (
 
                 if city_columns:
 
-                    city_column = city_columns[0]
-
                     city_counts = (
                         cleaned_df[
-                            city_column
+                            city_columns[0]
                         ]
                         .value_counts()
                         .head(10)
                     )
 
                     st.markdown(
-                        """
-                        <div class="dashboard-panel">
-                            <div class="panel-title">
-                                Records by City
-                            </div>
-                        </div>
-                        """,
-                        unsafe_allow_html=True,
+                        "### Records by City"
                     )
 
                     st.bar_chart(
                         city_counts
                     )
 
-        # DATA PREVIEW
-
         st.markdown(
-            '<div class="section-title">Data Preview</div>',
-            unsafe_allow_html=True,
+            "## Data Preview"
         )
 
         st.caption(
@@ -1906,24 +1935,18 @@ if (
         )
 
 
-    # --------------------------------------------------------
+    # ========================================================
     # DATA QUALITY
-    # --------------------------------------------------------
+    # ========================================================
 
     elif page == "Data Quality":
 
         st.markdown(
-            '<div class="section-title">'
-            'Data Quality'
-            '</div>',
-            unsafe_allow_html=True,
+            "## Data Quality"
         )
 
-        st.markdown(
-            '<div class="section-description">'
-            'Detailed profiling and rule-based quality validation.'
-            '</div>',
-            unsafe_allow_html=True,
+        st.caption(
+            "Detailed profiling and rule-based quality validation."
         )
 
         q1, q2, q3, q4 = st.columns(4)
@@ -1949,103 +1972,82 @@ if (
         )
 
         st.markdown(
-            '<div class="section-title">'
-            'Data Profile'
-            '</div>',
-            unsafe_allow_html=True,
+            "### Data Profile"
         )
 
-        profile = profile_dataset(df)
-
         st.dataframe(
-            profile,
+            profile_dataset(df),
             use_container_width=True,
             height=450,
         )
 
         st.markdown(
-            '<div class="section-title">'
-            'Detected Data Types'
-            '</div>',
-            unsafe_allow_html=True,
+            "### Detected Data Types"
         )
 
-        c1, c2, c3 = st.columns(3)
+        a, b, c = st.columns(3)
 
-        with c1:
-            st.markdown(
-                f"""
-                <div class="kpi-card">
-                    <div class="kpi-label">NUMERIC COLUMNS</div>
-                    <div class="kpi-value">
-                        {analysis["numeric_count"]}
-                    </div>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
+        a.metric(
+            "Numeric Columns",
+            analysis["numeric_count"],
+        )
 
-        with c2:
-            st.markdown(
-                f"""
-                <div class="kpi-card">
-                    <div class="kpi-label">CATEGORICAL COLUMNS</div>
-                    <div class="kpi-value">
-                        {analysis["categorical_count"]}
-                    </div>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
+        b.metric(
+            "Categorical Columns",
+            analysis["categorical_count"],
+        )
 
-        with c3:
-            st.markdown(
-                f"""
-                <div class="kpi-card">
-                    <div class="kpi-label">DATETIME COLUMNS</div>
-                    <div class="kpi-value">
-                        {len(analysis["datetime_columns"])}
-                    </div>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
+        c.metric(
+            "Date/Time Columns",
+            len(
+                analysis[
+                    "datetime_columns"
+                ]
+            ),
+        )
 
         with st.expander(
-            "View detected Date/Time columns"
+            "View Date/Time columns"
         ):
 
-            if analysis["datetime_columns"]:
+            if analysis[
+                "datetime_columns"
+            ]:
+
                 st.write(
                     analysis[
                         "datetime_columns"
                     ]
                 )
+
             else:
+
                 st.info(
                     "No Date/Time columns detected."
                 )
 
         with st.expander(
-            "View detected Identifier columns"
+            "View Identifier columns"
         ):
 
-            if analysis["identifier_columns"]:
+            if analysis[
+                "identifier_columns"
+            ]:
+
                 st.write(
                     analysis[
                         "identifier_columns"
                     ]
                 )
+
             else:
+
                 st.info(
                     "No Identifier columns detected."
                 )
 
         st.markdown(
-            '<div class="section-title">'
-            'Invalid Values'
-            '</div>',
-            unsafe_allow_html=True,
+            "### Invalid Values"
         )
 
         if analysis[
@@ -2066,10 +2068,7 @@ if (
             )
 
         st.markdown(
-            '<div class="section-title">'
-            'City Standardization'
-            '</div>',
-            unsafe_allow_html=True,
+            "### City Standardization"
         )
 
         st.info(
@@ -2078,30 +2077,24 @@ if (
         )
 
 
-    # --------------------------------------------------------
+    # ========================================================
     # ANOMALIES
-    # --------------------------------------------------------
+    # ========================================================
 
     elif page == "Anomalies":
 
         st.markdown(
-            '<div class="section-title">'
-            'Anomaly Detection'
-            '</div>',
-            unsafe_allow_html=True,
+            "## Anomaly Detection"
         )
 
-        st.markdown(
-            '<div class="section-description">'
-            'Statistical outlier detection and machine-learning anomaly screening.'
-            '</div>',
-            unsafe_allow_html=True,
+        st.caption(
+            "Statistical outlier detection and machine-learning anomaly screening."
         )
 
         a1, a2, a3 = st.columns(3)
 
         a1.metric(
-            "IQR Outlier Observations",
+            "IQR Outliers",
             f'{analysis["iqr_outlier_count"]:,}',
         )
 
@@ -2115,23 +2108,14 @@ if (
             f'{analysis["normal_count"]:,}',
         )
 
-        st.markdown(
-            '<div class="warning-box">'
-            '<b>Important:</b> IQR outliers and ML anomalies '
-            'are not automatically data errors. They identify '
-            'statistically unusual observations that may require '
-            'business validation.'
-            '</div>',
-            unsafe_allow_html=True,
+        st.warning(
+            "IQR outliers and ML anomalies are not automatically "
+            "data errors. They identify statistically unusual "
+            "observations that may require business validation."
         )
 
-        # IQR
-
         st.markdown(
-            '<div class="section-title">'
-            'IQR Statistical Outliers'
-            '</div>',
-            unsafe_allow_html=True,
+            "### IQR Statistical Outliers"
         )
 
         if analysis[
@@ -2151,35 +2135,12 @@ if (
                 use_container_width=True,
             )
 
-        # ML
-
         st.markdown(
-            '<div class="section-title">'
-            'Isolation Forest'
-            '</div>',
-            unsafe_allow_html=True,
+            "### Isolation Forest"
         )
 
-        st.markdown(
-            f"""
-            <div class="dashboard-panel">
-                <div class="panel-title">
-                    ML anomaly monitoring
-                </div>
-                <div class="panel-description">
-                    Current sensitivity:
-                    <b>{contamination_pct}%</b>
-                </div>
-                <p style="font-size:14px;color:#4b5563;">
-                    DataGuard AI detected
-                    <b>{analysis["ml_anomaly_count"]:,}</b>
-                    potentially unusual records and
-                    <b>{analysis["normal_count"]:,}</b>
-                    normal records.
-                </p>
-            </div>
-            """,
-            unsafe_allow_html=True,
+        st.info(
+            f"Current sensitivity: {contamination_pct}%"
         )
 
         anomaly_display = df.copy()
@@ -2187,26 +2148,29 @@ if (
         anomaly_display[
             "ML_Anomaly"
         ] = np.where(
-            analysis["anomaly_mask"],
+            analysis[
+                "anomaly_mask"
+            ],
             "Anomaly",
             "Normal",
+        )
+
+        anomaly_records = (
+            anomaly_display[
+                anomaly_display[
+                    "ML_Anomaly"
+                ]
+                == "Anomaly"
+            ]
         )
 
         with st.expander(
             "View ML anomaly records"
         ):
 
-            anomaly_records = (
-                anomaly_display[
-                    anomaly_display[
-                        "ML_Anomaly"
-                    ] == "Anomaly"
-                ]
-            )
-
             st.caption(
-                f"Showing up to 500 anomaly records "
-                f"from {len(anomaly_records):,} detected."
+                f"Showing up to 500 of "
+                f"{len(anomaly_records):,} detected anomalies."
             )
 
             st.dataframe(
@@ -2216,24 +2180,18 @@ if (
             )
 
 
-    # --------------------------------------------------------
+    # ========================================================
     # CLEANING
-    # --------------------------------------------------------
+    # ========================================================
 
     elif page == "Cleaning":
 
         st.markdown(
-            '<div class="section-title">'
-            'Automated Cleaning'
-            '</div>',
-            unsafe_allow_html=True,
+            "## Automated Cleaning"
         )
 
-        st.markdown(
-            '<div class="section-description">'
-            'Rule-based cleaning applied to create a Power BI-ready dataset.'
-            '</div>',
-            unsafe_allow_html=True,
+        st.caption(
+            "Rule-based cleaning applied to create a Power BI-ready dataset."
         )
 
         c1, c2, c3, c4 = st.columns(4)
@@ -2258,14 +2216,11 @@ if (
             f'{analysis["values_filled"]:,}',
         )
 
-        st.markdown(
-            '<div class="success-box">'
-            '<b>Cleaning actions:</b> duplicate removal, '
-            'city standardization, numeric missing-value '
-            'imputation using median values, and categorical '
-            'missing-value imputation using mode values.'
-            '</div>',
-            unsafe_allow_html=True,
+        st.success(
+            "Cleaning actions: duplicate removal, city "
+            "standardization, numeric missing-value "
+            "imputation using median values, and categorical "
+            "missing-value imputation using mode values."
         )
 
         if analysis[
@@ -2278,10 +2233,7 @@ if (
             )
 
         st.markdown(
-            '<div class="section-title">'
-            'Cleaned Dataset Preview'
-            '</div>',
-            unsafe_allow_html=True,
+            "### Cleaned Dataset Preview"
         )
 
         st.caption(
@@ -2294,36 +2246,32 @@ if (
             height=350,
         )
 
-        csv_data = cleaned_df.to_csv(
-            index=False
-        ).encode("utf-8")
-
         st.download_button(
             "⬇️ Download Cleaned CSV",
-            data=csv_data,
-            file_name="DataGuard_Cleaned_Data.csv",
+            data=(
+                cleaned_df
+                .to_csv(index=False)
+                .encode("utf-8")
+            ),
+            file_name=(
+                "DataGuard_Cleaned_Data.csv"
+            ),
             mime="text/csv",
         )
 
 
-    # --------------------------------------------------------
+    # ========================================================
     # ANALYTICS
-    # --------------------------------------------------------
+    # ========================================================
 
     elif page == "Analytics":
 
         st.markdown(
-            '<div class="section-title">'
-            'Business Analytics'
-            '</div>',
-            unsafe_allow_html=True,
+            "## Business Analytics"
         )
 
-        st.markdown(
-            '<div class="section-description">'
-            'Business-focused views generated from the cleaned dataset.'
-            '</div>',
-            unsafe_allow_html=True,
+        st.caption(
+            "Business-focused views generated from the cleaned dataset."
         )
 
         if business_df is None:
@@ -2344,27 +2292,16 @@ if (
                 "upper_bound"
             ]
 
-            st.markdown(
-                f"""
-                <div class="info-box">
-                    Business charts use the cleaned dataset.
-                    For visualization only, Sales values above
-                    the cleaned-data IQR upper bound
-                    <b>{upper_bound:,.2f}</b> are excluded.
-                    These records are <b>not deleted</b> from
-                    the analytical dataset.
-                </div>
-                """,
-                unsafe_allow_html=True,
+            st.info(
+                f"Business charts use the cleaned dataset. "
+                f"For visualization only, Sales values above "
+                f"the cleaned-data IQR upper bound "
+                f"{upper_bound:,.2f} are excluded. "
+                "These records are not deleted."
             )
 
-            # SALES DISTRIBUTION
-
             st.markdown(
-                '<div class="section-title">'
-                'Sales Distribution'
-                '</div>',
-                unsafe_allow_html=True,
+                "### Sales Distribution"
             )
 
             hist, bins = np.histogram(
@@ -2374,23 +2311,24 @@ if (
                 bins=10,
             )
 
-            hist_df = pd.DataFrame({
-                "Sales Range": [
-                    f"{bins[i]:,.0f} - {bins[i+1]:,.0f}"
-                    for i in range(
-                        len(bins) - 1
-                    )
-                ],
-                "Records": hist,
-            })
+            hist_df = pd.DataFrame(
+                {
+                    "Sales Range": [
+                        f"{bins[i]:,.0f} - "
+                        f"{bins[i+1]:,.0f}"
+                        for i in range(
+                            len(bins) - 1
+                        )
+                    ],
+                    "Records": hist,
+                }
+            )
 
             st.bar_chart(
                 hist_df.set_index(
                     "Sales Range"
                 )
             )
-
-            # CITY / PRODUCT
 
             left, right = st.columns(2)
 
@@ -2405,21 +2343,16 @@ if (
 
                 if city_columns:
 
-                    city_column = city_columns[0]
-
                     city_counts = (
                         cleaned_df[
-                            city_column
+                            city_columns[0]
                         ]
                         .value_counts()
                         .head(10)
                     )
 
                     st.markdown(
-                        '<div class="section-title">'
-                        'Records by City'
-                        '</div>',
-                        unsafe_allow_html=True,
+                        "### Records by City"
                     )
 
                     st.bar_chart(
@@ -2437,14 +2370,10 @@ if (
 
                 if product_columns:
 
-                    product_column = (
-                        product_columns[0]
-                    )
-
                     product_sales = (
                         business_df
                         .groupby(
-                            product_column
+                            product_columns[0]
                         )[sales_column]
                         .sum()
                         .sort_values(
@@ -2454,17 +2383,12 @@ if (
                     )
 
                     st.markdown(
-                        '<div class="section-title">'
-                        'Sales by Product'
-                        '</div>',
-                        unsafe_allow_html=True,
+                        "### Sales by Product"
                     )
 
                     st.bar_chart(
                         product_sales
                     )
-
-            # CATEGORY
 
             category_columns = [
                 column
@@ -2475,14 +2399,10 @@ if (
 
             if category_columns:
 
-                category_column = (
-                    category_columns[0]
-                )
-
                 category_sales = (
                     business_df
                     .groupby(
-                        category_column
+                        category_columns[0]
                     )[sales_column]
                     .sum()
                     .sort_values(
@@ -2491,17 +2411,12 @@ if (
                 )
 
                 st.markdown(
-                    '<div class="section-title">'
-                    'Sales by Category'
-                    '</div>',
-                    unsafe_allow_html=True,
+                    "### Sales by Category"
                 )
 
                 st.bar_chart(
                     category_sales
                 )
-
-            # MONTHLY SALES
 
             datetime_columns = (
                 analysis[
@@ -2515,7 +2430,9 @@ if (
                     datetime_columns[0]
                 )
 
-                monthly_df = cleaned_df.copy()
+                monthly_df = (
+                    cleaned_df.copy()
+                )
 
                 monthly_df[
                     date_column
@@ -2549,20 +2466,18 @@ if (
                     .assign(
                         Month=monthly_df[
                             date_column
-                        ].dt.to_period("M")
+                        ]
+                        .dt.to_period("M")
                         .astype(str)
                     )
-                    .groupby("Month")[
-                        sales_column
-                    ]
+                    .groupby(
+                        "Month"
+                    )[sales_column]
                     .sum()
                 )
 
                 st.markdown(
-                    '<div class="section-title">'
-                    'Monthly Sales Trend'
-                    '</div>',
-                    unsafe_allow_html=True,
+                    "### Monthly Sales Trend"
                 )
 
                 st.line_chart(
@@ -2570,120 +2485,96 @@ if (
                 )
 
 
-    # --------------------------------------------------------
+    # ========================================================
     # POWER BI
-    # --------------------------------------------------------
+    # ========================================================
 
     elif page == "Power BI":
 
         st.markdown(
-            '<div class="section-title">'
-            'Power BI Export Center'
-            '</div>',
-            unsafe_allow_html=True,
+            "## Power BI Export Center"
         )
 
-        st.markdown(
-            '<div class="section-description">'
-            'Download cleaned and supporting CSV datasets ready for Power BI Desktop.'
-            '</div>',
-            unsafe_allow_html=True,
+        st.caption(
+            "Download cleaned and supporting CSV datasets ready for Power BI Desktop."
         )
 
         exports = create_powerbi_exports(
             cleaned_df,
             business_df,
-            analysis["sales_column"],
+            analysis[
+                "sales_column"
+            ],
+        )
+
+        st.info(
+            "Manual Power BI workflow: download the ZIP, "
+            "extract the CSV files, open Power BI Desktop, "
+            "select Get Data → Text/CSV, and import the "
+            "cleaned dataset and supporting tables."
         )
 
         st.markdown(
-            """
-            <div class="info-box">
-                <b>Manual Power BI workflow</b><br>
-                1. Download the ZIP file.<br>
-                2. Extract the CSV files.<br>
-                3. Open Power BI Desktop.<br>
-                4. Select Get Data → Text/CSV.<br>
-                5. Import the cleaned dataset and supporting tables.
-            </div>
-            """,
-            unsafe_allow_html=True,
+            "### Available Exports"
         )
 
-        st.markdown(
-            '<div class="section-title">'
-            'Available Exports'
-            '</div>',
-            unsafe_allow_html=True,
-        )
+        for filename, data in (
+            exports.items()
+        ):
 
-        for filename, data in exports.items():
-
-            left, right = st.columns(
-                [4, 1]
+            col1, col2 = st.columns(
+                [5, 1]
             )
 
-            with left:
+            with col1:
 
                 st.markdown(
-                    f"""
-                    <div class="dashboard-panel">
-                        <div class="panel-title">
-                            {filename}
-                        </div>
-                    </div>
-                    """,
-                    unsafe_allow_html=True,
+                    f"**{filename}**"
                 )
 
-            with right:
+            with col2:
 
                 st.download_button(
                     "Download",
                     data=data,
                     file_name=filename,
                     mime="text/csv",
-                    key=f"download_{filename}",
+                    key=(
+                        f"download_{filename}"
+                    ),
                 )
+
+        st.markdown(
+            "### Complete Export Package"
+        )
 
         zip_data = create_zip(
             exports
         )
 
-        st.markdown(
-            '<div class="section-title">'
-            'Complete Export Package'
-            '</div>',
-            unsafe_allow_html=True,
-        )
-
         st.download_button(
             "📦 Download Power BI ZIP",
             data=zip_data,
-            file_name="DataGuard_PowerBI_Exports.zip",
+            file_name=(
+                "DataGuard_PowerBI_Exports.zip"
+            ),
             mime="application/zip",
             type="primary",
         )
 
 
-    # --------------------------------------------------------
+    # ========================================================
     # AI ANALYSIS
-    # --------------------------------------------------------
+    # ========================================================
 
     elif page == "AI Analysis":
 
         st.markdown(
-            '<div class="section-title">'
-            'Gemini AI Analysis'
-            '</div>',
-            unsafe_allow_html=True,
+            "## Gemini AI Analysis"
         )
 
-        st.markdown(
-            '<div class="section-description">'
-            'AI-generated interpretation based only on the DataGuard quality report.'
-            '</div>',
-            unsafe_allow_html=True,
+        st.caption(
+            "AI-generated interpretation based only on the DataGuard quality report."
         )
 
         summary_text = f"""
@@ -2758,7 +2649,6 @@ Sales column:
 Business chart IQR upper bound:
 {analysis["upper_bound"]}
 
-Important:
 IQR outliers and ML anomalies are screening signals,
 not automatically confirmed errors.
 
@@ -2779,11 +2669,13 @@ Business visualization filtering does not delete records.
         ):
 
             with st.spinner(
-                "Gemini is analyzing the data-quality report..."
+                "Gemini is analyzing..."
             ):
 
-                result = get_gemini_analysis(
-                    summary_text
+                result = (
+                    get_gemini_analysis(
+                        summary_text
+                    )
                 )
 
             st.session_state.gemini_analysis = (
@@ -2793,46 +2685,29 @@ Business visualization filtering does not delete records.
         if st.session_state.gemini_analysis:
 
             st.markdown(
-                '<div class="dashboard-panel">',
-                unsafe_allow_html=True,
-            )
-
-            st.markdown(
                 st.session_state.gemini_analysis
-            )
-
-            st.markdown(
-                "</div>",
-                unsafe_allow_html=True,
             )
 
         else:
 
             st.info(
-                "Click **Generate Gemini AI Analysis** "
-                "to request an AI-generated interpretation "
-                "of the data-quality results."
+                "Click the button above to generate "
+                "an AI interpretation of your data-quality report."
             )
 
 
-    # --------------------------------------------------------
+    # ========================================================
     # REPORTS
-    # --------------------------------------------------------
+    # ========================================================
 
     elif page == "Reports":
 
         st.markdown(
-            '<div class="section-title">'
-            'Data Quality Report'
-            '</div>',
-            unsafe_allow_html=True,
+            "## Data Quality Report"
         )
 
-        st.markdown(
-            '<div class="section-description">'
-            'Portfolio-ready summary of the DataGuard AI analysis.'
-            '</div>',
-            unsafe_allow_html=True,
+        st.caption(
+            "Portfolio-ready summary of the DataGuard AI analysis."
         )
 
         report_text = f"""
@@ -2900,18 +2775,19 @@ only for visualization and are not deleted from the analytical dataset.
 
         st.download_button(
             "📄 Download Report",
-            data=report_text.encode("utf-8"),
-            file_name="DataGuard_Data_Quality_Report.txt",
+            data=report_text.encode(
+                "utf-8"
+            ),
+            file_name=(
+                "DataGuard_Data_Quality_Report.txt"
+            ),
             mime="text/plain",
         )
 
         if st.session_state.gemini_analysis:
 
             st.markdown(
-                '<div class="section-title">'
-                'Gemini Analysis'
-                '</div>',
-                unsafe_allow_html=True,
+                "### Gemini Analysis"
             )
 
             st.markdown(
@@ -2920,44 +2796,85 @@ only for visualization and are not deleted from the analytical dataset.
 
 
 # ============================================================
-# NO DATA STATE
+# EMPTY STATE
 # ============================================================
 
 else:
 
     st.markdown(
-        """
-        <div class="dashboard-panel"
-             style="text-align:center;padding:55px 20px;">
-
-            <div style="font-size:48px;">
-                🛡️
-            </div>
-
-            <div style="
-                font-size:24px;
-                font-weight:800;
-                color:#111827;
-                margin-top:10px;
-            ">
-                Welcome to DataGuard AI
-            </div>
-
-            <div style="
-                color:#6b7280;
-                font-size:14px;
-                max-width:600px;
-                margin:10px auto;
-            ">
-                Upload a CSV or Excel dataset to automatically
-                profile data quality, detect anomalies, clean
-                data and prepare business analytics.
-            </div>
-
-        </div>
-        """,
-        unsafe_allow_html=True,
+        "## Welcome to DataGuard AI"
     )
+
+    st.info(
+        "Upload a CSV or Excel dataset above to start "
+        "your data-quality analysis."
+    )
+
+    st.markdown(
+        "### What DataGuard AI does"
+    )
+
+    c1, c2, c3, c4 = st.columns(4)
+
+    with c1:
+
+        st.markdown(
+            "### 🔍"
+        )
+
+        st.markdown(
+            "**Profile Data**"
+        )
+
+        st.caption(
+            "Understand columns, data types, "
+            "missing values and identifiers."
+        )
+
+    with c2:
+
+        st.markdown(
+            "### 🚨"
+        )
+
+        st.markdown(
+            "**Detect Anomalies**"
+        )
+
+        st.caption(
+            "Use IQR and Isolation Forest "
+            "to identify unusual records."
+        )
+
+    with c3:
+
+        st.markdown(
+            "### 🧹"
+        )
+
+        st.markdown(
+            "**Clean Data**"
+        )
+
+        st.caption(
+            "Remove duplicates and handle "
+            "missing values."
+        )
+
+    with c4:
+
+        st.markdown(
+            "### 📊"
+        )
+
+        st.markdown(
+            "**Analyze & Export**"
+        )
+
+        st.caption(
+            "Create business analytics and "
+            "Power BI-ready datasets."
+        )
 
 
 # ============================================================
@@ -2967,8 +2884,7 @@ else:
 st.markdown(
     """
     <div class="footer">
-        🛡️ DataGuard AI &nbsp; • &nbsp;
-        AI Data Quality & Anomaly Detection Platform
+        🛡️ DataGuard AI • AI Data Quality & Anomaly Detection Platform
         <br>
         Built with Python, Pandas, Scikit-learn and Streamlit
     </div>
