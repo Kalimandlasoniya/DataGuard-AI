@@ -1,5 +1,6 @@
 import io
 import os
+import textwrap
 import zipfile
 from datetime import datetime
 
@@ -19,6 +20,33 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
 )
+
+
+# ============================================================
+# MARKDOWN/HTML RENDERING FIX
+# ============================================================
+#
+# Throughout this app, HTML snippets are written as indented
+# triple-quoted strings (matching the surrounding Python code's
+# indentation level). CommonMark treats any line indented 4+
+# spaces as a literal code block, so those indented <div> blocks
+# were rendering as raw visible text instead of styled HTML,
+# even with unsafe_allow_html=True. Wrapping st.markdown so it
+# dedents the string first (when HTML is allowed) fixes every
+# call site in one place instead of hand-editing each one.
+
+_original_markdown = st.markdown
+
+
+def _dedented_markdown(body, *args, **kwargs):
+
+    if kwargs.get("unsafe_allow_html") and isinstance(body, str):
+        body = textwrap.dedent(body).strip("\n")
+
+    return _original_markdown(body, *args, **kwargs)
+
+
+st.markdown = _dedented_markdown
 
 
 # ============================================================
