@@ -47,63 +47,96 @@ st.markdown(
     """
 <style>
 
-.block-container {
-    padding-top: 1.5rem;
-    padding-bottom: 3rem;
-    max-width: 1500px;
-}
+/* ================================
+   SIDEBAR
+================================ */
 
 [data-testid="stSidebar"] {
     background: #0b1020;
-    border-right: 1px solid rgba(255,255,255,0.08);
+    border-right: 1px solid rgba(255,255,255,0.10);
 }
 
+/* Sidebar text */
 [data-testid="stSidebar"] * {
-    color: #e5e7eb;
+    color: #e5e7eb !important;
 }
 
-h1, h2, h3 {
-    letter-spacing: -0.02em;
+/* DataGuard AI title */
+[data-testid="stSidebar"] h1 {
+    color: #ffffff !important;
+    font-size: 24px !important;
+    font-weight: 800 !important;
 }
 
-[data-testid="stMetric"] {
-    background: rgba(255,255,255,0.035);
-    border: 1px solid rgba(255,255,255,0.08);
-    padding: 18px;
-    border-radius: 14px;
+/* Sidebar captions */
+[data-testid="stSidebar"] [data-testid="stCaptionContainer"] {
+    color: #94a3b8 !important;
 }
 
-[data-testid="stMetricValue"] {
-    font-weight: 700;
+/* Section headings */
+[data-testid="stSidebar"] p strong,
+[data-testid="stSidebar"] strong {
+    color: #94a3b8 !important;
+    font-size: 12px !important;
+    letter-spacing: 1px;
 }
 
-.stButton > button {
-    border-radius: 10px;
-    font-weight: 600;
+/* Navigation buttons */
+[data-testid="stSidebar"] button {
+    background: transparent !important;
+    border: 1px solid transparent !important;
+    color: #cbd5e1 !important;
+    text-align: left !important;
+    border-radius: 10px !important;
+    margin: 3px 0 !important;
+    min-height: 42px !important;
 }
 
-.stDownloadButton > button {
-    border-radius: 10px;
-    font-weight: 600;
+/* Button text */
+[data-testid="stSidebar"] button p {
+    color: #cbd5e1 !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
 }
 
-div[data-testid="stFileUploader"] {
-    border-radius: 14px;
+/* Hover */
+[data-testid="stSidebar"] button:hover {
+    background: rgba(255,255,255,0.07) !important;
+    border-color: rgba(255,255,255,0.10) !important;
 }
 
-div[data-testid="stDataFrame"] {
-    border-radius: 12px;
+/* Primary / active button */
+[data-testid="stSidebar"] button[kind="primary"] {
+    background: rgba(99,102,241,0.18) !important;
+    border: 1px solid rgba(99,102,241,0.35) !important;
 }
 
-hr {
-    border-color: rgba(255,255,255,0.08);
+/* Primary button text */
+[data-testid="stSidebar"] button[kind="primary"] p {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+}
+
+/* Sidebar divider */
+[data-testid="stSidebar"] hr {
+    border-color: rgba(255,255,255,0.10) !important;
+}
+
+/* Success system status */
+[data-testid="stSidebar"] [data-testid="stAlert"] {
+    background: rgba(34,197,94,0.10) !important;
+    border: 1px solid rgba(34,197,94,0.25) !important;
+    border-radius: 10px !important;
+}
+
+[data-testid="stSidebar"] [data-testid="stAlert"] * {
+    color: #86efac !important;
 }
 
 </style>
 """,
     unsafe_allow_html=True,
 )
-
 
 # ============================================================
 # HELPER FUNCTIONS
@@ -699,7 +732,10 @@ with st.sidebar:
     st.divider()
 
     st.markdown(
-        "**WORKSPACE**"
+    "<div style='color:#94a3b8; font-size:11px; "
+    "font-weight:700; letter-spacing:1.5px; "
+    "margin:8px 0 10px;'>WORKSPACE</div>",
+    unsafe_allow_html=True,
     )
 
     pages = [
@@ -734,7 +770,10 @@ with st.sidebar:
     st.divider()
 
     st.markdown(
-        "**SYSTEM**"
+    "<div style='color:#94a3b8; font-size:11px; "
+    "font-weight:700; letter-spacing:1.5px; "
+    "margin:8px 0 10px;'>SYSTEM</div>",
+    unsafe_allow_html=True,
     )
 
     if st.button(
