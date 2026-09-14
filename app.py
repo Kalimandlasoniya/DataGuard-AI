@@ -1,4 +1,3 @@
-```python
 import io
 import os
 import zipfile
@@ -1179,4 +1178,4 @@ def find_sales_column(df):
         ):
 
             if pd.api.types.is
-```
+
