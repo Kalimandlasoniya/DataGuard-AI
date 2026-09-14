@@ -22,7 +22,7 @@ st.set_page_config(
 
 
 # ============================================================
-# CUSTOM CSS
+# CUSTOM CSS — PRODUCTION DASHBOARD
 # ============================================================
 
 st.markdown(
@@ -31,11 +31,10 @@ st.markdown(
 
     /* ========================================================
        GLOBAL
-       ======================================================== */
+    ======================================================== */
 
     .stApp {
-        background: #f6f8fb;
-        color: #111827 !important;
+        background: #f1f5f9;
     }
 
     [data-testid="stHeader"] {
@@ -48,19 +47,386 @@ st.markdown(
         max-width: 1500px;
     }
 
-    /* Force main application text to dark */
-    [data-testid="stAppViewContainer"],
-    [data-testid="stMain"],
-    [data-testid="stMainBlockContainer"] {
-        color: #111827 !important;
+
+    /* ========================================================
+       SIDEBAR — DEEP NAVY
+    ======================================================== */
+
+    section[data-testid="stSidebar"] {
+        background: #0f172a;
+        border-right: 1px solid #1e293b;
     }
 
-    [data-testid="stMain"] p,
-    [data-testid="stMain"] span,
-    [data-testid="stMain"] label,
-    [data-testid="stMain"] div {
-        color: #111827;
+    section[data-testid="stSidebar"] * {
+        color: #e2e8f0;
     }
+
+    .sidebar-brand {
+        padding: 10px 5px 22px 5px;
+    }
+
+    .sidebar-logo {
+        font-size: 30px;
+        font-weight: 800;
+    }
+
+    .sidebar-title {
+        font-size: 21px;
+        font-weight: 800;
+        margin-top: 3px;
+        color: #ffffff !important;
+    }
+
+    .sidebar-subtitle {
+        font-size: 12px;
+        color: #94a3b8 !important;
+        margin-top: 3px;
+    }
+
+    .sidebar-divider {
+        height: 1px;
+        background: #334155;
+        margin: 12px 0 18px 0;
+    }
+
+
+    /* ========================================================
+       MAIN HEADERS
+    ======================================================== */
+
+    .page-title {
+        font-size: 34px;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 2px;
+    }
+
+    .page-subtitle {
+        font-size: 15px;
+        color: #64748b;
+        margin-bottom: 25px;
+    }
+
+    .section-title {
+        font-size: 21px;
+        font-weight: 750;
+        color: #0f172a;
+        margin-top: 25px;
+        margin-bottom: 12px;
+    }
+
+    .section-description {
+        color: #64748b;
+        font-size: 14px;
+        margin-bottom: 15px;
+    }
+
+
+    /* ========================================================
+       KPI CARDS
+    ======================================================== */
+
+    .kpi-card {
+        background: #ffffff;
+        border: 1px solid #dbeafe;
+        border-radius: 14px;
+        padding: 20px;
+        min-height: 125px;
+
+        box-shadow:
+            0 4px 12px rgba(15, 23, 42, 0.05);
+
+        transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
+    }
+
+    .kpi-card:hover {
+        transform: translateY(-2px);
+
+        box-shadow:
+            0 8px 20px rgba(37, 99, 235, 0.10);
+    }
+
+    .kpi-label {
+        font-size: 13px;
+        color: #64748b;
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+
+    .kpi-value {
+        font-size: 28px;
+        font-weight: 800;
+        color: #1d4ed8;
+    }
+
+    .kpi-caption {
+        font-size: 12px;
+        color: #94a3b8;
+        margin-top: 5px;
+    }
+
+
+    /* ========================================================
+       STATUS BADGES
+    ======================================================== */
+
+    .status-good {
+        display: inline-block;
+        padding: 5px 11px;
+        border-radius: 20px;
+        background: #dcfce7;
+        color: #15803d;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .status-warning {
+        display: inline-block;
+        padding: 5px 11px;
+        border-radius: 20px;
+        background: #fef3c7;
+        color: #b45309;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .status-danger {
+        display: inline-block;
+        padding: 5px 11px;
+        border-radius: 20px;
+        background: #fee2e2;
+        color: #dc2626;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .status-info {
+        display: inline-block;
+        padding: 5px 11px;
+        border-radius: 20px;
+        background: #dbeafe;
+        color: #2563eb;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+
+    /* ========================================================
+       PANELS
+    ======================================================== */
+
+    .dashboard-panel {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+
+        padding: 20px;
+        margin-top: 12px;
+        margin-bottom: 15px;
+
+        box-shadow:
+            0 4px 12px rgba(15, 23, 42, 0.04);
+    }
+
+    .panel-title {
+        font-size: 17px;
+        font-weight: 750;
+        color: #0f172a;
+        margin-bottom: 4px;
+    }
+
+    .panel-description {
+        color: #64748b;
+        font-size: 13px;
+        margin-bottom: 14px;
+    }
+
+
+    /* ========================================================
+       UPLOAD AREA
+    ======================================================== */
+
+    .upload-banner {
+        background: #ffffff;
+        border: 1px dashed #93c5fd;
+        border-radius: 16px;
+        padding: 28px;
+        margin-bottom: 20px;
+    }
+
+
+    /* ========================================================
+       INFO BOX
+    ======================================================== */
+
+    .info-box {
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        border-radius: 10px;
+        padding: 13px 15px;
+        color: #1e40af;
+        font-size: 13px;
+        margin: 10px 0;
+    }
+
+    .warning-box {
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        border-radius: 10px;
+        padding: 13px 15px;
+        color: #92400e;
+        font-size: 13px;
+        margin: 10px 0;
+    }
+
+    .success-box {
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        border-radius: 10px;
+        padding: 13px 15px;
+        color: #166534;
+        font-size: 13px;
+        margin: 10px 0;
+    }
+
+
+    /* ========================================================
+       DATAFRAME
+    ======================================================== */
+
+    [data-testid="stDataFrame"] {
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+    }
+
+
+    /* ========================================================
+       BUTTONS
+    ======================================================== */
+
+    .stButton > button {
+        border-radius: 9px;
+        font-weight: 650;
+
+        border: 1px solid #2563eb;
+
+        background: #2563eb;
+        color: #ffffff;
+
+        transition: all 0.2s ease;
+    }
+
+    .stButton > button:hover {
+        background: #1d4ed8;
+        border-color: #1d4ed8;
+        color: #ffffff;
+
+        box-shadow:
+            0 4px 12px rgba(37, 99, 235, 0.25);
+    }
+
+
+    /* ========================================================
+       DOWNLOAD BUTTONS
+    ======================================================== */
+
+    .stDownloadButton > button {
+        border-radius: 9px;
+        font-weight: 650;
+
+        border: 1px solid #2563eb;
+        color: #2563eb;
+        background: #ffffff;
+    }
+
+    .stDownloadButton > button:hover {
+        background: #eff6ff;
+        border-color: #1d4ed8;
+        color: #1d4ed8;
+    }
+
+
+    /* ========================================================
+       STREAMLIT METRICS
+    ======================================================== */
+
+    [data-testid="stMetric"] {
+        background: #ffffff;
+
+        border: 1px solid #e2e8f0;
+
+        padding: 15px;
+
+        border-radius: 12px;
+
+        box-shadow:
+            0 3px 10px rgba(15, 23, 42, 0.04);
+    }
+
+    [data-testid="stMetricValue"] {
+        color: #1d4ed8;
+    }
+
+
+    /* ========================================================
+       FILE UPLOADER
+    ======================================================== */
+
+    [data-testid="stFileUploader"] {
+        background: #ffffff;
+        border: 1px dashed #93c5fd;
+        border-radius: 12px;
+        padding: 10px;
+    }
+
+
+    /* ========================================================
+       SELECTBOX / SLIDER / INPUTS
+    ======================================================== */
+
+    [data-baseweb="select"] > div {
+        border-radius: 9px;
+    }
+
+    [data-testid="stSlider"] {
+        padding-top: 5px;
+    }
+
+
+    /* ========================================================
+       EXPANDERS
+    ======================================================== */
+
+    [data-testid="stExpander"] {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+    }
+
+
+    /* ========================================================
+       FOOTER
+    ======================================================== */
+
+    .footer {
+        text-align: center;
+        color: #94a3b8;
+
+        font-size: 12px;
+
+        margin-top: 45px;
+        padding-top: 20px;
+
+        border-top: 1px solid #e2e8f0;
+    }
+
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
     /* ========================================================
        SIDEBAR
