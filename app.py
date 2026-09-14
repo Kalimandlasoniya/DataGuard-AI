@@ -1289,18 +1289,36 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-
 with st.container():
 
     st.markdown(
         """
-        <div class="upload-banner">
-            <div style="font-size:18px;font-weight:750;">
+        <div style="
+            background:white;
+            border:1px solid #e5e7eb;
+            border-radius:16px;
+            padding:22px 24px 10px 24px;
+            margin-bottom:10px;
+        ">
+
+            <div style="
+                font-size:18px;
+                font-weight:750;
+                color:#111827;
+            ">
                 Upload your dataset
             </div>
-            <div style="color:#6b7280;font-size:13px;margin-top:5px;">
-                Supported formats: CSV, XLSX, XLS
+
+            <div style="
+                color:#6b7280;
+                font-size:13px;
+                margin-top:5px;
+                margin-bottom:8px;
+            ">
+                Start a new data-quality analysis by uploading
+                a CSV or Excel dataset.
             </div>
+
         </div>
         """,
         unsafe_allow_html=True,
