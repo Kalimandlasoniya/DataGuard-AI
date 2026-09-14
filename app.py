@@ -1014,62 +1014,35 @@ def generate_gemini_analysis(analysis):
     api_key = get_gemini_api_key()
 
     if not api_key:
-
         return {
             "status": "error",
             "message": (
                 "Gemini API key was not found. "
-                "Add GEMINI_API_KEY to Streamlit "
-                "Secrets."
+                "Add GEMINI_API_KEY to Streamlit Secrets."
             ),
         }
 
     try:
-
         from google import genai
 
         client = genai.Client(
             api_key=api_key
         )
 
-        # Convert the analysis object into a clean
-        # text representation for Gemini.
         report_data = {
             "Dataset Rows": analysis["rows"],
             "Dataset Columns": analysis["columns"],
-            "Numeric Columns": analysis[
-                "numeric_count"
-            ],
-            "Categorical Columns": analysis[
-                "categorical_count"
-            ],
-            "Date Time Columns": analysis[
-                "datetime_count"
-            ],
-            "Missing Cells": analysis[
-                "missing_count"
-            ],
-            "Duplicate Records": analysis[
-                "duplicate_count"
-            ],
-            "Invalid Values": analysis[
-                "invalid_count"
-            ],
-            "Invalid Details": analysis[
-                "invalid_details"
-            ],
-            "IQR Outliers": analysis[
-                "iqr_outlier_count"
-            ],
-            "ML Anomalies": analysis[
-                "ml_anomaly_count"
-            ],
-            "Quality Score": analysis[
-                "quality_score"
-            ],
-            "Sales Column": analysis[
-                "sales_column"
-            ],
+            "Numeric Columns": analysis["numeric_count"],
+            "Categorical Columns": analysis["categorical_count"],
+            "Date Time Columns": analysis["datetime_count"],
+            "Missing Cells": analysis["missing_count"],
+            "Duplicate Records": analysis["duplicate_count"],
+            "Invalid Values": analysis["invalid_count"],
+            "Invalid Details": analysis["invalid_details"],
+            "IQR Outliers": analysis["iqr_outlier_count"],
+            "ML Anomalies": analysis["ml_anomaly_count"],
+            "Quality Score": analysis["quality_score"],
+            "Sales Column": analysis["sales_column"],
         }
 
         prompt = f"""
@@ -1085,23 +1058,24 @@ results, causes or conclusions.
 
 Important rules:
 
-- Missing values and duplicate records are
-  confirmed data-quality findings.
+- Missing values and duplicate records are confirmed
+  data-quality findings.
 - Infinite numeric values are invalid values.
 - IQR outliers are statistical screening signals.
-- Isolation Forest anomalies are ML screening
-  signals, not confirmed errors.
-- Do not say that every anomaly is an error.
+- Isolation Forest anomalies are ML screening signals,
+  not confirmed errors.
+- Do not say every anomaly is an error.
 - Cleaning has already been performed by DataGuard AI.
-- Do not claim that the original dataset was deleted.
-- Business visual filtering does not delete records.
-- Clearly distinguish facts from possible explanations.
+- Do not claim that original records were deleted
+  unless the report explicitly says so.
+- Clearly distinguish confirmed findings from
+  possible explanations.
 
-Create a professional report with exactly these sections:
+Create a professional report with these sections:
 
 ## Overall Assessment
 
-Give a concise assessment of the dataset quality.
+Give a concise assessment of dataset quality.
 
 ## Confirmed Data Quality Problems
 
@@ -1117,103 +1091,113 @@ Explain the Isolation Forest findings.
 
 ## Possible Root Causes
 
-Give possible explanations only when reasonable.
+Give possible explanations only.
 Clearly label them as possible causes.
 
 ## Cleaning Results
 
-Explain what DataGuard AI cleaned.
+Explain the cleaning operations.
 
 ## Business Impact
 
-Explain what the quality findings could mean
-for reporting and analytics without inventing
-business results.
+Explain possible effects on reporting and analytics.
 
 ## Power BI Recommendations
 
-Give practical recommendations for building
-a reliable Power BI dashboard.
+Give practical recommendations for a reliable
+Power BI dashboard.
 
 DATA GUARD REPORT:
 
 {report_data}
 """
 
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=prompt,
+        # ====================================================
+        # CURRENT GEMINI INTERACTIONS API
+        # ====================================================
+
+        interaction = client.interactions.create(
+            model="gemini-3.6-flash",
+            input=prompt,
         )
 
-        # ----------------------------------------------------
+        # ====================================================
         # CORRECT RESPONSE EXTRACTION
-        # ----------------------------------------------------
+        # ====================================================
 
-        response_text = getattr(
-            response,
-            "text",
+        output_text = getattr(
+            interaction,
+            "output_text",
             None,
         )
 
-        if response_text:
+        if output_text:
 
-            response_text = str(
-                response_text
+            output_text = str(
+                output_text
             ).strip()
 
-            if response_text:
+            if output_text:
 
                 return {
                     "status": "success",
-                    "content": response_text,
+                    "content": output_text,
                 }
 
-        # ----------------------------------------------------
-        # FALLBACK FOR CANDIDATE PARTS
-        # ----------------------------------------------------
+        # ====================================================
+        # FALLBACK FOR STEP-BASED RESPONSE
+        # ====================================================
 
-        candidates = getattr(
-            response,
-            "candidates",
+        steps = getattr(
+            interaction,
+            "steps",
             None,
         )
 
-        if candidates:
+        if steps:
 
             text_parts = []
 
-            for candidate in candidates:
+            for step in steps:
+
+                step_type = getattr(
+                    step,
+                    "type",
+                    None,
+                )
+
+                if step_type != "model_output":
+                    continue
 
                 content = getattr(
-                    candidate,
+                    step,
                     "content",
                     None,
                 )
 
-                if content is None:
+                if not content:
                     continue
 
-                parts = getattr(
-                    content,
-                    "parts",
-                    None,
-                )
+                for item in content:
 
-                if not parts:
-                    continue
+                    item_type = getattr(
+                        item,
+                        "type",
+                        None,
+                    )
 
-                for part in parts:
+                    if item_type != "text":
+                        continue
 
-                    part_text = getattr(
-                        part,
+                    text = getattr(
+                        item,
                         "text",
                         None,
                     )
 
-                    if part_text:
-
+                    if text:
                         text_parts.append(
-                            str(part_text)
+                            str(text)
                         )
 
             combined_text = "\n".join(
@@ -1230,8 +1214,8 @@ DATA GUARD REPORT:
         return {
             "status": "error",
             "message": (
-                "Gemini responded, but no text "
-                "was returned."
+                "Gemini completed the request, "
+                "but no text output was returned."
             ),
         }
 
@@ -2339,183 +2323,63 @@ else:
     # ANALYTICS
     # ========================================================
 
-    elif page == "Analytics":
+    elif page == "AI Analysis":
 
-        st.write(
-            "Business Analytics"
-        )
+    st.write(
+        "AI Analysis"
+    )
 
-        st.caption(
-            "Explore business-level patterns "
-            "from the cleaned dataset."
-        )
+    st.caption(
+        "Gemini-powered interpretation of "
+        "DataGuard AI findings."
+    )
 
-        sales_column = analysis[
-            "sales_column"
+    if st.button(
+        "Generate AI Analysis",
+        type="primary",
+    ):
+
+        with st.spinner(
+            "Generating AI analysis..."
+        ):
+
+            gemini_result = (
+                generate_gemini_analysis(
+                    analysis
+                )
+            )
+
+            st.session_state[
+                "gemini_analysis"
+            ] = gemini_result
+
+    gemini_result = (
+        st.session_state[
+            "gemini_analysis"
         ]
+    )
 
-        if sales_column is None:
+    if gemini_result is None:
 
-            st.warning(
-                "No suitable sales/revenue "
-                "column was detected."
-            )
+        st.info(
+            "Click 'Generate AI Analysis' "
+            "to analyze the current dataset."
+        )
 
-        else:
+    elif (
+        gemini_result["status"]
+        == "error"
+    ):
 
-            sales = pd.to_numeric(
-                business_df[
-                    sales_column
-                ],
-                errors="coerce",
-            )
+        st.error(
+            gemini_result["message"]
+        )
 
-            c1, c2, c3 = (
-                st.columns(3)
-            )
+    else:
 
-            with c1:
-
-                st.metric(
-                    "Total Sales",
-                    f"{sales.sum():,.2f}",
-                )
-
-            with c2:
-
-                st.metric(
-                    "Average Sale",
-                    f"{sales.mean():,.2f}",
-                )
-
-            with c3:
-
-                st.metric(
-                    "Maximum Sale",
-                    f"{sales.max():,.2f}",
-                )
-
-            st.divider()
-
-            st.write(
-                "Sales Summary"
-            )
-
-            sales_summary = pd.DataFrame(
-                {
-                    "Metric": [
-                        "Total Sales",
-                        "Average Sale",
-                        "Minimum Sale",
-                        "Maximum Sale",
-                        "Sales Records",
-                    ],
-                    "Value": [
-                        sales.sum(),
-                        sales.mean(),
-                        sales.min(),
-                        sales.max(),
-                        sales.count(),
-                    ],
-                }
-            )
-
-            st.dataframe(
-                sales_summary,
-                use_container_width=True,
-                hide_index=True,
-            )
-
-            city_column = None
-
-            for column in business_df.columns:
-
-                if "city" in str(column).lower():
-
-                    city_column = column
-                    break
-
-            if city_column:
-
-                st.divider()
-
-                st.write(
-                    "Sales by City"
-                )
-
-                city_sales = (
-                    business_df
-                    .groupby(
-                        city_column
-                    )[sales_column]
-                    .sum()
-                    .sort_values(
-                        ascending=False
-                    )
-                    .head(20)
-                    .reset_index()
-                )
-
-                city_sales.columns = [
-                    "City",
-                    "Sales",
-                ]
-
-                st.dataframe(
-                    city_sales,
-                    use_container_width=True,
-                    hide_index=True,
-                )
-
-            category_column = None
-
-            for column in business_df.columns:
-
-                column_lower = (
-                    str(column).lower()
-                )
-
-                if (
-                    "category"
-                    in column_lower
-                    or "segment"
-                    in column_lower
-                ):
-
-                    category_column = column
-                    break
-
-            if category_column:
-
-                st.divider()
-
-                st.write(
-                    "Sales by Category"
-                )
-
-                category_sales = (
-                    business_df
-                    .groupby(
-                        category_column
-                    )[sales_column]
-                    .sum()
-                    .sort_values(
-                        ascending=False
-                    )
-                    .reset_index()
-                )
-
-                category_sales.columns = [
-                    "Category",
-                    "Sales",
-                ]
-
-                st.dataframe(
-                    category_sales,
-                    use_container_width=True,
-                    hide_index=True,
-                )
-
+        st.markdown(
+            gemini_result["content"]
+        )
 
     # ========================================================
     # POWER BI
