@@ -47,90 +47,250 @@ st.markdown(
     """
 <style>
 
-/* ================================
+/* ============================================================
+   MAIN APPLICATION
+============================================================ */
+
+.block-container {
+    padding-top: 1.5rem;
+    padding-bottom: 3rem;
+    max-width: 1500px;
+}
+
+
+/* ============================================================
    SIDEBAR
-================================ */
+============================================================ */
 
 [data-testid="stSidebar"] {
-    background: #0b1020;
-    border-right: 1px solid rgba(255,255,255,0.10);
+    background: #0b1020 !important;
+    border-right: 1px solid rgba(255,255,255,0.10) !important;
 }
 
-/* Sidebar text */
-[data-testid="stSidebar"] * {
-    color: #e5e7eb !important;
+
+/* ============================================================
+   SIDEBAR PROJECT BRAND
+============================================================ */
+
+.dataguard-brand {
+    padding: 8px 6px 20px 6px;
+    margin-bottom: 4px;
 }
 
-/* DataGuard AI title */
-[data-testid="stSidebar"] h1 {
+.dataguard-brand-title {
     color: #ffffff !important;
     font-size: 24px !important;
     font-weight: 800 !important;
+    line-height: 1.2 !important;
+    letter-spacing: -0.6px !important;
+    white-space: nowrap !important;
 }
 
-/* Sidebar captions */
+.dataguard-brand-subtitle {
+    color: #94a3b8 !important;
+    font-size: 13px !important;
+    font-weight: 400 !important;
+    margin-top: 7px !important;
+    line-height: 1.4 !important;
+}
+
+
+/* ============================================================
+   SIDEBAR SECTION LABELS
+============================================================ */
+
+.sidebar-section {
+    color: #94a3b8 !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    letter-spacing: 1.5px !important;
+    margin-top: 8px !important;
+    margin-bottom: 10px !important;
+}
+
+
+/* ============================================================
+   NAVIGATION BUTTONS
+============================================================ */
+
+[data-testid="stSidebar"] button {
+    width: 100% !important;
+    min-height: 42px !important;
+
+    background: transparent !important;
+
+    border: 1px solid transparent !important;
+
+    border-radius: 10px !important;
+
+    margin: 3px 0 !important;
+
+    text-align: left !important;
+
+    transition:
+        background 0.2s ease,
+        border 0.2s ease,
+        transform 0.2s ease !important;
+}
+
+
+/* Navigation button text */
+
+[data-testid="stSidebar"] button p {
+    color: #cbd5e1 !important;
+
+    font-size: 14px !important;
+
+    font-weight: 500 !important;
+
+    margin: 0 !important;
+}
+
+
+/* Hover */
+
+[data-testid="stSidebar"] button:hover {
+    background: rgba(255,255,255,0.07) !important;
+
+    border-color: rgba(255,255,255,0.10) !important;
+
+    transform: translateX(2px);
+}
+
+
+/* Active navigation */
+
+[data-testid="stSidebar"] button[kind="primary"] {
+    background: rgba(99,102,241,0.18) !important;
+
+    border: 1px solid rgba(99,102,241,0.35) !important;
+}
+
+
+/* Active navigation text */
+
+[data-testid="stSidebar"] button[kind="primary"] p {
+    color: #ffffff !important;
+
+    font-weight: 700 !important;
+}
+
+
+/* ============================================================
+   SIDEBAR DIVIDER
+============================================================ */
+
+[data-testid="stSidebar"] hr {
+    border: none !important;
+
+    border-top: 1px solid rgba(255,255,255,0.10) !important;
+
+    margin: 14px 0 !important;
+}
+
+
+/* ============================================================
+   SIDEBAR CAPTION
+============================================================ */
+
 [data-testid="stSidebar"] [data-testid="stCaptionContainer"] {
     color: #94a3b8 !important;
 }
 
-/* Section headings */
-[data-testid="stSidebar"] p strong,
-[data-testid="stSidebar"] strong {
-    color: #94a3b8 !important;
-    font-size: 12px !important;
-    letter-spacing: 1px;
-}
 
-/* Navigation buttons */
-[data-testid="stSidebar"] button {
-    background: transparent !important;
-    border: 1px solid transparent !important;
-    color: #cbd5e1 !important;
-    text-align: left !important;
+/* ============================================================
+   SYSTEM STATUS
+============================================================ */
+
+[data-testid="stSidebar"] [data-testid="stAlert"] {
+    background: rgba(34,197,94,0.10) !important;
+
+    border: 1px solid rgba(34,197,94,0.25) !important;
+
     border-radius: 10px !important;
-    margin: 3px 0 !important;
-    min-height: 42px !important;
 }
 
-/* Button text */
-[data-testid="stSidebar"] button p {
-    color: #cbd5e1 !important;
-    font-size: 14px !important;
-    font-weight: 500 !important;
+
+[data-testid="stSidebar"] [data-testid="stAlert"] p {
+    color: #86efac !important;
+
+    font-size: 13px !important;
+
+    font-weight: 600 !important;
 }
 
-/* Hover */
-[data-testid="stSidebar"] button:hover {
-    background: rgba(255,255,255,0.07) !important;
-    border-color: rgba(255,255,255,0.10) !important;
+
+/* ============================================================
+   GENERAL HEADINGS
+============================================================ */
+
+h1, h2, h3 {
+    letter-spacing: -0.02em;
 }
 
-/* Primary / active button */
-[data-testid="stSidebar"] button[kind="primary"] {
-    background: rgba(99,102,241,0.18) !important;
-    border: 1px solid rgba(99,102,241,0.35) !important;
+
+/* ============================================================
+   METRIC CARDS
+============================================================ */
+
+[data-testid="stMetric"] {
+    background: rgba(255,255,255,0.035) !important;
+
+    border: 1px solid rgba(255,255,255,0.08) !important;
+
+    padding: 18px !important;
+
+    border-radius: 14px !important;
 }
 
-/* Primary button text */
-[data-testid="stSidebar"] button[kind="primary"] p {
-    color: #ffffff !important;
+
+[data-testid="stMetricValue"] {
     font-weight: 700 !important;
 }
 
-/* Sidebar divider */
-[data-testid="stSidebar"] hr {
-    border-color: rgba(255,255,255,0.10) !important;
-}
 
-/* Success system status */
-[data-testid="stSidebar"] [data-testid="stAlert"] {
-    background: rgba(34,197,94,0.10) !important;
-    border: 1px solid rgba(34,197,94,0.25) !important;
+/* ============================================================
+   BUTTONS
+============================================================ */
+
+.stButton > button {
     border-radius: 10px !important;
+
+    font-weight: 600 !important;
 }
 
-[data-testid="stSidebar"] [data-testid="stAlert"] * {
-    color: #86efac !important;
+
+.stDownloadButton > button {
+    border-radius: 10px !important;
+
+    font-weight: 600 !important;
+}
+
+
+/* ============================================================
+   FILE UPLOADER
+============================================================ */
+
+div[data-testid="stFileUploader"] {
+    border-radius: 14px !important;
+}
+
+
+/* ============================================================
+   DATAFRAME
+============================================================ */
+
+div[data-testid="stDataFrame"] {
+    border-radius: 12px !important;
+}
+
+
+/* ============================================================
+   GLOBAL DIVIDERS
+============================================================ */
+
+hr {
+    border-color: rgba(255,255,255,0.08) !important;
 }
 
 </style>
@@ -722,12 +882,34 @@ Use exactly these sections:
 with st.sidebar:
 
     st.markdown(
-        "# 🛡️ DataGuard AI"
-    )
+    """
+    <div style="
+        padding: 8px 4px 18px 4px;
+        text-align: left;
+    ">
+        <div style="
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: 800;
+            line-height: 1.2;
+            letter-spacing: -0.5px;
+            white-space: nowrap;
+        ">
+            🛡️ DataGuard AI
+        </div>
 
-    st.caption(
-        "AI Data Quality Platform"
-    )
+        <div style="
+            color: #94a3b8;
+            font-size: 13px;
+            margin-top: 6px;
+            font-weight: 400;
+        ">
+            AI Data Quality Platform
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
     st.divider()
 
