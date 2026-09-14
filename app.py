@@ -48,7 +48,7 @@ st.markdown(
 <style>
 
 /* ============================================================
-   MAIN APPLICATION
+   GLOBAL
 ============================================================ */
 
 .block-container {
@@ -63,34 +63,39 @@ st.markdown(
 ============================================================ */
 
 [data-testid="stSidebar"] {
-    background: #0b1020 !important;
-    border-right: 1px solid rgba(255,255,255,0.10) !important;
+    background-color: #0b1020 !important;
+    border-right: 1px solid rgba(255,255,255,0.08) !important;
+}
+
+
+/* Sidebar width */
+
+[data-testid="stSidebar"] > div:first-child {
+    padding-top: 1.2rem;
 }
 
 
 /* ============================================================
-   SIDEBAR PROJECT BRAND
+   SIDEBAR BRAND
 ============================================================ */
 
-.dataguard-brand {
-    padding: 8px 6px 20px 6px;
-    margin-bottom: 4px;
-}
+/* Project title */
 
-.dataguard-brand-title {
+[data-testid="stSidebar"] h1 {
     color: #ffffff !important;
-    font-size: 24px !important;
+    font-size: 23px !important;
     font-weight: 800 !important;
     line-height: 1.2 !important;
-    letter-spacing: -0.6px !important;
-    white-space: nowrap !important;
+    letter-spacing: -0.5px !important;
+    margin-bottom: 4px !important;
 }
 
-.dataguard-brand-subtitle {
+
+/* Project subtitle */
+
+[data-testid="stSidebar"] [data-testid="stCaptionContainer"] p {
     color: #94a3b8 !important;
     font-size: 13px !important;
-    font-weight: 400 !important;
-    margin-top: 7px !important;
     line-height: 1.4 !important;
 }
 
@@ -99,13 +104,13 @@ st.markdown(
    SIDEBAR SECTION LABELS
 ============================================================ */
 
-.sidebar-section {
-    color: #94a3b8 !important;
-    font-size: 11px !important;
-    font-weight: 700 !important;
-    letter-spacing: 1.5px !important;
-    margin-top: 8px !important;
-    margin-bottom: 10px !important;
+.sidebar-label {
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    margin-top: 14px;
+    margin-bottom: 8px;
 }
 
 
@@ -113,63 +118,66 @@ st.markdown(
    NAVIGATION BUTTONS
 ============================================================ */
 
-[data-testid="stSidebar"] button {
+[data-testid="stSidebar"] .stButton > button {
     width: 100% !important;
+
     min-height: 42px !important;
 
-    background: transparent !important;
+    border-radius: 9px !important;
 
     border: 1px solid transparent !important;
 
-    border-radius: 10px !important;
+    background-color: transparent !important;
 
-    margin: 3px 0 !important;
+    color: #cbd5e1 !important;
 
     text-align: left !important;
 
-    transition:
-        background 0.2s ease,
-        border 0.2s ease,
-        transform 0.2s ease !important;
+    padding: 0.55rem 0.8rem !important;
+
+    margin: 2px 0 !important;
+
+    transition: all 0.2s ease !important;
 }
 
 
-/* Navigation button text */
+/* Button text */
 
-[data-testid="stSidebar"] button p {
+[data-testid="stSidebar"] .stButton > button p {
     color: #cbd5e1 !important;
 
     font-size: 14px !important;
 
     font-weight: 500 !important;
-
-    margin: 0 !important;
 }
 
 
 /* Hover */
 
-[data-testid="stSidebar"] button:hover {
-    background: rgba(255,255,255,0.07) !important;
+[data-testid="stSidebar"] .stButton > button:hover {
+    background-color: rgba(255,255,255,0.06) !important;
 
-    border-color: rgba(255,255,255,0.10) !important;
+    border-color: rgba(255,255,255,0.08) !important;
 
-    transform: translateX(2px);
+    color: #ffffff !important;
 }
 
 
-/* Active navigation */
+[data-testid="stSidebar"] .stButton > button:hover p {
+    color: #ffffff !important;
+}
 
-[data-testid="stSidebar"] button[kind="primary"] {
-    background: rgba(99,102,241,0.18) !important;
+
+/* Active button */
+
+[data-testid="stSidebar"] .stButton > button[kind="primary"] {
+    background-color: rgba(99,102,241,0.18) !important;
 
     border: 1px solid rgba(99,102,241,0.35) !important;
 }
 
 
-/* Active navigation text */
-
-[data-testid="stSidebar"] button[kind="primary"] p {
+[data-testid="stSidebar"] .stButton > button[kind="primary"] p {
     color: #ffffff !important;
 
     font-weight: 700 !important;
@@ -177,24 +185,13 @@ st.markdown(
 
 
 /* ============================================================
-   SIDEBAR DIVIDER
+   SIDEBAR DIVIDERS
 ============================================================ */
 
 [data-testid="stSidebar"] hr {
-    border: none !important;
-
-    border-top: 1px solid rgba(255,255,255,0.10) !important;
+    border-color: rgba(255,255,255,0.08) !important;
 
     margin: 14px 0 !important;
-}
-
-
-/* ============================================================
-   SIDEBAR CAPTION
-============================================================ */
-
-[data-testid="stSidebar"] [data-testid="stCaptionContainer"] {
-    color: #94a3b8 !important;
 }
 
 
@@ -203,11 +200,11 @@ st.markdown(
 ============================================================ */
 
 [data-testid="stSidebar"] [data-testid="stAlert"] {
-    background: rgba(34,197,94,0.10) !important;
+    background-color: rgba(34,197,94,0.08) !important;
 
-    border: 1px solid rgba(34,197,94,0.25) !important;
+    border: 1px solid rgba(34,197,94,0.20) !important;
 
-    border-radius: 10px !important;
+    border-radius: 9px !important;
 }
 
 
@@ -221,26 +218,17 @@ st.markdown(
 
 
 /* ============================================================
-   GENERAL HEADINGS
-============================================================ */
-
-h1, h2, h3 {
-    letter-spacing: -0.02em;
-}
-
-
-/* ============================================================
-   METRIC CARDS
+   MAIN METRICS
 ============================================================ */
 
 [data-testid="stMetric"] {
-    background: rgba(255,255,255,0.035) !important;
+    background-color: rgba(255,255,255,0.035) !important;
 
     border: 1px solid rgba(255,255,255,0.08) !important;
 
-    padding: 18px !important;
-
     border-radius: 14px !important;
+
+    padding: 18px !important;
 }
 
 
@@ -250,29 +238,20 @@ h1, h2, h3 {
 
 
 /* ============================================================
-   BUTTONS
+   GENERAL BUTTONS
 ============================================================ */
 
 .stButton > button {
-    border-radius: 10px !important;
+    border-radius: 9px !important;
 
     font-weight: 600 !important;
 }
 
 
 .stDownloadButton > button {
-    border-radius: 10px !important;
+    border-radius: 9px !important;
 
     font-weight: 600 !important;
-}
-
-
-/* ============================================================
-   FILE UPLOADER
-============================================================ */
-
-div[data-testid="stFileUploader"] {
-    border-radius: 14px !important;
 }
 
 
@@ -280,24 +259,23 @@ div[data-testid="stFileUploader"] {
    DATAFRAME
 ============================================================ */
 
-div[data-testid="stDataFrame"] {
+[data-testid="stDataFrame"] {
     border-radius: 12px !important;
 }
 
 
 /* ============================================================
-   GLOBAL DIVIDERS
+   FILE UPLOADER
 ============================================================ */
 
-hr {
-    border-color: rgba(255,255,255,0.08) !important;
+[data-testid="stFileUploader"] {
+    border-radius: 12px !important;
 }
 
 </style>
 """,
     unsafe_allow_html=True,
 )
-
 # ============================================================
 # HELPER FUNCTIONS
 # ============================================================
@@ -881,44 +859,31 @@ Use exactly these sections:
 
 with st.sidebar:
 
-    st.markdown(
-    """
-    <div style="
-        padding: 8px 4px 18px 4px;
-        text-align: left;
-    ">
-        <div style="
-            color: #ffffff;
-            font-size: 24px;
-            font-weight: 800;
-            line-height: 1.2;
-            letter-spacing: -0.5px;
-            white-space: nowrap;
-        ">
-            🛡️ DataGuard AI
-        </div>
+    # --------------------------------------------------------
+    # PROJECT BRAND
+    # --------------------------------------------------------
 
-        <div style="
-            color: #94a3b8;
-            font-size: 13px;
-            margin-top: 6px;
-            font-weight: 400;
-        ">
-            AI Data Quality Platform
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
+    st.title(
+        "🛡️ DataGuard AI",
+        anchor=False
+    )
+
+    st.caption(
+        "AI Data Quality Platform"
+    )
 
     st.divider()
 
+
+    # --------------------------------------------------------
+    # WORKSPACE
+    # --------------------------------------------------------
+
     st.markdown(
-    "<div style='color:#94a3b8; font-size:11px; "
-    "font-weight:700; letter-spacing:1.5px; "
-    "margin:8px 0 10px;'>WORKSPACE</div>",
-    unsafe_allow_html=True,
+        '<div class="sidebar-label">WORKSPACE</div>',
+        unsafe_allow_html=True
     )
+
 
     pages = [
         "Dashboard",
@@ -933,7 +898,12 @@ with st.sidebar:
         "Reports",
     ]
 
+
     for page in pages:
+
+        is_active = (
+            st.session_state.page == page
+        )
 
         if st.button(
             page,
@@ -941,43 +911,56 @@ with st.sidebar:
             use_container_width=True,
             type=(
                 "primary"
-                if st.session_state.page == page
+                if is_active
                 else "secondary"
             ),
         ):
 
             st.session_state.page = page
+
             st.rerun()
+
+
+    # --------------------------------------------------------
+    # SYSTEM
+    # --------------------------------------------------------
 
     st.divider()
 
     st.markdown(
-    "<div style='color:#94a3b8; font-size:11px; "
-    "font-weight:700; letter-spacing:1.5px; "
-    "margin:8px 0 10px;'>SYSTEM</div>",
-    unsafe_allow_html=True,
+        '<div class="sidebar-label">SYSTEM</div>',
+        unsafe_allow_html=True
     )
+
 
     if st.button(
         "⚙️ Settings",
-        use_container_width=True
+        key="settings_button",
+        use_container_width=True,
     ):
 
         st.info(
-            "DataGuard AI settings are currently "
-            "managed through the application configuration."
+            "Settings will be available in a "
+            "future version of DataGuard AI."
         )
+
 
     if st.button(
         "❓ Help",
-        use_container_width=True
+        key="help_button",
+        use_container_width=True,
     ):
 
         st.info(
-            "Upload CSV/XLSX/XLS data and use the "
-            "workflow to profile, validate, detect "
-            "anomalies, clean and analyze it."
+            "Upload a CSV, XLSX or XLS file and "
+            "use the workflow to profile, validate, "
+            "detect anomalies, clean and analyze data."
         )
+
+
+    # --------------------------------------------------------
+    # STATUS
+    # --------------------------------------------------------
 
     st.divider()
 
