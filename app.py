@@ -282,21 +282,27 @@ def page_title(title, subtitle=""):
 
 
 def card(title, subtitle=""):
-    text = f"""
+    html = f"""
     <div class="dg-card">
         <div class="dg-card-title">{title}</div>
     """
 
     if subtitle:
-        text += f"""
+        html += f"""
         <div class="dg-card-subtitle">{subtitle}</div>
         """
 
-    st.markdown(text, unsafe_allow_html=True)
+    st.markdown(
+        html,
+        unsafe_allow_html=True
+    )
 
 
 def close_card():
-    st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown(
+        "</div>",
+        unsafe_allow_html=True
+    )
 
 
 def metric_card(label, value):
