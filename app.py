@@ -428,78 +428,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-    /* ========================================================
-       SIDEBAR
-       ======================================================== */
 
-    section[data-testid="stSidebar"] {
-        background: #111827;
-        border-right: 1px solid #1f2937;
-    }
-
-    section[data-testid="stSidebar"] * {
-        color: #e5e7eb;
-    }
-
-    section[data-testid="stSidebar"] p,
-    section[data-testid="stSidebar"] span,
-    section[data-testid="stSidebar"] label,
-    section[data-testid="stSidebar"] div {
-        color: #e5e7eb;
-    }
-
-    section[data-testid="stSidebar"]
-    [data-testid="stCaptionContainer"],
-    section[data-testid="stSidebar"]
-    [data-testid="stCaptionContainer"] * {
-        color: #9ca3af !important;
-    }
-
-    .sidebar-brand {
-        padding: 10px 5px 22px 5px;
-    }
-
-    .sidebar-logo {
-        font-size: 30px;
-        font-weight: 800;
-        color: #ffffff !important;
-    }
-
-    .sidebar-title {
-        font-size: 21px;
-        font-weight: 800;
-        margin-top: 3px;
-        color: #ffffff !important;
-    }
-
-    .sidebar-subtitle {
-        font-size: 12px;
-        color: #9ca3af !important;
-        margin-top: 3px;
-    }
-
-    .sidebar-divider {
-        height: 1px;
-        background: #374151;
-        margin: 12px 0 18px 0;
-    }
-
-    /* Sidebar navigation radio */
-    section[data-testid="stSidebar"]
-    [data-testid="stRadio"] label {
-        color: #e5e7eb !important;
-    }
-
-    section[data-testid="stSidebar"]
-    [data-testid="stRadio"] label span {
-        color: #e5e7eb !important;
-    }
-
-    /* Sidebar slider */
-    section[data-testid="stSidebar"]
-    [data-testid="stWidgetLabel"] * {
-        color: #e5e7eb !important;
-    }
 
     /* ========================================================
        HEADERS
