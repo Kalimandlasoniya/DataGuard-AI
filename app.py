@@ -1472,30 +1472,188 @@ st.markdown(
 # ============================================================
 # DASHBOARD
 # ============================================================
+# ============================================================
+# DASHBOARD — PRODUCTION STYLE
+# ============================================================
 
 if page == "Dashboard":
 
+    # --------------------------------------------------------
+    # HEADER
+    # --------------------------------------------------------
+
+    score = quality_score
+
+    if score >= 95:
+        score_status = "Excellent"
+        score_icon = "●"
+    elif score >= 85:
+        score_status = "Good"
+        score_icon = "●"
+    elif score >= 70:
+        score_status = "Needs Attention"
+        score_icon = "●"
+    else:
+        score_status = "Critical"
+        score_icon = "●"
+
     st.markdown(
-        '<div class="section-heading">Dataset Overview</div>',
+        f"""
+        <div style="
+            display:flex;
+            justify-content:space-between;
+            align-items:flex-start;
+            margin-bottom:24px;
+        ">
+
+            <div>
+                <div style="
+                    font-size:30px;
+                    font-weight:800;
+                    color:#111827;
+                    letter-spacing:-0.8px;
+                ">
+                    Data Quality Overview
+                </div>
+
+                <div style="
+                    color:#6b7280;
+                    font-size:14px;
+                    margin-top:5px;
+                ">
+                    Monitor the health, reliability and
+                    anomaly status of your dataset.
+                </div>
+            </div>
+
+            <div style="
+                background:#ecfdf5;
+                border:1px solid #a7f3d0;
+                color:#047857;
+                border-radius:24px;
+                padding:8px 15px;
+                font-size:13px;
+                font-weight:700;
+            ">
+                ● Analysis Complete
+            </div>
+
+        </div>
+        """,
         unsafe_allow_html=True,
     )
 
-    col1, col2, col3, col4, col5 = st.columns(
-        5
+    # --------------------------------------------------------
+    # DATASET INFORMATION BAR
+    # --------------------------------------------------------
+
+    st.markdown(
+        f"""
+        <div style="
+            background:white;
+            border:1px solid #e5e7eb;
+            border-radius:14px;
+            padding:15px 18px;
+            margin-bottom:20px;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+        ">
+
+            <div>
+                <div style="
+                    font-size:12px;
+                    color:#9ca3af;
+                    text-transform:uppercase;
+                    letter-spacing:.05em;
+                    font-weight:700;
+                ">
+                    Active Dataset
+                </div>
+
+                <div style="
+                    font-size:15px;
+                    font-weight:700;
+                    color:#111827;
+                    margin-top:4px;
+                ">
+                    📄 {st.session_state.file_name}
+                </div>
+            </div>
+
+            <div style="
+                color:#6b7280;
+                font-size:13px;
+            ">
+                Last analyzed:
+                <strong style="color:#111827;">
+                    {datetime.now().strftime("%d %b %Y, %I:%M %p")}
+                </strong>
+            </div>
+
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
+
+    # --------------------------------------------------------
+    # TOP KPI CARDS
+    # --------------------------------------------------------
+
+    col1, col2, col3, col4 = st.columns(4)
 
     with col1:
 
         st.markdown(
             f"""
-            <div class="metric-card">
-                <div class="metric-label">ROWS</div>
-                <div class="metric-value">
+            <div style="
+                background:white;
+                border:1px solid #e5e7eb;
+                border-radius:16px;
+                padding:20px;
+                min-height:145px;
+                box-shadow:0 2px 5px rgba(0,0,0,.025);
+            ">
+
+                <div style="
+                    display:flex;
+                    justify-content:space-between;
+                    align-items:center;
+                ">
+
+                    <div style="
+                        font-size:12px;
+                        font-weight:700;
+                        color:#6b7280;
+                    ">
+                        TOTAL RECORDS
+                    </div>
+
+                    <div style="
+                        font-size:21px;
+                    ">
+                        📊
+                    </div>
+
+                </div>
+
+                <div style="
+                    font-size:31px;
+                    font-weight:800;
+                    color:#111827;
+                    margin-top:13px;
+                ">
                     {len(df):,}
                 </div>
-                <div class="metric-helper">
+
+                <div style="
+                    font-size:12px;
+                    color:#9ca3af;
+                    margin-top:5px;
+                ">
                     Records analyzed
                 </div>
+
             </div>
             """,
             unsafe_allow_html=True,
@@ -1505,14 +1663,52 @@ if page == "Dashboard":
 
         st.markdown(
             f"""
-            <div class="metric-card">
-                <div class="metric-label">COLUMNS</div>
-                <div class="metric-value">
-                    {len(df.columns):,}
+            <div style="
+                background:white;
+                border:1px solid #e5e7eb;
+                border-radius:16px;
+                padding:20px;
+                min-height:145px;
+                box-shadow:0 2px 5px rgba(0,0,0,.025);
+            ">
+
+                <div style="
+                    display:flex;
+                    justify-content:space-between;
+                    align-items:center;
+                ">
+
+                    <div style="
+                        font-size:12px;
+                        font-weight:700;
+                        color:#6b7280;
+                    ">
+                        MISSING CELLS
+                    </div>
+
+                    <div style="font-size:21px;">
+                        ⚠️
+                    </div>
+
                 </div>
-                <div class="metric-helper">
-                    Dataset fields
+
+                <div style="
+                    font-size:31px;
+                    font-weight:800;
+                    color:#111827;
+                    margin-top:13px;
+                ">
+                    {missing_count:,}
                 </div>
+
+                <div style="
+                    font-size:12px;
+                    color:#9ca3af;
+                    margin-top:5px;
+                ">
+                    Missing values detected
+                </div>
+
             </div>
             """,
             unsafe_allow_html=True,
@@ -1522,14 +1718,52 @@ if page == "Dashboard":
 
         st.markdown(
             f"""
-            <div class="metric-card">
-                <div class="metric-label">MISSING</div>
-                <div class="metric-value">
-                    {missing_count:,}
+            <div style="
+                background:white;
+                border:1px solid #e5e7eb;
+                border-radius:16px;
+                padding:20px;
+                min-height:145px;
+                box-shadow:0 2px 5px rgba(0,0,0,.025);
+            ">
+
+                <div style="
+                    display:flex;
+                    justify-content:space-between;
+                    align-items:center;
+                ">
+
+                    <div style="
+                        font-size:12px;
+                        font-weight:700;
+                        color:#6b7280;
+                    ">
+                        DUPLICATES
+                    </div>
+
+                    <div style="font-size:21px;">
+                        🔁
+                    </div>
+
                 </div>
-                <div class="metric-helper">
-                    Missing cells
+
+                <div style="
+                    font-size:31px;
+                    font-weight:800;
+                    color:#111827;
+                    margin-top:13px;
+                ">
+                    {duplicate_count:,}
                 </div>
+
+                <div style="
+                    font-size:12px;
+                    color:#9ca3af;
+                    margin-top:5px;
+                ">
+                    Duplicate records
+                </div>
+
             </div>
             """,
             unsafe_allow_html=True,
@@ -1539,113 +1773,544 @@ if page == "Dashboard":
 
         st.markdown(
             f"""
-            <div class="metric-card">
-                <div class="metric-label">DUPLICATES</div>
-                <div class="metric-value">
-                    {duplicate_count:,}
+            <div style="
+                background:linear-gradient(
+                    135deg,
+                    #111827,
+                    #1f2937
+                );
+                border-radius:16px;
+                padding:20px;
+                min-height:145px;
+                box-shadow:0 3px 8px rgba(0,0,0,.08);
+            ">
+
+                <div style="
+                    display:flex;
+                    justify-content:space-between;
+                    align-items:center;
+                ">
+
+                    <div style="
+                        font-size:12px;
+                        font-weight:700;
+                        color:#9ca3af;
+                    ">
+                        QUALITY SCORE
+                    </div>
+
+                    <div style="font-size:21px;">
+                        🛡️
+                    </div>
+
                 </div>
-                <div class="metric-helper">
-                    Duplicate records
+
+                <div style="
+                    font-size:31px;
+                    font-weight:800;
+                    color:white;
+                    margin-top:13px;
+                ">
+                    {quality_score:.2f}
+                    <span style="
+                        font-size:14px;
+                        color:#9ca3af;
+                    ">
+                        /100
+                    </span>
                 </div>
+
+                <div style="
+                    font-size:12px;
+                    color:#86efac;
+                    margin-top:5px;
+                    font-weight:600;
+                ">
+                    ● {score_status}
+                </div>
+
             </div>
             """,
             unsafe_allow_html=True,
         )
 
-    with col5:
+    # --------------------------------------------------------
+    # QUALITY HEALTH + ISSUE SUMMARY
+    # --------------------------------------------------------
+
+    st.markdown(
+        '<div class="section-heading">Quality Health</div>',
+        unsafe_allow_html=True,
+    )
+
+    left, right = st.columns(
+        [1.35, 1],
+        gap="large",
+    )
+
+    with left:
 
         st.markdown(
             f"""
-            <div class="quality-card">
-                <div class="quality-title">
-                    DATA QUALITY SCORE
+            <div style="
+                background:white;
+                border:1px solid #e5e7eb;
+                border-radius:16px;
+                padding:23px;
+            ">
+
+                <div style="
+                    font-size:16px;
+                    font-weight:750;
+                    color:#111827;
+                ">
+                    Dataset Health
                 </div>
-                <div class="quality-score">
-                    {quality_score:.2f}
+
+                <div style="
+                    color:#6b7280;
+                    font-size:12px;
+                    margin-top:4px;
+                    margin-bottom:18px;
+                ">
+                    Overall quality assessment
                 </div>
-                <div class="quality-status">
-                    ● Overall quality
+
+                <div style="
+                    height:13px;
+                    background:#e5e7eb;
+                    border-radius:20px;
+                    overflow:hidden;
+                ">
+
+                    <div style="
+                        width:{quality_score}%;
+                        height:100%;
+                        background:linear-gradient(
+                            90deg,
+                            #10b981,
+                            #22c55e
+                        );
+                        border-radius:20px;
+                    ">
+                    </div>
+
                 </div>
+
+                <div style="
+                    display:flex;
+                    justify-content:space-between;
+                    margin-top:9px;
+                    font-size:12px;
+                    color:#6b7280;
+                ">
+
+                    <span>0</span>
+
+                    <strong style="color:#111827;">
+                        {quality_score:.2f}% healthy
+                    </strong>
+
+                    <span>100</span>
+
+                </div>
+
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    with right:
+
+        total_issues = (
+            missing_count
+            + duplicate_count
+            + invalid_count
+        )
+
+        st.markdown(
+            f"""
+            <div style="
+                background:white;
+                border:1px solid #e5e7eb;
+                border-radius:16px;
+                padding:23px;
+            ">
+
+                <div style="
+                    font-size:16px;
+                    font-weight:750;
+                    color:#111827;
+                ">
+                    Issues Requiring Attention
+                </div>
+
+                <div style="
+                    color:#6b7280;
+                    font-size:12px;
+                    margin-top:4px;
+                    margin-bottom:17px;
+                ">
+                    Confirmed quality issues
+                </div>
+
+                <div style="
+                    display:flex;
+                    justify-content:space-between;
+                    margin-bottom:10px;
+                ">
+                    <span style="font-size:13px;">
+                        Missing values
+                    </span>
+
+                    <strong>
+                        {missing_count:,}
+                    </strong>
+                </div>
+
+                <div style="
+                    display:flex;
+                    justify-content:space-between;
+                    margin-bottom:10px;
+                ">
+                    <span style="font-size:13px;">
+                        Duplicate records
+                    </span>
+
+                    <strong>
+                        {duplicate_count:,}
+                    </strong>
+                </div>
+
+                <div style="
+                    display:flex;
+                    justify-content:space-between;
+                ">
+                    <span style="font-size:13px;">
+                        Invalid values
+                    </span>
+
+                    <strong>
+                        {invalid_count:,}
+                    </strong>
+                </div>
+
+                <div style="
+                    border-top:1px solid #e5e7eb;
+                    margin-top:15px;
+                    padding-top:13px;
+                    display:flex;
+                    justify-content:space-between;
+                    font-size:13px;
+                ">
+
+                    <strong>
+                        Total confirmed issues
+                    </strong>
+
+                    <strong>
+                        {total_issues:,}
+                    </strong>
+
+                </div>
+
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    # --------------------------------------------------------
+    # ANOMALY MONITORING
+    # --------------------------------------------------------
+
+    st.markdown(
+        '<div class="section-heading">Anomaly Monitoring</div>',
+        unsafe_allow_html=True,
+    )
+
+    a1, a2, a3 = st.columns(3)
+
+    with a1:
+
+        st.markdown(
+            f"""
+            <div style="
+                background:white;
+                border:1px solid #e5e7eb;
+                border-radius:15px;
+                padding:20px;
+            ">
+
+                <div style="
+                    color:#6b7280;
+                    font-size:12px;
+                    font-weight:700;
+                ">
+                    IQR OUTLIERS
+                </div>
+
+                <div style="
+                    font-size:28px;
+                    font-weight:800;
+                    margin-top:9px;
+                    color:#111827;
+                ">
+                    {iqr_count:,}
+                </div>
+
+                <div style="
+                    color:#9ca3af;
+                    font-size:12px;
+                    margin-top:4px;
+                ">
+                    Statistically unusual observations
+                </div>
+
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    with a2:
+
+        st.markdown(
+            f"""
+            <div style="
+                background:white;
+                border:1px solid #e5e7eb;
+                border-radius:15px;
+                padding:20px;
+            ">
+
+                <div style="
+                    color:#6b7280;
+                    font-size:12px;
+                    font-weight:700;
+                ">
+                    ML ANOMALIES
+                </div>
+
+                <div style="
+                    font-size:28px;
+                    font-weight:800;
+                    margin-top:9px;
+                    color:#111827;
+                ">
+                    {anomaly_count:,}
+                </div>
+
+                <div style="
+                    color:#9ca3af;
+                    font-size:12px;
+                    margin-top:4px;
+                ">
+                    Isolation Forest screening signals
+                </div>
+
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    with a3:
+
+        normal_records = (
+            len(df) - anomaly_count
+        )
+
+        st.markdown(
+            f"""
+            <div style="
+                background:white;
+                border:1px solid #e5e7eb;
+                border-radius:15px;
+                padding:20px;
+            ">
+
+                <div style="
+                    color:#6b7280;
+                    font-size:12px;
+                    font-weight:700;
+                ">
+                    NORMAL RECORDS
+                </div>
+
+                <div style="
+                    font-size:28px;
+                    font-weight:800;
+                    margin-top:9px;
+                    color:#111827;
+                ">
+                    {normal_records:,}
+                </div>
+
+                <div style="
+                    color:#9ca3af;
+                    font-size:12px;
+                    margin-top:4px;
+                ">
+                    Not flagged by Isolation Forest
+                </div>
+
             </div>
             """,
             unsafe_allow_html=True,
         )
 
     st.markdown(
-        '<div class="section-heading">Quality Monitoring</div>',
+        """
+        <div style="
+            background:#fffbeb;
+            border:1px solid #fde68a;
+            border-radius:11px;
+            padding:12px 15px;
+            margin-top:13px;
+            font-size:12px;
+            color:#92400e;
+        ">
+            <strong>Interpretation:</strong>
+            IQR outliers and ML anomalies are screening
+            signals. They are not automatically confirmed
+            data errors.
+        </div>
+        """,
         unsafe_allow_html=True,
     )
 
-    c1, c2, c3, c4 = st.columns(4)
+    # --------------------------------------------------------
+    # CLEANING SUMMARY
+    # --------------------------------------------------------
+
+    st.markdown(
+        '<div class="section-heading">Cleaning Summary</div>',
+        unsafe_allow_html=True,
+    )
+
+    c1, c2, c3 = st.columns(3)
 
     with c1:
-
-        st.metric(
-            "Invalid Values",
-            f"{invalid_count:,}",
-        )
-
-    with c2:
-
-        st.metric(
-            "IQR Outliers",
-            f"{iqr_count:,}",
-        )
-
-    with c3:
-
-        st.metric(
-            "ML Anomalies",
-            f"{anomaly_count:,}",
-        )
-
-    with c4:
 
         st.metric(
             "Rows Removed",
             f"{rows_removed:,}",
         )
 
+    with c2:
+
+        st.metric(
+            "Values Filled",
+            f"{values_filled:,}",
+        )
+
+    with c3:
+
+        st.metric(
+            "Cities Standardized",
+            f"{city_changes:,}",
+        )
+
+    # --------------------------------------------------------
+    # DATASET PREVIEW
+    # --------------------------------------------------------
+
     st.markdown(
         '<div class="section-heading">Dataset Preview</div>',
         unsafe_allow_html=True,
     )
 
-    st.caption(
-        f"Showing 10 of {len(df):,} records"
+    st.markdown(
+        f"""
+        <div style="
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-bottom:8px;
+        ">
+
+            <div style="
+                color:#6b7280;
+                font-size:12px;
+            ">
+                Showing <strong>10</strong> of
+                <strong>{len(df):,}</strong> records
+            </div>
+
+            <div style="
+                color:#9ca3af;
+                font-size:12px;
+            ">
+                Preview only — full dataset analyzed
+            </div>
+
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
 
     st.dataframe(
         df.head(10),
         use_container_width=True,
         hide_index=True,
+        height=350,
     )
+
+    # --------------------------------------------------------
+    # PIPELINE
+    # --------------------------------------------------------
 
     st.markdown(
         '<div class="section-heading">Pipeline Status</div>',
         unsafe_allow_html=True,
     )
 
-    pipeline_cols = st.columns(6)
-
-    pipeline = [
-        ("Profile", "✓"),
-        ("Quality", "✓"),
-        ("Anomalies", "✓"),
-        ("Cleaning", "✓"),
-        ("Analytics", "✓"),
-        ("Exports", "✓"),
+    pipeline_items = [
+        ("01", "Profile"),
+        ("02", "Quality"),
+        ("03", "Anomalies"),
+        ("04", "Cleaning"),
+        ("05", "Analytics"),
+        ("06", "Exports"),
     ]
 
-    for col, item in zip(
+    pipeline_cols = st.columns(6)
+
+    for col, (number, name) in zip(
         pipeline_cols,
-        pipeline,
+        pipeline_items,
     ):
 
         with col:
 
-            st.success(
-                f"{item[1]} {item[0]}"
+            st.markdown(
+                f"""
+                <div style="
+                    background:white;
+                    border:1px solid #e5e7eb;
+                    border-radius:12px;
+                    padding:13px;
+                    text-align:center;
+                ">
+
+                    <div style="
+                        font-size:11px;
+                        color:#9ca3af;
+                        font-weight:700;
+                    ">
+                        STEP {number}
+                    </div>
+
+                    <div style="
+                        color:#047857;
+                        font-size:13px;
+                        font-weight:700;
+                        margin-top:5px;
+                    ">
+                        ✓ {name}
+                    </div>
+
+                </div>
+                """,
+                unsafe_allow_html=True,
             )
 
 
