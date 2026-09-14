@@ -483,6 +483,20 @@ def detect_invalid_values(df):
         "salary",
     ]
 
+    # Columns whose values should never legitimately be negative.
+    # "profit" is deliberately excluded here (losses are valid),
+    # even though it's still checked for non-numeric/parse failures.
+    non_negative_tokens = [
+        "age",
+        "quantity",
+        "qty",
+        "sales",
+        "revenue",
+        "amount",
+        "price",
+        "salary",
+    ]
+
     invalid_count = 0
 
     for column in df.columns:
@@ -509,18 +523,7 @@ def detect_invalid_values(df):
             index=df.index,
         )
 
-        if any(
-            token in name
-            for token in [
-                "age",
-                "quantity",
-                "qty",
-                "sales",
-                "revenue",
-                "amount",
-                "price",
-            ]
-        ):
+        if any(token in name for token in non_negative_tokens):
             negative_values = numeric_values < 0
 
         count = int(
@@ -955,14 +958,27 @@ def create_powerbi_exports(
         and sales_column is not None
     ):
 
-        sales_summary = (
-            business_df
-            .groupby(sales_column)
-            .size()
-            .reset_index(
-                name="Record_Count"
-            )
-        )
+        # Aggregate summary stats rather than grouping by the raw
+        # sales value itself (which produced a near-meaningless
+        # "one row per distinct sales amount" table).
+        sales_summary = pd.DataFrame({
+            "Metric": [
+                "Total Records",
+                "Total Sales",
+                "Average Sales",
+                "Median Sales",
+                "Min Sales",
+                "Max Sales",
+            ],
+            "Value": [
+                len(business_df),
+                business_df[sales_column].sum(),
+                business_df[sales_column].mean(),
+                business_df[sales_column].median(),
+                business_df[sales_column].min(),
+                business_df[sales_column].max(),
+            ],
+        })
 
         exports[
             "DataGuard_Sales_Summary.csv"
@@ -1080,10 +1096,15 @@ def create_zip(exports):
 # GEMINI
 # ============================================================
 
-GEMINI_API_KEY = st.secrets.get(
-    "GEMINI_API_KEY",
-    "",
-)
+try:
+    GEMINI_API_KEY = st.secrets.get(
+        "GEMINI_API_KEY",
+        "",
+    )
+except Exception:
+    # st.secrets raises if no secrets.toml exists at all in some
+    # Streamlit versions/environments — fall back to env var only.
+    GEMINI_API_KEY = ""
 
 if not GEMINI_API_KEY:
     GEMINI_API_KEY = os.getenv(
@@ -1157,15 +1178,20 @@ REPORT:
 {summary_text}
 """
 
-        response = client.interactions.create(
-            model="gemini-3.6-flash",
-            input=prompt,
-            generation_config={
+        # NOTE: the google-genai SDK exposes generation via
+        # client.models.generate_content(...), returning a response
+        # object with a `.text` attribute — not `client.interactions`
+        # / `.output_text`, which don't exist on this SDK and would
+        # always raise, silently falling back to the error branch.
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=prompt,
+            config={
                 "temperature": 0.1,
             },
         )
 
-        return response.output_text
+        return response.text
 
     except Exception as error:
 
@@ -1385,130 +1411,112 @@ if uploaded_file is not None:
 # ANALYSIS ENGINE
 # ============================================================
 
+@st.cache_data(show_spinner=False)
+def run_full_analysis(df, contamination_pct):
+    """
+    Runs the whole quality/anomaly/cleaning pipeline once per
+    unique (dataset, contamination_pct) combination. Cached so
+    that switching pages doesn't recompute, but changing the
+    Isolation Forest sensitivity slider DOES recompute — the
+    previous version only ever ran this once per uploaded file
+    and silently ignored slider changes.
+    """
+
+    rows = len(df)
+    columns = len(df.columns)
+
+    total_cells = rows * columns
+
+    missing_count = int(df.isna().sum().sum())
+
+    duplicate_count = int(df.duplicated().sum())
+
+    invalid_count, invalid_details = detect_invalid_values(df)
+
+    quality_score = build_quality_score(
+        total_cells,
+        missing_count,
+        duplicate_count,
+        invalid_count,
+    )
+
+    datetime_columns = detect_datetime_columns(df)
+
+    identifier_columns = detect_identifier_columns(
+        df,
+        datetime_columns,
+    )
+
+    numeric_count = len(
+        df.select_dtypes(include=np.number).columns
+    )
+
+    categorical_count = len(
+        df.select_dtypes(
+            include=["object", "string", "category"]
+        ).columns
+    )
+
+    iqr_outlier_count, iqr_details = detect_iqr_outliers(df)
+
+    anomaly_mask, ml_anomaly_count = detect_ml_anomalies(
+        df,
+        contamination_pct,
+    )
+
+    normal_count = rows - ml_anomaly_count
+
+    cleaned_df, rows_removed, values_filled, city_changes = (
+        clean_dataset(df)
+    )
+
+    business_df, sales_column, upper_bound = (
+        prepare_business_data(cleaned_df)
+    )
+
+    analysis = {
+        "rows": rows,
+        "columns": columns,
+        "total_cells": total_cells,
+        "missing_count": missing_count,
+        "duplicate_count": duplicate_count,
+        "invalid_count": invalid_count,
+        "quality_score": quality_score,
+        "datetime_columns": datetime_columns,
+        "identifier_columns": identifier_columns,
+        "numeric_count": numeric_count,
+        "categorical_count": categorical_count,
+        "iqr_outlier_count": iqr_outlier_count,
+        "iqr_details": iqr_details,
+        "anomaly_mask": anomaly_mask,
+        "ml_anomaly_count": ml_anomaly_count,
+        "normal_count": normal_count,
+        "invalid_details": invalid_details,
+        "rows_removed": rows_removed,
+        "values_filled": values_filled,
+        "city_changes": city_changes,
+        "sales_column": sales_column,
+        "upper_bound": upper_bound,
+    }
+
+    return cleaned_df, business_df, analysis
+
+
 if st.session_state.df is not None:
 
     df = st.session_state.df
 
-    if not st.session_state.analysis_complete:
+    with st.spinner("Analyzing your dataset..."):
 
-        with st.spinner(
-            "Analyzing your dataset..."
-        ):
+        cleaned_df, business_df, analysis = run_full_analysis(
+            df,
+            contamination_pct,
+        )
 
-            rows = len(df)
-            columns = len(df.columns)
-
-            total_cells = (
-                rows * columns
-            )
-
-            missing_count = int(
-                df.isna().sum().sum()
-            )
-
-            duplicate_count = int(
-                df.duplicated().sum()
-            )
-
-            invalid_count, invalid_details = (
-                detect_invalid_values(df)
-            )
-
-            quality_score = (
-                build_quality_score(
-                    total_cells,
-                    missing_count,
-                    duplicate_count,
-                    invalid_count,
-                )
-            )
-
-            datetime_columns = (
-                detect_datetime_columns(df)
-            )
-
-            identifier_columns = (
-                detect_identifier_columns(
-                    df,
-                    datetime_columns,
-                )
-            )
-
-            numeric_count = len(
-                df.select_dtypes(
-                    include=np.number
-                ).columns
-            )
-
-            categorical_count = len(
-                df.select_dtypes(
-                    include=[
-                        "object",
-                        "string",
-                        "category",
-                    ]
-                ).columns
-            )
-
-            iqr_outlier_count, iqr_details = (
-                detect_iqr_outliers(df)
-            )
-
-            anomaly_mask, ml_anomaly_count = (
-                detect_ml_anomalies(
-                    df,
-                    contamination_pct,
-                )
-            )
-
-            normal_count = (
-                rows - ml_anomaly_count
-            )
-
-            cleaned_df, rows_removed, values_filled, city_changes = (
-                clean_dataset(df)
-            )
-
-            business_df, sales_column, upper_bound = (
-                prepare_business_data(
-                    cleaned_df
-                )
-            )
-
-            st.session_state.cleaned_df = (
-                cleaned_df
-            )
-
-            st.session_state.business_df = (
-                business_df
-            )
-
-            st.session_state.analysis = {
-                "rows": rows,
-                "columns": columns,
-                "total_cells": total_cells,
-                "missing_count": missing_count,
-                "duplicate_count": duplicate_count,
-                "invalid_count": invalid_count,
-                "quality_score": quality_score,
-                "datetime_columns": datetime_columns,
-                "identifier_columns": identifier_columns,
-                "numeric_count": numeric_count,
-                "categorical_count": categorical_count,
-                "iqr_outlier_count": iqr_outlier_count,
-                "iqr_details": iqr_details,
-                "anomaly_mask": anomaly_mask,
-                "ml_anomaly_count": ml_anomaly_count,
-                "normal_count": normal_count,
-                "invalid_details": invalid_details,
-                "rows_removed": rows_removed,
-                "values_filled": values_filled,
-                "city_changes": city_changes,
-                "sales_column": sales_column,
-                "upper_bound": upper_bound,
-            }
-
-            st.session_state.analysis_complete = True
+    st.session_state.cleaned_df = cleaned_df
+    st.session_state.business_df = business_df
+    st.session_state.analysis = analysis
+    st.session_state.analysis_complete = True
 
 
 # ============================================================
