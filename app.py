@@ -49,6 +49,10 @@ st.markdown(
     """
     <style>
 
+    /* ======================================================
+       GLOBAL
+       ====================================================== */
+
     .stApp {
         background:
             radial-gradient(
@@ -233,6 +237,42 @@ st.markdown(
 
 
     /* ======================================================
+       HEALTH CARDS
+       ====================================================== */
+
+    .health-card {
+        background:
+            linear-gradient(
+                145deg,
+                rgba(20,27,45,0.96),
+                rgba(12,17,30,0.96)
+            );
+        border: 1px solid rgba(148,163,184,0.12);
+        border-radius: 14px;
+        padding: 16px;
+        min-height: 105px;
+    }
+
+    .health-label {
+        color: #94a3b8;
+        font-size: 12px;
+        margin-bottom: 7px;
+    }
+
+    .health-value {
+        color: #f8fafc;
+        font-size: 24px;
+        font-weight: 750;
+    }
+
+    .health-note {
+        color: #64748b;
+        font-size: 11px;
+        margin-top: 5px;
+    }
+
+
+    /* ======================================================
        UPLOAD
        ====================================================== */
 
@@ -271,20 +311,6 @@ st.markdown(
 
 
     /* ======================================================
-       FOOTER
-       ====================================================== */
-
-    .dg-footer {
-        text-align: center;
-        color: #64748b;
-        font-size: 11px;
-        padding: 30px 0 10px 0;
-        border-top: 1px solid rgba(255,255,255,0.06);
-        margin-top: 40px;
-    }
-
-
-    /* ======================================================
        BADGES
        ====================================================== */
 
@@ -299,6 +325,20 @@ st.markdown(
         font-weight: 600;
     }
 
+
+    /* ======================================================
+       FOOTER
+       ====================================================== */
+
+    .dg-footer {
+        text-align: center;
+        color: #64748b;
+        font-size: 11px;
+        padding: 30px 0 10px 0;
+        border-top: 1px solid rgba(255,255,255,0.06);
+        margin-top: 40px;
+    }
+
     </style>
     """,
     unsafe_allow_html=True,
@@ -310,40 +350,75 @@ st.markdown(
 # ============================================================
 
 def read_uploaded_file(uploaded_file):
-    """Read CSV/XLSX/XLS into pandas DataFrame."""
+    """Read CSV, XLSX or XLS into pandas."""
 
     name = uploaded_file.name.lower()
 
+    uploaded_file.seek(0)
+
     if name.endswith(".csv"):
-        return pd.read_csv(uploaded_file)
 
-    if name.endswith(".xlsx") or name.endswith(".xls"):
-        return pd.read_excel(uploaded_file)
+        try:
+            return pd.read_csv(uploaded_file)
 
-    raise ValueError("Unsupported file format.")
+        except UnicodeDecodeError:
+
+            uploaded_file.seek(0)
+
+            return pd.read_csv(
+                uploaded_file,
+                encoding="latin1"
+            )
+
+    if name.endswith(".xlsx"):
+
+        return pd.read_excel(
+            uploaded_file,
+            engine="openpyxl"
+        )
+
+    if name.endswith(".xls"):
+
+        return pd.read_excel(
+            uploaded_file,
+            engine="xlrd"
+        )
+
+    raise ValueError(
+        "Unsupported file format."
+    )
 
 
 def numeric_columns(df):
-    return df.select_dtypes(include=np.number).columns.tolist()
+
+    return df.select_dtypes(
+        include=np.number
+    ).columns.tolist()
 
 
 def categorical_columns(df):
+
     return df.select_dtypes(
-        include=["object", "category", "string"]
+        include=[
+            "object",
+            "category",
+            "string"
+        ]
     ).columns.tolist()
 
 
 def datetime_columns(df):
-    return df.select_dtypes(
-        include=["datetime64[ns]", "datetime64[ns, UTC]"]
-    ).columns.tolist()
+
+    return [
+        column
+        for column in df.columns
+        if pd.api.types.is_datetime64_any_dtype(
+            df[column]
+        )
+    ]
 
 
 def invalid_numeric_values(df):
-    """
-    Detect values in columns that appear to be numeric
-    but contain non-numeric values.
-    """
 
     invalid = 0
 
@@ -370,7 +445,10 @@ def invalid_numeric_values(df):
         numeric_ratio = converted.notna().mean()
 
         if numeric_ratio >= 0.80:
-            invalid += int(converted.isna().sum())
+
+            invalid += int(
+                converted.isna().sum()
+            )
 
     return invalid
 
@@ -391,13 +469,22 @@ def quality_metrics(df):
     invalid = invalid_numeric_values(df)
 
     if rows == 0 or columns == 0:
+
         score = 0
 
     else:
 
-        missing_rate = missing / (rows * columns)
-        duplicate_rate = duplicates / rows
-        invalid_rate = invalid / rows
+        missing_rate = (
+            missing / (rows * columns)
+        )
+
+        duplicate_rate = (
+            duplicates / rows
+        )
+
+        invalid_rate = (
+            invalid / rows
+        )
 
         score = (
             100
@@ -421,6 +508,56 @@ def quality_metrics(df):
     }
 
 
+def quality_health(df, quality):
+
+    total_cells = max(
+        1,
+        quality["rows"] * quality["columns"]
+    )
+
+    completeness = max(
+        0,
+        100 - (
+            quality["missing"]
+            / total_cells
+            * 100
+        )
+    )
+
+    uniqueness = max(
+        0,
+        100 - (
+            quality["duplicates"]
+            / max(1, quality["rows"])
+            * 100
+        )
+    )
+
+    validity = max(
+        0,
+        100 - (
+            quality["invalid"]
+            / max(1, quality["rows"])
+            * 100
+        )
+    )
+
+    return {
+        "Completeness": round(
+            completeness,
+            2
+        ),
+        "Uniqueness": round(
+            uniqueness,
+            2
+        ),
+        "Validity": round(
+            validity,
+            2
+        ),
+    }
+
+
 def iqr_outlier_mask(df):
 
     numeric = df.select_dtypes(
@@ -428,6 +565,7 @@ def iqr_outlier_mask(df):
     )
 
     if numeric.empty:
+
         return pd.Series(
             False,
             index=df.index
@@ -463,32 +601,34 @@ def iqr_outlier_mask(df):
             | (series > upper)
         )
 
-        row_mask = row_mask | column_mask.fillna(False)
+        row_mask = (
+            row_mask
+            | column_mask.fillna(False)
+        )
 
     return row_mask
 
 
 def iqr_outliers(df):
-    """
-    Return the number of unique records containing
-    at least one IQR-based outlier.
-    """
 
-    mask = iqr_outlier_mask(df)
-
-    return int(mask.sum())
+    return int(
+        iqr_outlier_mask(df).sum()
+    )
 
 
-def isolation_forest(df, sensitivity=5):
+def isolation_forest(
+    df,
+    sensitivity=5
+):
 
     numeric = df.select_dtypes(
         include=np.number
     )
 
-    if numeric.empty:
+    if numeric.empty or len(df) < 2:
 
         return (
-            0,
+            len(df),
             0,
             pd.Series(
                 False,
@@ -511,7 +651,24 @@ def isolation_forest(df, sensitivity=5):
 
     contamination = max(
         0.005,
-        min(0.20, sensitivity / 100)
+        min(
+            0.20,
+            sensitivity / 100
+        )
+    )
+
+    # Prevent contamination from exceeding
+    # the safe range for very small datasets.
+    max_contamination = (
+        max(
+            1,
+            len(df) - 1
+        ) / len(df)
+    )
+
+    contamination = min(
+        contamination,
+        max_contamination
     )
 
     model = IsolationForest(
@@ -544,7 +701,10 @@ def isolation_forest(df, sensitivity=5):
     )
 
 
-def find_column(df, possible_names):
+def find_column(
+    df,
+    possible_names
+):
 
     normalized = {
         str(column).strip().lower(): column
@@ -553,9 +713,12 @@ def find_column(df, possible_names):
 
     for name in possible_names:
 
-        key = str(name).strip().lower()
+        key = str(
+            name
+        ).strip().lower()
 
         if key in normalized:
+
             return normalized[key]
 
     return None
@@ -565,7 +728,9 @@ def clean_dataset(df):
 
     cleaned = df.copy()
 
-    rows_before = len(cleaned)
+    rows_before = len(
+        cleaned
+    )
 
     duplicates_removed = int(
         cleaned.duplicated().sum()
@@ -579,11 +744,9 @@ def clean_dataset(df):
     # Numeric missing values
     # --------------------------------------------------------
 
-    numeric_cols = numeric_columns(
+    for column in numeric_columns(
         cleaned
-    )
-
-    for column in numeric_cols:
+    ):
 
         missing_count = int(
             cleaned[column].isna().sum()
@@ -591,25 +754,30 @@ def clean_dataset(df):
 
         if missing_count > 0:
 
-            median_value = cleaned[column].median()
+            median_value = (
+                cleaned[column].median()
+            )
 
-            if pd.notna(median_value):
+            if pd.notna(
+                median_value
+            ):
 
-                cleaned[column] = cleaned[
-                    column
-                ].fillna(median_value)
+                cleaned[column] = (
+                    cleaned[column]
+                    .fillna(median_value)
+                )
 
-                filled_values += missing_count
+                filled_values += (
+                    missing_count
+                )
 
     # --------------------------------------------------------
     # Categorical missing values
     # --------------------------------------------------------
 
-    categorical_cols = categorical_columns(
+    for column in categorical_columns(
         cleaned
-    )
-
-    for column in categorical_cols:
+    ):
 
         missing_count = int(
             cleaned[column].isna().sum()
@@ -617,15 +785,21 @@ def clean_dataset(df):
 
         if missing_count > 0:
 
-            mode = cleaned[column].mode()
+            mode = (
+                cleaned[column]
+                .mode()
+            )
 
             if not mode.empty:
 
-                cleaned[column] = cleaned[
-                    column
-                ].fillna(mode.iloc[0])
+                cleaned[column] = (
+                    cleaned[column]
+                    .fillna(mode.iloc[0])
+                )
 
-                filled_values += missing_count
+                filled_values += (
+                    missing_count
+                )
 
     # --------------------------------------------------------
     # City standardization
@@ -640,31 +814,55 @@ def clean_dataset(df):
 
     if city_col:
 
-        before = cleaned[
-            city_col
-        ].copy()
+        before = (
+            cleaned[city_col]
+            .copy()
+        )
 
         cleaned[city_col] = (
             cleaned[city_col]
-            .astype("string")
-            .str.strip()
-            .str.title()
+            .apply(
+                lambda value:
+                    value.strip().title()
+                    if isinstance(
+                        value,
+                        str
+                    )
+                    else value
+            )
+        )
+
+        changed = (
+            before.notna()
+            & cleaned[city_col].notna()
+            & (
+                before.astype(str)
+                != cleaned[
+                    city_col
+                ].astype(str)
+            )
         )
 
         city_standardized = int(
-            (
-                before.astype("string")
-                != cleaned[city_col]
-            ).sum()
+            changed.sum()
         )
 
-    rows_after = len(cleaned)
+    rows_after = len(
+        cleaned
+    )
 
     return cleaned, {
-        "rows_removed": rows_before - rows_after,
-        "duplicates_removed": duplicates_removed,
-        "values_filled": filled_values,
-        "city_standardized": city_standardized,
+        "rows_removed":
+            rows_before - rows_after,
+
+        "duplicates_removed":
+            duplicates_removed,
+
+        "values_filled":
+            filled_values,
+
+        "city_standardized":
+            city_standardized,
     }
 
 
@@ -674,7 +872,11 @@ def business_metrics(df):
 
     sales_col = find_column(
         df,
-        ["sales", "revenue", "amount"]
+        [
+            "sales",
+            "revenue",
+            "amount"
+        ]
     )
 
     profit_col = find_column(
@@ -684,38 +886,35 @@ def business_metrics(df):
 
     quantity_col = find_column(
         df,
-        ["quantity", "qty"]
+        [
+            "quantity",
+            "qty"
+        ]
     )
-
-    # --------------------------------------------------------
-    # Sales
-    # --------------------------------------------------------
 
     if sales_col:
 
         sales = pd.to_numeric(
             df[sales_col],
             errors="coerce"
-        )
+        ).dropna()
 
-        metrics["Total Sales"] = round(
-            sales.sum(),
-            2
-        )
+        if not sales.empty:
 
-        metrics["Average Sale"] = round(
-            sales.mean(),
-            2
-        )
+            metrics["Total Sales"] = round(
+                sales.sum(),
+                2
+            )
 
-        metrics["Highest Sale"] = round(
-            sales.max(),
-            2
-        )
+            metrics["Average Sale"] = round(
+                sales.mean(),
+                2
+            )
 
-    # --------------------------------------------------------
-    # Profit
-    # --------------------------------------------------------
+            metrics["Highest Sale"] = round(
+                sales.max(),
+                2
+            )
 
     if profit_col and sales_col:
 
@@ -734,25 +933,26 @@ def business_metrics(df):
         if sales_total != 0:
 
             metrics["Profit Margin"] = round(
-                (profit.sum() / sales_total) * 100,
+                (
+                    profit.sum()
+                    / sales_total
+                ) * 100,
                 2
             )
-
-    # --------------------------------------------------------
-    # Quantity
-    # --------------------------------------------------------
 
     if quantity_col:
 
         quantity = pd.to_numeric(
             df[quantity_col],
             errors="coerce"
-        )
+        ).dropna()
 
-        metrics["Total Quantity"] = round(
-            quantity.sum(),
-            2
-        )
+        if not quantity.empty:
+
+            metrics["Total Quantity"] = round(
+                quantity.sum(),
+                2
+            )
 
     return metrics
 
@@ -781,28 +981,46 @@ def create_powerbi_dataset(df):
 
     export_df = df.copy()
 
-    _, _, anomaly_mask = isolation_forest(
-        export_df,
-        st.session_state.sensitivity
+    _, _, anomaly_mask = (
+        isolation_forest(
+            export_df,
+            st.session_state.sensitivity
+        )
     )
 
-    export_df["Is_Anomaly"] = anomaly_mask.values
+    export_df[
+        "Is_Anomaly"
+    ] = anomaly_mask.values
 
     return export_df
 
 
 def create_report_excel(df):
 
-    quality = quality_metrics(df)
-
-    outliers = iqr_outliers(df)
-
-    normal, anomalies, _ = isolation_forest(
-        df,
-        st.session_state.sensitivity
+    quality = quality_metrics(
+        df
     )
 
-    business = business_metrics(df)
+    outliers = iqr_outliers(
+        df
+    )
+
+    normal, anomalies, _ = (
+        isolation_forest(
+            df,
+            st.session_state.sensitivity
+        )
+    )
+
+    business = business_metrics(
+        df
+    )
+
+    anomaly_rate = (
+        anomalies / len(df) * 100
+        if len(df)
+        else 0
+    )
 
     report = pd.DataFrame(
         {
@@ -829,15 +1047,17 @@ def create_report_excel(df):
                 normal,
                 anomalies,
                 round(
-                    anomalies / len(df) * 100,
+                    anomaly_rate,
                     2
-                ) if len(df) else 0,
+                ),
             ],
         }
     )
 
     business_df = pd.DataFrame(
-        list(business.items()),
+        list(
+            business.items()
+        ),
         columns=[
             "Metric",
             "Value"
@@ -884,30 +1104,40 @@ def create_zip(df):
         compression=zipfile.ZIP_DEFLATED
     ) as z:
 
-        cleaned = st.session_state.cleaned_df
+        cleaned = (
+            st.session_state.cleaned_df
+        )
 
-        if cleaned is not None:
+        export_df = (
+            cleaned
+            if cleaned is not None
+            else df
+        )
 
-            cleaned_csv = cleaned.to_csv(
+        z.writestr(
+            "dataset.csv",
+            export_df.to_csv(
                 index=False
             )
+        )
 
-            z.writestr(
-                "cleaned_dataset.csv",
-                cleaned_csv
+        powerbi_df = (
+            create_powerbi_dataset(
+                export_df
             )
-
-        powerbi_df = create_powerbi_dataset(
-            cleaned if cleaned is not None else df
         )
 
         z.writestr(
             "powerbi_dataset.csv",
-            powerbi_df.to_csv(index=False)
+            powerbi_df.to_csv(
+                index=False
+            )
         )
 
-        report = create_report_excel(
-            cleaned if cleaned is not None else df
+        report = (
+            create_report_excel(
+                export_df
+            )
         )
 
         z.writestr(
@@ -939,8 +1169,8 @@ def generate_gemini_analysis(
         return (
             "### Gemini API Configuration\n\n"
             "Gemini API key is not configured.\n\n"
-            "Please add `GEMINI_API_KEY` to "
-            "Streamlit Secrets."
+            "Please add `GEMINI_API_KEY` "
+            "to Streamlit Secrets."
         )
 
     try:
@@ -959,7 +1189,8 @@ def generate_gemini_analysis(
 
             business_text = "\n".join(
                 f"- {key}: {value}"
-                for key, value in business.items()
+                for key, value
+                in business.items()
             )
 
         else:
@@ -968,6 +1199,11 @@ def generate_gemini_analysis(
                 "No recognized business metrics "
                 "were detected in the dataset."
             )
+
+        model_name = os.getenv(
+            "GEMINI_MODEL",
+            "gemini-3.6-flash"
+        )
 
         prompt = f"""
 You are a senior data quality and business analytics consultant.
@@ -1005,12 +1241,12 @@ IMPORTANT RULES
 5. Isolation Forest anomalies are screening signals.
 6. An anomaly does NOT automatically mean an incorrect record.
 7. Clearly distinguish confirmed data-quality problems from statistical signals.
-8. Do not call missing values "missing records" unless that is explicitly measured.
+8. Do not call missing values "missing records".
 9. Do not claim a value is wrong unless the supplied data confirms it.
 10. Do not invent business context.
-11. If no business metrics are detected, explicitly say that no recognized business metrics were detected.
-12. Give practical, realistic recommendations.
-13. Explain possible root causes as hypotheses, not confirmed facts.
+11. If no business metrics are detected, explicitly say so.
+12. Give practical recommendations.
+13. Explain possible root causes as hypotheses.
 14. Keep the analysis professional and suitable for a data analytics portfolio.
 
 Use exactly these sections:
@@ -1025,9 +1261,11 @@ Use exactly these sections:
 8. Power BI Recommendations
 """
 
-        interaction = client.interactions.create(
-            model="gemini-3.6-flash",
-            input=prompt
+        interaction = (
+            client.interactions.create(
+                model=model_name,
+                input=prompt
+            )
         )
 
         return interaction.output_text
@@ -1063,7 +1301,10 @@ with st.sidebar:
         use_container_width=True
     ):
 
-        st.session_state.page = "Dashboard"
+        st.session_state.page = (
+            "Dashboard"
+        )
+
         st.rerun()
 
     st.markdown(
@@ -1083,7 +1324,9 @@ with st.sidebar:
 
     for number, page_name in navigation:
 
-        label = f"{number}  {page_name}"
+        label = (
+            f"{number}  {page_name}"
+        )
 
         if st.button(
             label,
@@ -1091,7 +1334,10 @@ with st.sidebar:
             use_container_width=True
         ):
 
-            st.session_state.page = page_name
+            st.session_state.page = (
+                page_name
+            )
+
             st.rerun()
 
     st.divider()
@@ -1106,7 +1352,10 @@ with st.sidebar:
         use_container_width=True
     ):
 
-        st.session_state.page = "Settings"
+        st.session_state.page = (
+            "Settings"
+        )
+
         st.rerun()
 
     if st.button(
@@ -1115,7 +1364,10 @@ with st.sidebar:
         use_container_width=True
     ):
 
-        st.session_state.page = "Help"
+        st.session_state.page = (
+            "Help"
+        )
+
         st.rerun()
 
     st.divider()
@@ -1126,28 +1378,20 @@ with st.sidebar:
 
 
 # ============================================================
-# SAMPLE DATA
+# OPTIONAL DEMO DATA
 # ============================================================
 
 if (
     st.session_state.df is None
-    and os.path.exists("sales_data_raw.csv")
+    and os.path.exists(
+        "sales_data_raw.csv"
+    )
 ):
 
-    try:
-
-        st.session_state.df = pd.read_csv(
-            "sales_data_raw.csv"
-        )
-
-        st.session_state.dataset_name = (
-            "sales_data_raw.csv"
-        )
-
-        st.session_state.uploaded_file_type = "CSV"
-
-    except Exception:
-        pass
+    st.info(
+        "A demo dataset is available. "
+        "Use the Upload Data page to load your own dataset."
+    )
 
 
 # ============================================================
@@ -1181,11 +1425,16 @@ current_step = page_to_step.get(
     0
 )
 
-if st.session_state.page != "Dashboard":
+if (
+    st.session_state.page
+    != "Dashboard"
+):
 
     cols = st.columns(8)
 
-    for i, step in enumerate(workflow):
+    for i, step in enumerate(
+        workflow
+    ):
 
         with cols[i]:
 
@@ -1256,16 +1505,30 @@ if st.session_state.page == "Dashboard":
             df
         )
 
-        normal, anomalies, _ = isolation_forest(
+        normal, anomalies, _ = (
+            isolation_forest(
+                df,
+                st.session_state.sensitivity
+            )
+        )
+
+        health = quality_health(
             df,
-            st.session_state.sensitivity
+            quality
         )
 
         st.caption(
-            f"Dataset: {st.session_state.dataset_name}"
+            f"Dataset: "
+            f"{st.session_state.dataset_name}"
         )
 
-        c1, c2, c3, c4, c5, c6 = st.columns(6)
+        # ----------------------------------------------------
+        # MAIN KPIs
+        # ----------------------------------------------------
+
+        c1, c2, c3, c4, c5, c6 = (
+            st.columns(6)
+        )
 
         metrics = [
             (
@@ -1333,154 +1596,138 @@ if st.session_state.page == "Dashboard":
 
         st.write("")
 
-        left, right = st.columns(2)
+        # ----------------------------------------------------
+        # DATASET HEALTH
+        # ----------------------------------------------------
 
-        with left:
+        st.markdown(
+            """
+            <div class="dg-card">
 
-            st.markdown(
-                """
-                <div class="dg-card">
+            <div class="dg-card-title">
+            Dataset Health
+            </div>
 
-                <div class="dg-card-title">
-                Dataset Health
-                </div>
+            <div class="dg-card-subtitle">
+            Current quality indicators
+            </div>
 
-                <div class="dg-card-subtitle">
-                Current quality indicators
-                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
+        h1, h2, h3 = st.columns(3)
 
-            completeness = max(
-                0,
-                round(
-                    100
-                    - (
-                        quality["missing"]
-                        / max(
-                            1,
-                            quality["rows"]
-                            * quality["columns"]
-                        )
-                    )
-                    * 100,
-                    2
-                )
-            )
+        health_values = [
+            (
+                h1,
+                "Completeness",
+                health["Completeness"],
+                "Based on missing values"
+            ),
+            (
+                h2,
+                "Uniqueness",
+                health["Uniqueness"],
+                "Based on duplicate rows"
+            ),
+            (
+                h3,
+                "Validity",
+                health["Validity"],
+                "Based on detected invalid values"
+            ),
+        ]
 
-            consistency = max(
-                0,
-                round(
-                    100
-                    - (
-                        quality["invalid"]
-                        / max(
-                            1,
-                            quality["rows"]
-                        )
-                    )
-                    * 100,
-                    2
-                )
-            )
+        for (
+            col,
+            label,
+            value,
+            note
+        ) in health_values:
 
-            uniqueness = max(
-                0,
-                round(
-                    100
-                    - (
-                        quality["duplicates"]
-                        / max(
-                            1,
-                            quality["rows"]
-                        )
-                    )
-                    * 100,
-                    2
-                )
-            )
+            with col:
 
-            validity = consistency
+                st.markdown(
+                    f"""
+                    <div class="health-card">
 
-            health_df = pd.DataFrame(
-                {
-                    "Dimension": [
-                        "Completeness",
-                        "Consistency",
-                        "Uniqueness",
-                        "Validity",
-                    ],
-                    "Score": [
-                        completeness,
-                        consistency,
-                        uniqueness,
-                        validity,
-                    ],
-                }
-            )
+                    <div class="health-label">
+                    {label}
+                    </div>
 
-            st.bar_chart(
-                health_df.set_index(
-                    "Dimension"
-                ),
-                height=280
-            )
+                    <div class="health-value">
+                    {value:.2f}%
+                    </div>
 
-        with right:
+                    <div class="health-note">
+                    {note}
+                    </div>
 
-            st.markdown(
-                """
-                <div class="dg-card">
-
-                <div class="dg-card-title">
-                Anomaly Detection
-                </div>
-
-                <div class="dg-card-subtitle">
-                Isolation Forest screening
-                </div>
-
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-            a, b, c = st.columns(3)
-
-            with a:
-
-                st.metric(
-                    "Normal",
-                    f"{normal:,}"
+                    </div>
+                    """,
+                    unsafe_allow_html=True
                 )
 
-            with b:
+        st.write("")
 
-                st.metric(
-                    "Anomalies",
-                    f"{anomalies:,}"
-                )
+        # ----------------------------------------------------
+        # ANOMALY DETECTION
+        # ----------------------------------------------------
 
-            with c:
+        st.markdown(
+            """
+            <div class="dg-card">
 
-                rate = (
-                    anomalies / len(df) * 100
-                    if len(df)
-                    else 0
-                )
+            <div class="dg-card-title">
+            Anomaly Detection
+            </div>
 
-                st.metric(
-                    "Rate",
-                    f"{rate:.2f}%"
-                )
+            <div class="dg-card-subtitle">
+            Isolation Forest screening
+            </div>
 
-            st.caption(
-                "Anomalies are screening signals and should "
-                "be reviewed before being treated as incorrect data."
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        a, b, c = st.columns(3)
+
+        with a:
+
+            st.metric(
+                "Normal",
+                f"{normal:,}"
             )
+
+        with b:
+
+            st.metric(
+                "Anomalies",
+                f"{anomalies:,}"
+            )
+
+        with c:
+
+            rate = (
+                anomalies
+                / len(df)
+                * 100
+                if len(df)
+                else 0
+            )
+
+            st.metric(
+                "Rate",
+                f"{rate:.2f}%"
+            )
+
+        st.caption(
+            "Anomalies are screening signals and should "
+            "be reviewed before being treated as incorrect data."
+        )
 
 
 # ============================================================
@@ -1535,7 +1782,21 @@ elif st.session_state.page == "Upload Data":
                 uploaded_file
             )
 
-            st.session_state.df = loaded_df
+            if loaded_df.empty:
+
+                raise ValueError(
+                    "The uploaded dataset contains no rows."
+                )
+
+            if len(loaded_df.columns) == 0:
+
+                raise ValueError(
+                    "The uploaded dataset contains no columns."
+                )
+
+            st.session_state.df = (
+                loaded_df
+            )
 
             st.session_state.dataset_name = (
                 uploaded_file.name
@@ -1553,7 +1814,8 @@ elif st.session_state.page == "Upload Data":
             st.session_state.ai_analysis_signature = None
 
             st.success(
-                f"Successfully loaded {uploaded_file.name}"
+                f"Successfully loaded "
+                f"{uploaded_file.name}"
             )
 
         except Exception as error:
@@ -1585,7 +1847,9 @@ elif st.session_state.page == "Upload Data":
             unsafe_allow_html=True
         )
 
-        c1, c2, c3, c4 = st.columns(4)
+        c1, c2, c3, c4 = (
+            st.columns(4)
+        )
 
         with c1:
 
@@ -1610,9 +1874,16 @@ elif st.session_state.page == "Upload Data":
 
         with c4:
 
+            memory_mb = (
+                df.memory_usage(
+                    deep=True
+                ).sum()
+                / 1024**2
+            )
+
             st.metric(
                 "Memory",
-                f"{df.memory_usage(deep=True).sum() / 1024**2:.2f} MB"
+                f"{memory_mb:.2f} MB"
             )
 
         st.write("")
@@ -1629,8 +1900,8 @@ elif st.session_state.page == "Upload Data":
             )
 
         st.info(
-            "Dataset is ready. Continue to Data Profile to inspect "
-            "columns, data types and distributions."
+            "Dataset is ready. Continue to Data Profile "
+            "to inspect columns, data types and distributions."
         )
 
 
@@ -1653,32 +1924,95 @@ elif st.session_state.page == "Data Profile":
 
     else:
 
-        profile = pd.DataFrame(
-            {
-                "Column": df.columns,
-                "Data Type": [
-                    str(df[column].dtype)
-                    for column in df.columns
-                ],
-                "Non-Null": [
-                    int(
+        numeric_count = len(
+            numeric_columns(df)
+        )
+
+        categorical_count = len(
+            categorical_columns(df)
+        )
+
+        datetime_count = len(
+            datetime_columns(df)
+        )
+
+        c1, c2, c3 = st.columns(3)
+
+        with c1:
+
+            st.metric(
+                "Numeric Columns",
+                numeric_count
+            )
+
+        with c2:
+
+            st.metric(
+                "Categorical Columns",
+                categorical_count
+            )
+
+        with c3:
+
+            st.metric(
+                "Date/Time Columns",
+                datetime_count
+            )
+
+        st.write("")
+
+        profile_rows = []
+
+        for column in df.columns:
+
+            missing = int(
+                df[column].isna().sum()
+            )
+
+            unique = int(
+                df[column].nunique(
+                    dropna=True
+                )
+            )
+
+            total = len(df)
+
+            missing_pct = (
+                missing / total * 100
+                if total
+                else 0
+            )
+
+            unique_pct = (
+                unique / total * 100
+                if total
+                else 0
+            )
+
+            profile_rows.append(
+                {
+                    "Column": column,
+                    "Data Type": str(
+                        df[column].dtype
+                    ),
+                    "Non-Null": int(
                         df[column].notna().sum()
-                    )
-                    for column in df.columns
-                ],
-                "Missing": [
-                    int(
-                        df[column].isna().sum()
-                    )
-                    for column in df.columns
-                ],
-                "Unique": [
-                    int(
-                        df[column].nunique()
-                    )
-                    for column in df.columns
-                ],
-            }
+                    ),
+                    "Missing": missing,
+                    "Missing %": round(
+                        missing_pct,
+                        2
+                    ),
+                    "Unique": unique,
+                    "Unique %": round(
+                        unique_pct,
+                        2
+                    ),
+                }
+            )
+
+        profile = pd.DataFrame(
+            profile_rows
         )
 
         st.dataframe(
@@ -1711,7 +2045,14 @@ elif st.session_state.page == "Quality Checks":
             df
         )
 
-        c1, c2, c3, c4 = st.columns(4)
+        health = quality_health(
+            df,
+            quality
+        )
+
+        c1, c2, c3, c4 = (
+            st.columns(4)
+        )
 
         with c1:
 
@@ -1742,6 +2083,39 @@ elif st.session_state.page == "Quality Checks":
             )
 
         st.write("")
+
+        st.subheader(
+            "Quality Dimensions"
+        )
+
+        q1, q2, q3 = st.columns(3)
+
+        with q1:
+
+            st.metric(
+                "Completeness",
+                f'{health["Completeness"]:.2f}%'
+            )
+
+        with q2:
+
+            st.metric(
+                "Uniqueness",
+                f'{health["Uniqueness"]:.2f}%'
+            )
+
+        with q3:
+
+            st.metric(
+                "Validity",
+                f'{health["Validity"]:.2f}%'
+            )
+
+        st.write("")
+
+        st.subheader(
+            "Detailed Checks"
+        )
 
         quality_table = pd.DataFrame(
             {
@@ -1793,27 +2167,37 @@ elif st.session_state.page == "Anomaly Detection":
             value=st.session_state.sensitivity
         )
 
-        if sensitivity != st.session_state.sensitivity:
+        if sensitivity != (
+            st.session_state.sensitivity
+        ):
 
-            st.session_state.sensitivity = sensitivity
+            st.session_state.sensitivity = (
+                sensitivity
+            )
 
             st.session_state.ai_analysis = None
             st.session_state.ai_analysis_signature = None
 
             st.rerun()
 
-        normal, anomalies, mask = isolation_forest(
-            df,
-            sensitivity
+        normal, anomalies, mask = (
+            isolation_forest(
+                df,
+                sensitivity
+            )
         )
 
         rate = (
-            anomalies / len(df) * 100
+            anomalies
+            / len(df)
+            * 100
             if len(df)
             else 0
         )
 
-        c1, c2, c3 = st.columns(3)
+        c1, c2, c3 = (
+            st.columns(3)
+        )
 
         with c1:
 
@@ -1838,12 +2222,17 @@ elif st.session_state.page == "Anomaly Detection":
 
         st.info(
             "Isolation Forest identifies unusual patterns. "
-            "These are screening signals, not automatic proof of bad data."
+            "These are screening signals, not automatic proof "
+            "of bad data."
         )
 
-        anomaly_df = df.loc[mask].copy()
+        anomaly_df = df.loc[
+            mask
+        ].copy()
 
-        anomaly_df["Is_Anomaly"] = True
+        anomaly_df[
+            "Is_Anomaly"
+        ] = True
 
         st.subheader(
             "Detected Anomalies"
@@ -1883,11 +2272,13 @@ elif st.session_state.page == "Data Cleaning":
 
     else:
 
-        cleaned, stats = clean_dataset(
-            df
+        cleaned, stats = (
+            clean_dataset(df)
         )
 
-        c1, c2, c3, c4 = st.columns(4)
+        c1, c2, c3, c4 = (
+            st.columns(4)
+        )
 
         with c1:
 
@@ -1924,33 +2315,79 @@ elif st.session_state.page == "Data Cleaning":
             type="primary"
         ):
 
-            st.session_state.cleaned_df = cleaned
-            st.session_state.cleaning_applied = True
+            st.session_state.cleaned_df = (
+                cleaned
+            )
+
+            st.session_state.cleaning_applied = (
+                True
+            )
 
             st.success(
                 "Cleaning applied successfully."
             )
 
-        if st.session_state.cleaned_df is not None:
+        if (
+            st.session_state.cleaned_df
+            is not None
+        ):
+
+            cleaned_df = (
+                st.session_state.cleaned_df
+            )
 
             st.subheader(
                 "Cleaned Dataset Preview"
             )
 
             st.dataframe(
-                st.session_state.cleaned_df.head(20),
+                cleaned_df.head(20),
                 use_container_width=True,
                 hide_index=True
             )
 
+            before_quality = (
+                quality_metrics(df)
+            )
+
+            after_quality = (
+                quality_metrics(
+                    cleaned_df
+                )
+            )
+
+            st.write("")
+
+            st.subheader(
+                "Quality Improvement"
+            )
+
+            q1, q2 = st.columns(2)
+
+            with q1:
+
+                st.metric(
+                    "Before Cleaning",
+                    f'{before_quality["score"]:.2f}%'
+                )
+
+            with q2:
+
+                st.metric(
+                    "After Cleaning",
+                    f'{after_quality["score"]:.2f}%'
+                )
+
             cleaned_file = create_excel(
-                st.session_state.cleaned_df
+                cleaned_df
             )
 
             st.download_button(
                 "Download Cleaned Excel",
                 data=cleaned_file,
-                file_name="dataguard_cleaned_data.xlsx",
+                file_name=(
+                    "dataguard_cleaned_data.xlsx"
+                ),
                 mime=(
                     "application/vnd.openxmlformats-officedocument."
                     "spreadsheetml.sheet"
@@ -1983,15 +2420,18 @@ elif st.session_state.page == "Analytics":
 
         if metrics:
 
-            columns = st.columns(
+            metric_columns = st.columns(
                 min(
                     len(metrics),
                     4
                 )
             )
 
-            for col, (label, value) in zip(
-                columns,
+            for col, (
+                label,
+                value
+            ) in zip(
+                metric_columns,
                 metrics.items()
             ):
 
@@ -2026,9 +2466,11 @@ elif st.session_state.page == "Analytics":
 
         if numeric:
 
-            selected_column = st.selectbox(
-                "Select numeric column",
-                numeric
+            selected_column = (
+                st.selectbox(
+                    "Select numeric column",
+                    numeric
+                )
             )
 
             series = pd.to_numeric(
@@ -2038,12 +2480,25 @@ elif st.session_state.page == "Analytics":
 
             if not series.empty:
 
-                mean_value = series.mean()
-                median_value = series.median()
-                min_value = series.min()
-                max_value = series.max()
+                mean_value = (
+                    series.mean()
+                )
 
-                c1, c2, c3, c4 = st.columns(4)
+                median_value = (
+                    series.median()
+                )
+
+                min_value = (
+                    series.min()
+                )
+
+                max_value = (
+                    series.max()
+                )
+
+                c1, c2, c3, c4 = (
+                    st.columns(4)
+                )
 
                 with c1:
 
@@ -2073,16 +2528,29 @@ elif st.session_state.page == "Analytics":
                         f"{max_value:,.2f}"
                     )
 
+                st.write("")
+
                 st.subheader(
                     f"{selected_column} Distribution"
                 )
 
                 if series.nunique() > 1:
 
+                    bin_count = min(
+                        10,
+                        max(
+                            2,
+                            series.nunique()
+                        )
+                    )
+
                     histogram = pd.cut(
                         series,
-                        bins=10
-                    ).value_counts().sort_index()
+                        bins=bin_count,
+                        include_lowest=True
+                    ).value_counts(
+                        sort=False
+                    )
 
                     histogram.index = (
                         histogram.index
@@ -2097,13 +2565,15 @@ elif st.session_state.page == "Analytics":
                 else:
 
                     st.info(
-                        "This column contains only one unique numeric value."
+                        "This column contains only one "
+                        "unique numeric value."
                     )
 
             else:
 
                 st.info(
-                    "No valid numeric values are available for this column."
+                    "No valid numeric values are available "
+                    "for this column."
                 )
 
         else:
@@ -2120,47 +2590,72 @@ elif st.session_state.page == "Analytics":
 elif st.session_state.page == "Power BI":
 
     st.title(
-        "Power BI",
+        "Power BI Export",
         anchor=False
     )
 
-    st.markdown(
-        """
-        <div class="dg-card">
+    if df is None:
 
-        <div class="dg-card-title">
-        Power BI Integration
-        </div>
-
-        <div class="dg-card-subtitle">
-        Prepare your cleaned and anomaly-enriched dataset
-        for Power BI reporting.
-        </div>
-
-        <span class="badge">
-        POWER BI READY
-        </span>
-
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-    if df is not None:
-
-        export_source = (
-            st.session_state.cleaned_df
-            if st.session_state.cleaned_df is not None
-            else df
+        st.warning(
+            "Upload a dataset first."
         )
 
-        powerbi_df = create_powerbi_dataset(
-            export_source
+    else:
+
+        if (
+            st.session_state.cleaned_df
+            is not None
+        ):
+
+            export_source = (
+                st.session_state.cleaned_df
+            )
+
+            source_label = (
+                "Cleaned dataset"
+            )
+
+        else:
+
+            export_source = df
+
+            source_label = (
+                "Original dataset"
+            )
+
+        powerbi_df = (
+            create_powerbi_dataset(
+                export_source
+            )
+        )
+
+        st.markdown(
+            f"""
+            <div class="dg-card">
+
+            <div class="dg-card-title">
+            Power BI Ready Dataset
+            </div>
+
+            <div class="dg-card-subtitle">
+            Export a prepared dataset with anomaly flags
+            for Power BI reporting.
+            </div>
+
+            <span class="badge">
+            {source_label.upper()}
+            </span>
+
+            </div>
+            """,
+            unsafe_allow_html=True
         )
 
         st.write("")
 
-        c1, c2, c3 = st.columns(3)
+        c1, c2, c3 = (
+            st.columns(3)
+        )
 
         with c1:
 
@@ -2179,7 +2674,9 @@ elif st.session_state.page == "Power BI":
         with c3:
 
             anomaly_count = int(
-                powerbi_df["Is_Anomaly"].sum()
+                powerbi_df[
+                    "Is_Anomaly"
+                ].sum()
             )
 
             st.metric(
@@ -2199,28 +2696,44 @@ elif st.session_state.page == "Power BI":
             hide_index=True
         )
 
-        csv_data = powerbi_df.to_csv(
-            index=False
+        csv_data = (
+            powerbi_df.to_csv(
+                index=False
+            )
         )
 
         st.download_button(
             "Download Power BI Dataset",
             data=csv_data,
-            file_name="dataguard_powerbi_dataset.csv",
+            file_name=(
+                "dataguard_powerbi_dataset.csv"
+            ),
             mime="text/csv",
             type="primary"
         )
 
-        st.info(
-            "Import this CSV into Power BI Desktop. "
-            "The Is_Anomaly column can be used for filtering "
-            "and conditional reporting."
+        report_file = (
+            create_report_excel(
+                export_source
+            )
         )
 
-    else:
+        st.download_button(
+            "Download Quality Report",
+            data=report_file,
+            file_name=(
+                "dataguard_quality_report.xlsx"
+            ),
+            mime=(
+                "application/vnd.openxmlformats-officedocument."
+                "spreadsheetml.sheet"
+            )
+        )
 
-        st.warning(
-            "Upload a dataset first."
+        st.info(
+            "Import the CSV into Power BI Desktop. "
+            "The Is_Anomaly column can be used for filtering, "
+            "conditional formatting and anomaly reporting."
         )
 
 
@@ -2251,9 +2764,11 @@ elif st.session_state.page == "AI Analysis":
             df
         )
 
-        normal, anomalies, _ = isolation_forest(
-            df,
-            st.session_state.sensitivity
+        normal, anomalies, _ = (
+            isolation_forest(
+                df,
+                st.session_state.sensitivity
+            )
         )
 
         current_signature = (
@@ -2282,6 +2797,10 @@ elif st.session_state.page == "AI Analysis":
             AI-generated interpretation of measured data quality
             and business signals.
             </div>
+
+            <span class="badge">
+            AI ANALYSIS
+            </span>
 
             </div>
             """,
@@ -2317,12 +2836,20 @@ elif st.session_state.page == "AI Analysis":
 
         if (
             st.session_state.ai_analysis
-            and st.session_state.ai_analysis_signature
+            and
+            st.session_state.ai_analysis_signature
             == current_signature
         ):
 
             st.markdown(
                 st.session_state.ai_analysis
+            )
+
+            st.download_button(
+                "Download AI Analysis",
+                data=st.session_state.ai_analysis,
+                file_name="dataguard_ai_analysis.md",
+                mime="text/markdown"
             )
 
         elif st.session_state.ai_analysis:
@@ -2355,9 +2882,13 @@ elif st.session_state.page == "Settings":
         st.session_state.sensitivity
     )
 
-    if sensitivity != st.session_state.sensitivity:
+    if sensitivity != (
+        st.session_state.sensitivity
+    ):
 
-        st.session_state.sensitivity = sensitivity
+        st.session_state.sensitivity = (
+            sensitivity
+        )
 
         st.session_state.ai_analysis = None
         st.session_state.ai_analysis_signature = None
@@ -2365,7 +2896,8 @@ elif st.session_state.page == "Settings":
         st.rerun()
 
     st.caption(
-        "Higher sensitivity identifies more records as potential anomalies."
+        "Higher sensitivity identifies more records "
+        "as potential anomalies."
     )
 
     st.subheader(
@@ -2384,7 +2916,8 @@ elif st.session_state.page == "Settings":
     if df is not None:
 
         st.write(
-            f"Current dataset: **{st.session_state.dataset_name}**"
+            f"Current dataset: "
+            f"**{st.session_state.dataset_name}**"
         )
 
     else:
@@ -2415,12 +2948,13 @@ elif st.session_state.page == "Help":
 
         **02 Profile**
 
-        Inspect columns, data types, missing values and uniqueness.
+        Inspect columns, data types, missing values
+        and uniqueness.
 
         **03 Quality**
 
-        Identify missing values, duplicates, invalid values
-        and IQR-based outlier records.
+        Identify missing values, duplicates,
+        invalid values and IQR-based outlier records.
 
         **04 Anomalies**
 
@@ -2428,8 +2962,8 @@ elif st.session_state.page == "Help":
 
         **05 Clean**
 
-        Remove duplicates and fill missing values using
-        median/mode-based imputation.
+        Remove duplicates and fill missing values
+        using median/mode-based imputation.
 
         **06 Analytics**
 
@@ -2437,17 +2971,18 @@ elif st.session_state.page == "Help":
 
         **07 Power BI**
 
-        Export the prepared dataset with an `Is_Anomaly`
-        flag for Power BI reporting.
+        Export the prepared dataset with an
+        `Is_Anomaly` flag for Power BI reporting.
 
         **08 AI**
 
-        Generate an AI-assisted data quality and business analysis.
+        Generate an AI-assisted data quality
+        and business analysis.
 
         ### Important
 
-        ML anomalies are screening signals, not automatic proof
-        that a record is incorrect.
+        ML anomalies are screening signals,
+        not automatic proof that a record is incorrect.
 
         Always validate anomalies using business context.
         """
@@ -2480,4 +3015,3 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-
